@@ -34,7 +34,7 @@ export default function DestinationCard({ destination, duplicate = false, eager 
     <Link className="destination-card-image-link" to={destination.path} tabIndex={duplicate ? -1 : undefined} aria-label={`View ${destination.name} package`}>
       <img src={destination.image} alt={destination.imageAlt} loading={eager ? 'eager' : 'lazy'} decoding="async" width="800" height="533" />
     </Link>
-    <div className="destination-card-price"><span>Starting From</span><strong>₹{destination.startingPrice.toLocaleString('en-IN')}</strong><small>Per Person</small></div>
+    <div className="destination-card-price"><span>Starting From</span><strong>₹{destination.startingPrice.toLocaleString('en-IN')}</strong><small>{destination.priceLabel || 'Per Person'}</small></div>
     <div className="destination-card-panel">
       <h3><button type="button" className="destination-card-toggle" aria-label={`${destination.name} details`} aria-expanded={expanded} aria-controls={detailsId} tabIndex={duplicate ? -1 : undefined} onClick={() => setExpanded(value => !value)}>
         <span className="destination-card-labels"><span className="destination-card-region">{destination.region}</span><span className="destination-card-name">{destination.name}</span></span><ChevronDown size={20} aria-hidden="true" />

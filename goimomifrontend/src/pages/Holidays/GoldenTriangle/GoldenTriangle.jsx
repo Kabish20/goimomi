@@ -254,7 +254,7 @@ export default function GoldenTriangle() {
 
       <section id="enquire" className="gt-enquire-section"><div className="td-container gt-enquire-inner">
         <div className="gt-enquire-copy"><span className="td-eyebrow">YOUR NEXT CHAPTER STARTS HERE</span><h2>Let’s make this<br /><em>your journey.</em></h2><p>Tell us who’s travelling and when. Our travel team will help with availability, hotel options and a personalised quote.</p><div className="gt-callout"><Phone size={23} strokeWidth={1.4} /><div><small>Prefer to talk it through?</small><a href="tel:+918110082222">+91 8110082222</a></div></div><div className="gt-enquire-route"><span>DELHI</span><i /><span>AGRA</span><i /><span>JAIPUR</span></div><p className="gt-enquire-note">4 nights · 5 days · A private journey</p></div>
-        <div className="gt-enquire-card"><span className="td-eyebrow">YOUR TRIP, YOUR DETAILS</span><h3>Request your personalised quote</h3>
+        <div className="gt-enquire-card holiday-enquiry-card"><span className="td-eyebrow">YOUR TRIP, YOUR DETAILS</span><h3>Request your personalised quote</h3>
           <form className="gt-enquiry-form" onSubmit={submitEnquiry}>
             <p className="gt-form-summary"><strong>{currentPlan.name}</strong><span>From {selectedGroup.price} / person</span></p>
             <label>Package<select value={selectedPlan} onChange={event => { setSelectedPlan(event.target.value); setStatus('idle'); }} disabled={status === 'submitting'}><option value="budget">Budget Package</option><option value="leisure">Private Leisure Package</option></select></label>

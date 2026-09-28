@@ -26,6 +26,7 @@ const Sikkim = lazyRetry(() => import('./pages/Holidays/Sikkim/sikkim.jsx'));
 const Goa = lazyRetry(() => import('./pages/Holidays/Goa/goa.jsx'));
 const Kerala = lazyRetry(() => import('./pages/Holidays/Kerala/kerala.jsx'));
 const Bali = lazyRetry(() => import('./pages/Holidays/Bali/bali.jsx'));
+const Thailand = lazyRetry(() => import('./pages/Holidays/Thailand/Thailand.jsx'));
 const Dubai = lazyRetry(() => import('./pages/Holidays/Dubai/dubai.jsx'));
 const Azerbaijan = lazyRetry(() => import('./pages/Holidays/Azerbaijan/azerbaijan.jsx'));
 const Andaman = lazyRetry(() => import('./pages/Holidays/Andaman/andaman.jsx'));
@@ -293,6 +294,7 @@ const App = () => {
             <Route path="/goa" element={<Goa />} />
             <Route path="/kerala" element={<Kerala />} />
             <Route path="/bali" element={<Bali />} />
+            <Route path="/thailand" element={<Thailand />} />
             <Route path="/dubai" element={<Dubai />} />
             <Route path="/azerbaijan" element={<Azerbaijan />} />
             <Route path="/andaman" element={<Andaman />} />

@@ -113,6 +113,7 @@ const Navbar = () => {
     location.pathname.toLowerCase() === '/trendingdomesticdestination' ||
     location.pathname.toLowerCase() === '/trendinginternationaldestination' ||
     location.pathname.toLowerCase() === '/bali' ||
+    location.pathname.toLowerCase() === '/thailand' ||
     location.pathname.toLowerCase() === '/dubai' ||
     location.pathname.toLowerCase() === '/kerala' ||
     location.pathname.toLowerCase() === '/goa' ||

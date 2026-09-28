@@ -1,0 +1,79 @@
+/* Shared sizing for destination enquiries; specificity keeps lazy-loaded page styles consistent. */
+:root .holiday-enquiry-card.holiday-enquiry-card {
+  width: 100%;
+  max-width: 460px;
+  min-width: 0;
+  justify-self: end;
+  margin-left: auto;
+  padding: 22px;
+  box-sizing: border-box;
+}
+:root .holiday-enquiry-card.holiday-enquiry-card h3 {
+  font-size: 23px;
+  line-height: 1.25;
+  margin: 0;
+}
+:root .holiday-enquiry-card.holiday-enquiry-card form > p {
+  margin: 5px 0 14px;
+  font-size: 11px;
+  line-height: 1.5;
+}
+:root .holiday-enquiry-card.holiday-enquiry-card fieldset,
+:root .holiday-enquiry-card.holiday-enquiry-card .gt-enquiry-form {
+  gap: 10px;
+}
+:root .holiday-enquiry-card.holiday-enquiry-card [class$="-form-row"] {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+:root .holiday-enquiry-card.holiday-enquiry-card label {
+  min-width: 0;
+  font-size: 11px;
+  line-height: 1.4;
+}
+:root .holiday-enquiry-card.holiday-enquiry-card :is(input, select, textarea) {
+  width: 100%;
+  min-width: 0;
+  min-height: 38px;
+  height: 38px;
+  box-sizing: border-box;
+  margin-top: 4px;
+  padding: 8px 10px;
+  font-size: 12px;
+  line-height: 1.4;
+}
+:root .holiday-enquiry-card.holiday-enquiry-card textarea {
+  height: 58px;
+  min-height: 58px;
+  resize: vertical;
+}
+:root .holiday-enquiry-card.holiday-enquiry-card :is(.td-button, .km-button) {
+  min-height: 40px;
+  padding: 9px 14px;
+  font-size: 12px;
+}
+:root .holiday-enquiry-card.holiday-enquiry-card :is([class$="-privacy"], .gt-form-footnote) {
+  margin: 0;
+  font-size: 10px;
+  line-height: 1.5;
+}
+@media (max-width: 700px) {
+  :root .holiday-enquiry-card.holiday-enquiry-card {
+    justify-self: center;
+    margin-inline: auto;
+    padding: 18px;
+  }
+  :root .holiday-enquiry-card.holiday-enquiry-card :is(input, select, textarea) {
+    min-height: 44px;
+    height: 44px;
+    font-size: 16px;
+  }
+  :root .holiday-enquiry-card.holiday-enquiry-card textarea { height: 64px; }
+  :root .holiday-enquiry-card.holiday-enquiry-card :is(.td-button, .km-button) { min-height: 44px; }
+}
+@media (max-width: 380px) {
+  :root .holiday-enquiry-card.holiday-enquiry-card [class$="-form-row"] {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
