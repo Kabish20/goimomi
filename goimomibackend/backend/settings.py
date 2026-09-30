@@ -20,6 +20,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 load_dotenv(os.path.join(BASE_DIR, '.env'), override=True)
 
+# TripJack credentials belong only on the backend. Default to certification/UAT.
+TRIPJACK_API_KEY = os.getenv('TRIPJACK_API_KEY', '')
+TRIPJACK_HOTEL_API_KEY = os.getenv('TRIPJACK_HOTEL_API_KEY', '')
+TRIPJACK_ENVIRONMENT = os.getenv('TRIPJACK_ENVIRONMENT', 'uat').lower()
+TRIPJACK_BOOKING_ENABLED = os.getenv('TRIPJACK_BOOKING_ENABLED', 'False').lower() == 'true'
+
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/

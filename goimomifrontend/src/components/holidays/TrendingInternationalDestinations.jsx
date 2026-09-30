@@ -12,7 +12,9 @@ const destinations = [
   { name: 'Bali', region: 'Ubud, Kintamani & South Bali', path: '/bali', image: baliTrip.image, imageAlt: 'Traditional Balinese temple beside a lake at sunset', startingPrice: baliTrip.pricePerAdult, description: 'Temple sunsets, Melasti Beach and Ubud waterfalls. Without Bali Swing.', highlights: [baliTrip.duration, 'BRTIS HOTEL · Low Season 2026', 'Private tours & daily breakfast'] },
 ];
 
-export default function TrendingInternationalDestinations() {
+const loopedDestinations = [...destinations, ...destinations];
+
+export default function TrendingInternationalDestinations({ layout = 'marquee' }) {
   return (
     <section className="domestic-trending-section international-trending-section" aria-labelledby="international-trending-title">
       <div className="domestic-trending-container">
@@ -23,9 +25,11 @@ export default function TrendingInternationalDestinations() {
           </div>
           <p>Discover your next international escape, thoughtfully planned for you.</p>
         </div>
-        <div className="flex flex-wrap justify-center gap-6">
-          {destinations.map(destination => (
-            <DestinationCard key={destination.path} destination={destination} />
+      </div>
+      <div className={`domestic-trending-overflow${layout === 'grid' ? ' domestic-trending-grid-view' : ''}`} aria-label={layout === 'grid' ? 'International destination cards' : 'Scrolling international destination cards'}>
+        <div className="domestic-trending-track">
+          {(layout === 'grid' ? destinations : loopedDestinations).map((destination, index) => (
+            <DestinationCard key={`${destination.path}-${index}`} destination={destination} duplicate={index >= destinations.length} eager={index < destinations.length} />
           ))}
         </div>
       </div>

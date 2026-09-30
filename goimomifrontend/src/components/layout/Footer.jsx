@@ -108,6 +108,8 @@ const Footer = () => {
               </span>
             </li>}
             <li><Link to="/cab" className="hover:text-white transition-colors">Cab Booking</Link></li>
+            <li><Link to="/flights" className="hover:text-white transition-colors">Flight Search</Link></li>
+            <li><Link to="/hotel" className="hover:text-white transition-colors">Hotel Search</Link></li>
             <li><Link to="/cruise" className="hover:text-white transition-colors">Cruise Bookings</Link></li>
             <li><Link to="/visa" className="hover:text-white transition-colors">Visa Services</Link></li>
             <li><Link to="/canton" className="hover:text-white transition-colors">Canton Fair</Link></li>

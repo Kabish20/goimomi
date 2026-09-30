@@ -4,7 +4,7 @@ import fs from 'node:fs/promises';
 const base = process.env.VERIFY_BASE_URL || 'http://127.0.0.1:5174';
 const browser = await chromium.launch({ channel: 'msedge', headless: true });
 const errors = [];
-const groups = { domestic: ['Kerala', 'Kashmir', 'Manali', 'Andaman', 'Goa'], international: ['Dubai', 'Azerbaijan', 'Bali'] };
+const groups = { domestic: ['Kerala', 'Kashmir', 'Manali', 'Andaman', 'Goa', 'Delhi Agra Jaipur'], international: ['Thailand', 'Dubai', 'Azerbaijan', 'Bali'] };
 try {
  for (const touch of [false, true]) {
   console.log(touch ? 'Checking touch controls' : 'Checking mouse controls');
@@ -61,24 +61,35 @@ try {
   await page.getByRole('heading', { name: 'Trending Domestic', exact: true }).waitFor();
   for (const name of Object.values(groups).flat()) {
    console.log('Route:', name);
-   await page.goto(`${base}/${name.toLowerCase()}`, { waitUntil: 'networkidle' });
+   const slug = name === 'Delhi Agra Jaipur' ? 'golden-triangle' : name.toLowerCase();
+   await page.goto(`${base}/${slug}`, { waitUntil: 'networkidle' });
    assert.ok(await page.locator('h1').count());
    assert.ok(await page.locator('.td-hero-image, .km-hero-image').first().evaluate(async image => { image.loading = 'eager'; await image.decode(); return image.naturalWidth > 0; }));
   }
   await page.goto(base, { waitUntil: 'networkidle' });
-  const first = page.locator('.domestic-trending-track .destination-disclosure-card').first();
-  if (!touch) await page.locator('.domestic-trending-overflow').hover();
-  await first.scrollIntoViewIfNeeded();
-  if (touch) await first.getByRole('button').tap(); else await first.hover();
-  assert.equal(await page.locator('.domestic-trending-track').evaluate(el => getComputedStyle(el).animationPlayState), 'paused');
-  await page.emulateMedia({ reducedMotion: 'reduce' });
-  assert.equal(await page.locator('.domestic-trending-track').evaluate(el => getComputedStyle(el).animationName), 'none');
-  assert.equal(await page.locator('.domestic-trending-overflow').evaluate(el => getComputedStyle(el).overflowX), 'auto');
+  for (const selector of ['.domestic-trending-section:not(.international-trending-section)', '.international-trending-section']) {
+   await page.emulateMedia({ reducedMotion: 'no-preference' });
+   const section = page.locator(selector);
+   const track = section.locator('.domestic-trending-track');
+   const overflow = section.locator('.domestic-trending-overflow');
+   const first = track.locator('.destination-disclosure-card').first();
+   if (!touch) {
+    await page.mouse.move(0, 0);
+    assert.equal(await track.evaluate(el => getComputedStyle(el).animationName), 'dtd-marquee');
+    await overflow.hover();
+   }
+   await first.scrollIntoViewIfNeeded();
+   if (touch) await first.getByRole('button').tap(); else await first.hover();
+   assert.equal(await track.evaluate(el => getComputedStyle(el).animationPlayState), 'paused');
+   await page.emulateMedia({ reducedMotion: 'reduce' });
+   assert.equal(await track.evaluate(el => getComputedStyle(el).animationName), 'none');
+   assert.equal(await overflow.evaluate(el => getComputedStyle(el).overflowX), 'auto');
+  }
   await context.close();
  }
  assert.deepEqual(errors, []);
  await fs.mkdir('../output/design/trending', { recursive: true });
- const report = { passed: true, checked: 'All 8 listed destinations; mouse/touch/keyboard/Escape; collapsed content inert; square panel fit; mobile and desktop menus; 320-1440px overflow; listed package routes and hero images; marquee pause and reduced motion.', errors };
+ const report = { passed: true, checked: 'All 10 listed destinations; mouse/touch/keyboard/Escape; collapsed content inert; square panel fit; mobile and desktop menus; 320-1440px overflow; listed package routes and hero images; marquee pause and reduced motion.', errors };
  await fs.writeFile('../output/design/trending/verification.json', JSON.stringify(report, null, 2));
  console.log(JSON.stringify(report));
 } finally { await browser.close(); }

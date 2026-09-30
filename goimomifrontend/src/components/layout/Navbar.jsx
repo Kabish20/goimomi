@@ -1,5 +1,6 @@
 import React, { useRef, useEffect, useState } from 'react'
 import { Link, NavLink, useLocation } from 'react-router-dom';
+import { Building2, Plane } from 'lucide-react';
 import logo from '../../assets/goimomilogo.png'
 import AdminLogin from '../../pages/General/AdminLogin/AdminLogin.jsx'
 
@@ -177,7 +178,15 @@ const Navbar = () => {
           </Link>
 
           {/* Desktop Nav */}
-          <nav className="hidden lg:flex items-center gap-7 text-slate-700">
+          <nav className="hidden lg:flex items-center gap-5 text-slate-700">
+            <NavLink to="/flights" className={({ isActive }) => `order-[-6] ${animatedButton} ${isActive ? "text-goimomi-primary font-black" : ""}`}>
+              <Plane aria-hidden="true" strokeWidth={1.25} className="w-9 h-9 mb-1" />
+              <span className="font-bold text-[11px] uppercase tracking-wide">Flights</span>
+            </NavLink>
+            <NavLink to="/hotel" className={({ isActive }) => `order-[-5] ${animatedButton} ${isActive ? "text-goimomi-primary font-black" : ""}`}>
+              <Building2 aria-hidden="true" strokeWidth={1.25} className="w-9 h-9 mb-1" />
+              <span className="font-bold text-[11px] uppercase tracking-wide">Hotels</span>
+            </NavLink>
             {/* Visa */}
             <NavLink to="/visa" className={({ isActive }) => `order-[-4] ${animatedButton} ${isActive || isVisaActive ? "text-goimomi-primary font-black" : ""}`}>
               <img src="https://cdn-icons-png.flaticon.com/128/15544/15544932.png" alt="Visa" className="w-9 h-9 mb-1 object-contain" />
@@ -465,6 +474,22 @@ const Navbar = () => {
           }}
         >
           <div className="px-5 py-4 space-y-2.5 text-base font-medium pb-16 flex-1">
+            <NavLink
+              to="/flights"
+              className={({ isActive }) => `flex items-center justify-start gap-3 py-2.5 hover:text-[#14532d] transition w-full rounded-xl px-2 ${isActive ? "text-[#14532d] font-bold bg-green-50/60" : "text-slate-700"}`}
+              onClick={closeMobileMenu}
+            >
+              <Plane aria-hidden="true" strokeWidth={1.25} className="w-6 h-6" />
+              Flights
+            </NavLink>
+            <NavLink
+              to="/hotel"
+              className={({ isActive }) => `flex items-center justify-start gap-3 py-2.5 hover:text-[#14532d] transition w-full rounded-xl px-2 ${isActive ? "text-[#14532d] font-bold bg-green-50/60" : "text-slate-700"}`}
+              onClick={closeMobileMenu}
+            >
+              <Building2 aria-hidden="true" strokeWidth={1.25} className="w-6 h-6" />
+              Hotels
+            </NavLink>
 
             <NavLink 
               to="/visa" 

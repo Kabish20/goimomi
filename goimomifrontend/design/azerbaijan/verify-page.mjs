@@ -22,6 +22,8 @@ try {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.getByRole('link', { name: 'View Azerbaijan package', exact: true }).click();
   await page.locator('#az-title').waitFor();
+  assert.equal(await page.locator('#az-title').count(), 1);
+  assert.equal(await page.locator('.az-nav').count(), 1);
   assert.equal(new URL(page.url()).pathname, '/azerbaijan');
   assert.match(await page.locator('.az-hero-actions').innerText(), /26,215[\s\S]*per adult.*twin sharing/);
   for (const [index, price] of [26215, 31850].entries()) {
@@ -38,7 +40,9 @@ try {
   assert.match(await page.locator('.az-day').nth(1).innerText(), /exterior visit/);
   assert.equal(await page.locator('.az-inclusions-grid article').first().locator('li').count(), 17);
   assert.equal(await page.locator('.az-inclusions-grid article').nth(1).locator('li').count(), 9);
-  assert.equal(await page.locator('.az-important li').count(), 8);
+  for (const href of await page.locator('.az-nav a').evaluateAll(links => links.map(link => link.getAttribute('href')))) {
+    assert.equal(await page.locator(href).count(), 1, `Navigation must target one existing section: ${href}`);
+  }
   await page.getByRole('button', { name: 'Select 4-star option' }).click();
   assert.equal(await page.locator('#az-hotel').inputValue(), '1');
   assert.match(await page.locator('.az-selection').innerText(), /Parkside Hotel[\s\S]*31,850 per adult.*twin sharing/);

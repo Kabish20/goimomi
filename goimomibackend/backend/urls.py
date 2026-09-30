@@ -27,6 +27,8 @@ from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, Spec
 from Holidays.views import payment_callback
 
 urlpatterns = [
+    path('api/flights/', include('Holidays.flight_views')),
+    path('api/hotels/', include('Holidays.hotel_views')),
     # Move admin to a more secure path for live
     path('management/', admin.site.urls),
     path('api/', include('Holidays.urls')),
@@ -47,4 +49,3 @@ if settings.DEBUG:
         path('api/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
         *static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     ]
-

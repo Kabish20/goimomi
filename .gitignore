@@ -67,6 +67,8 @@ goimomi_known_hosts
 
 # ---- Local verification output ----
 output/
+goimomibackend/hotel_destinations.json
+goimomibackend/hotel_destinations.tmp
 goimomifrontend/design/**/verification.json
 goimomifrontend/design/**/desktop-*.png
 goimomifrontend/design/**/mobile-*.png
