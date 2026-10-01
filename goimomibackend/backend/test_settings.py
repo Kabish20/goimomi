@@ -11,6 +11,14 @@ EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
 PASSWORD_HASHERS = ['django.contrib.auth.hashers.MD5PasswordHasher']
 CELERY_BROKER_URL = 'memory://'
 CELERY_RESULT_BACKEND = 'cache+memory://'
-GLOBAL_HORIZONS_EXPORT_RECIPIENTS = []
-
 GLOBAL_HORIZONS_EXPORT_CC = []
+
+REST_FRAMEWORK = {
+    **REST_FRAMEWORK,
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '100000/minute',
+        'user': '100000/minute',
+        'email_sharing': '100000/minute',
+        'admin_login': '100000/minute',
+    },
+}

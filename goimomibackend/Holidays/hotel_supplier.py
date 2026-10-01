@@ -31,10 +31,17 @@ def call(operation, payload=None):
         raise TripJackError('Hotel supplier returned an invalid response.')
     if not 200 <= response.status_code < 300 or data.get('status', {}).get('success') is False or data.get('error') or data.get('errors'):
         error = data.get('error') or {}
+        errors = data.get('errors') or []
         code = error.get('code') if isinstance(error, dict) else None
+        if not code and isinstance(errors, list) and errors:
+            first_err = errors[0] if isinstance(errors[0], dict) else {}
+            code = first_err.get('errorType') or first_err.get('code') or first_err.get('errCode')
         messages = {'OPTION_SOLD_OUT': ('This room option is sold out. Please choose another option.', 409),
+                    '6506': ('This room option is sold out. Please choose another option.', 409),
                     'SEARCH_SESSION_EXPIRED': ('Your hotel search expired. Please search again.', 410),
-                    'RATE_LIMITED': ('Hotel search is busy. Please try again shortly.', 429)}
-        message, status = messages.get(code, ('Hotel supplier could not complete this request. Please check your dates and try again.', 502))
+                    '6502': ('Your hotel search expired. Please search again.', 410),
+                    'RATE_LIMITED': ('Hotel search is busy. Please try again shortly.', 429),
+                    '6517': ('Hotel search is busy. Please try again shortly.', 429)}
+        message, status = messages.get(str(code), ('Hotel supplier could not complete this request. Please check your dates and try again.', 502))
         raise TripJackError(message, status)
     return data

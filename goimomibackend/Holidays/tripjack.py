@@ -48,6 +48,12 @@ def call(operation, payload=None):
     if operation in MUTATIONS and not settings.TRIPJACK_BOOKING_ENABLED:
         raise TripJackError('Flight booking operations are not enabled.', 503)
     host = 'https://tripjack.com' if environment == 'production' else 'https://apitest.tripjack.com'
+    if operation == 'search' and isinstance(payload, dict) and 'searchQuery' in payload:
+        sq = payload['searchQuery']
+        if isinstance(sq, dict) and 'searchModifiers' in sq:
+            sm = sq['searchModifiers']
+            if isinstance(sm, dict) and isinstance(sm.get('pfts'), str):
+                sm['pfts'] = [sm['pfts']]
     try:
         response = requests.request(
             'GET' if operation == 'user-detail' else 'POST',

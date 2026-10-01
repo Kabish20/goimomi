@@ -22,6 +22,8 @@ class Command(BaseCommand):
                 if cursor in seen:
                     raise CommandError('Supplier repeated a cursor; existing catalogue retained.')
                 seen.add(cursor)
+                if len(rows) % 50000 < 2000:
+                    self.stdout.write(f'Synced {len(rows)} destinations so far...')
         except TripJackError as exc:
             raise CommandError(str(exc)) from None
         if not rows:

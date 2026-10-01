@@ -120,6 +120,9 @@ def operation(request, action):
                 return Response({'hotels': [], 'hasMore': False})
             values.update(currency='INR', correlationId=str(uuid.uuid4()), hids=ids)
             result = hotel_supplier.call('listing', values)
+            for hotel in result.get('hotels', []):
+                if not hotel.get('tjHotelId') and hotel.get('hotelId'):
+                    hotel['tjHotelId'] = str(hotel['hotelId'])
             # Catalogue data decorates cards; dynamic Listing remains the rate source.
             try:
                 static = hotel_supplier.call('content', {'hotelIds': [str(i) for i in ids]})
@@ -129,7 +132,7 @@ def operation(request, action):
                     hotel['static'] = {key: record[key] for key in ('star_rating', 'property_type', 'locale', 'images') if key in record}
             except TripJackError:
                 pass
-            state = {'query': values, 'hotels': [str(h['tjHotelId']) for h in result.get('hotels', [])], 'expires': time.time() + 900}
+            state = {'query': values, 'hotels': [str(h.get('tjHotelId', '')) for h in result.get('hotels', [])], 'expires': time.time() + 900}
             result.update(token=token(state), expiresAt=state['expires'], hasMore=page + 1 < mapping.get('pageable', {}).get('totalPages', 1))
         elif action == 'pricing':
             state = context(request)
