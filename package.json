@@ -13,8 +13,8 @@
     "test:frontend": "cd goimomifrontend && npm test",
     "test:packaging": "python -m unittest discover -s scripts -p test_*.py",
     "lint:frontend": "cd goimomifrontend && npm run lint",
-    "seed:logistics": "python goimomibackend/scripts/seed_logistics.py",
-    "seed:visas": "python goimomibackend/scripts/seed_popular_visas.py",
+    "seed:logistics": "cd goimomibackend && python manage.py seed_logistics",
+    "seed:visas": "cd goimomibackend && python manage.py seed_popular_visas",
     "zip:package": "python scripts/create_zip.py"
   }
 }
