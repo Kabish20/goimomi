@@ -73,9 +73,58 @@ def call(operation, payload=None):
     status = data.get('status') or {}
     if not isinstance(status, dict):
         raise TripJackError('Flight supplier returned an invalid response.')
-    if not 200 <= response.status_code < 300 or status.get('success') is False or data.get('errors'):
-        # Never echo supplier messages which may contain request data or credentials.
-        errors = data.get('errors') or []
-        codes = ', '.join(str(e.get('errCode', e.get('code', 'unknown'))) for e in errors if isinstance(e, dict)) if isinstance(errors, list) else ''
-        raise TripJackError(f'Flight supplier rejected the request{": " + codes if codes else ""}. Please check availability and request details.', 400 if response.status_code < 500 else 502)
+
+    errors = data.get('errors') or []
+    codes_list = [str(e.get('errCode', e.get('code', ''))) for e in errors if isinstance(e, dict) and (e.get('errCode') or e.get('code'))]
+    codes = ', '.join(codes_list)
+
+    # 1. Search operations: TripJack returns HTTP 200 with code 1207 or 1045 when no flights match the search criteria.
+    # Treat this as a successful search with 0 flights rather than a fatal request rejection.
+    if operation == 'search' and 200 <= response.status_code < 300:
+        if status.get('success') is True or any(c in ('1207', '1045') for c in codes_list):
+            search_res = data.setdefault('searchResult', {})
+            if not isinstance(search_res, dict):
+                data['searchResult'] = {'tripInfos': {}}
+            elif not isinstance(search_res.get('tripInfos'), dict):
+                search_res['tripInfos'] = {}
+            return data
+
+    if not 200 <= response.status_code < 300 or status.get('success') is False or errors:
+        messages_map = {
+            '1000': 'The requested flight is no longer available. Please search again.',
+            '1001': 'Children and infants cannot exceed the number of adult passengers.',
+            '1002': 'Children cannot exceed the number of adult passengers.',
+            '1003': 'Travel dates must be in ascending order.',
+            '1004': 'Travel date cannot be more than one year in advance.',
+            '1005': 'Origin and destination airports must be different.',
+            '1006': 'A maximum of 9 passengers can be booked at a time.',
+            '1009': 'Please select a valid fare to proceed.',
+            '1010': 'Duplicate passenger names are not allowed.',
+            '1012': 'Adult passenger age must be at least 12 years.',
+            '1013': 'Child passenger age must be between 2 and 12 years.',
+            '1014': 'Infant passenger age must be between 0 and 2 years.',
+            '1045': 'No flights available matching your search criteria. Please check your travel dates or route.',
+            '1051': 'Date of birth is required for adult passengers.',
+            '1052': 'Date of birth is required for child passengers.',
+            '1053': 'Date of birth is required for infant passengers.',
+            '1056': 'Seat selection is not available for this flight.',
+            '1057': 'Booking could not be found.',
+            '1059': 'Fare hold time has expired. Please select a new fare.',
+            '1064': 'Passport number is required.',
+            '1065': 'Passport issue date is invalid.',
+            '1066': 'Passport expiry date is invalid.',
+            '1067': 'Passport must be valid for at least 6 months from travel date.',
+            '1071': 'The selected fare is no longer available. Please select another flight.',
+            '1207': 'No flights found for this route and date. Please try another date or nearby airports.',
+            '408': 'Flight service is temporarily busy. Please wait a moment and try again.',
+            '429': 'Flight service rate limit reached. Please wait a moment and try again.',
+        }
+        first_code = codes_list[0] if codes_list else ''
+        friendly_message = messages_map.get(first_code)
+        if friendly_message:
+            message = f'{friendly_message} (Supplier code: {codes})' if codes else friendly_message
+        else:
+            message = f'Flight supplier rejected the request{": " + codes if codes else ""}. Please check availability and request details.'
+        raise TripJackError(message, 400 if response.status_code < 500 else 502)
     return data
+

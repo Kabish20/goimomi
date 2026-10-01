@@ -132,3 +132,15 @@ class TripJackTransportTests(SimpleTestCase):
         request.return_value = Mock(status_code=200, json=Mock(return_value={}))
         tripjack.call('user-detail')
         self.assertEqual(request.call_args.args, ('GET', 'https://tripjack.com/ums/v1/user-detail'))
+
+    @patch('Holidays.tripjack.requests.request')
+    def test_search_treats_empty_results_gracefully(self, request):
+        for code in ('1045', '1207'):
+            request.return_value = Mock(status_code=200, json=Mock(return_value={
+                'status': {'success': True, 'httpStatus': 200},
+                'searchResult': {'tripInfos': {}},
+                'errors': [{'errCode': code, 'message': 'No flights available'}],
+            }))
+            res = tripjack.call('search', {'searchQuery': {}})
+            self.assertEqual(res['searchResult']['tripInfos'], {})
+
