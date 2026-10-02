@@ -245,6 +245,28 @@ SIMPLE_JWT = {
     'BLACKLIST_AFTER_ROTATION': False,
 }
 
+# Caching Configuration (Redis with LocMem fallback for local/test environments)
+REDIS_URL = config('REDIS_URL', default='redis://127.0.0.1:6379/1')
+try:
+    import redis
+    _r = redis.from_url(REDIS_URL, socket_timeout=0.5)
+    _r.ping()
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+            'LOCATION': REDIS_URL,
+            'TIMEOUT': 86400,
+        }
+    }
+except Exception:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+            'LOCATION': 'goimomi-locmem',
+            'TIMEOUT': 86400,
+        }
+    }
+
 # Production Security Hardening
 if not DEBUG:
     # SECURE_SSL_REDIRECT is enabled for production security

@@ -29,6 +29,12 @@ const airlines = [
   ['MH', 'Malaysia Airline']
 ];
 
+let _cachedAirports = null;
+try {
+  const stored = typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('goimomi_airports_data') : null;
+  if (stored) _cachedAirports = JSON.parse(stored);
+} catch (e) {}
+
 export default function Flights() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -41,15 +47,25 @@ export default function Flights() {
   const [creditShell, setCreditShell] = useState(false);
   const [fareType, setFareType] = useState(initial?.searchQuery?.searchModifiers?.pfts || 'REGULAR');
   const [preferred, setPreferred] = useState(initial?.searchQuery?.preferredAirline?.map(a => a.code) || []);
-  const [airports, setAirports] = useState(() => mergeAirportData([]));
+  const [airports, setAirports] = useState(() => _cachedAirports || mergeAirportData([]));
   const [error, setError] = useState('');
 
   useEffect(() => {
+    if (_cachedAirports && _cachedAirports.length > 50) {
+      return;
+    }
     const controller = new AbortController();
     getFlightAirports(controller.signal)
       .then(({ data }) => {
         const list = Array.isArray(data) ? data : data?.results || [];
-        setAirports(mergeAirportData(list));
+        const merged = mergeAirportData(list);
+        _cachedAirports = merged;
+        try {
+          if (typeof sessionStorage !== 'undefined') {
+            sessionStorage.setItem('goimomi_airports_data', JSON.stringify(merged));
+          }
+        } catch (e) {}
+        setAirports(merged);
       })
       .catch(() => {
         // Fallback to pre-seeded popular airports is already initialized

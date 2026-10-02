@@ -8,6 +8,7 @@ from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
 from django.core import signing
+from django.core.cache import cache
 from django.conf import settings
 from django.utils import timezone
 from django.db import transaction
@@ -325,6 +326,39 @@ class AirportViewSet(ModelViewSet):
         if country_id and country_id != 'undefined':
             queryset = queryset.filter(city__country_id=country_id)
         return queryset
+
+    def list(self, request, *args, **kwargs):
+        search = (request.query_params.get('search') or '').strip().lower()
+        city_id = (request.query_params.get('city_id') or '').strip()
+        country_id = (request.query_params.get('country_id') or '').strip()
+        cache_key = f"airports_list_{search}_{city_id}_{country_id}"
+        cached_data = cache.get(cache_key)
+        if cached_data is not None:
+            return Response(cached_data)
+
+        response = super().list(request, *args, **kwargs)
+        if response.status_code == 200:
+            cache.set(cache_key, response.data, 86400 if not search else 3600)
+        return response
+
+    def _clear_airports_cache(self):
+        try:
+            cache.delete_pattern("airports_list_*")
+        except AttributeError:
+            cache.delete("airports_list___")
+
+    def perform_create(self, serializer):
+        super().perform_create(serializer)
+        self._clear_airports_cache()
+
+    def perform_update(self, serializer):
+        super().perform_update(serializer)
+        self._clear_airports_cache()
+
+    def perform_destroy(self, instance):
+        super().perform_destroy(instance)
+        self._clear_airports_cache()
+
 
 class CruiseTerminalViewSet(ModelViewSet):
     permission_classes = [IsAdminOrReadOnly]

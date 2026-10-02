@@ -50,7 +50,18 @@ class Passengers(serializers.Serializer):
 class Modifiers(serializers.Serializer):
     isDirectFlight = serializers.BooleanField(default=False)
     isConnectingFlight = serializers.BooleanField(default=False)
-    pfts = serializers.ChoiceField(choices=['REGULAR', 'STUDENT', 'SENIOR_CITIZEN'], default='REGULAR')
+    pfts = serializers.CharField(default='REGULAR')
+
+    def to_internal_value(self, data):
+        data = data.copy() if hasattr(data, 'copy') else dict(data)
+        raw_pfts = data.get('pfts', 'REGULAR')
+        if isinstance(raw_pfts, (list, tuple)) and raw_pfts:
+            raw_pfts = raw_pfts[0]
+        elif isinstance(raw_pfts, str):
+            raw_pfts = raw_pfts.strip("[]'\" ")
+        val = str(raw_pfts).upper() if raw_pfts else 'REGULAR'
+        data['pfts'] = val if val in ('STUDENT', 'SENIOR_CITIZEN', 'REGULAR') else 'REGULAR'
+        return super().to_internal_value(data)
 
     def validate(self, data):
         if data['isDirectFlight'] and data['isConnectingFlight']:

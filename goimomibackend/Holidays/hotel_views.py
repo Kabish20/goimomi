@@ -1,9 +1,11 @@
 import json
 import time
 import uuid
+from collections import defaultdict
 from pathlib import Path
 from django.conf import settings
 from django.core import signing
+from django.core.cache import cache
 from django.db import DatabaseError
 from django.urls import path
 from django.utils import timezone
@@ -56,29 +58,35 @@ def context(request):
 
 
 _DESTINATIONS_CACHE = None
+_DESTINATIONS_PREFIX_MAP = None
 _DESTINATIONS_MTIME = 0
 _HOTEL_STATIC_CACHE = {}
 
 
 def _get_destinations():
-    global _DESTINATIONS_CACHE, _DESTINATIONS_MTIME
+    global _DESTINATIONS_CACHE, _DESTINATIONS_PREFIX_MAP, _DESTINATIONS_MTIME
     dest_path = Path(settings.BASE_DIR) / 'hotel_destinations.json'
     if not dest_path.exists():
-        return None
+        return None, None
     try:
         mtime = dest_path.stat().st_mtime
         if _DESTINATIONS_CACHE is None or mtime != _DESTINATIONS_MTIME:
             raw_data = json.loads(dest_path.read_text(encoding='utf-8'))
             indexed = []
+            prefix_map = defaultdict(list)
             for row in raw_data:
                 full = (row.get('fullRegionName') or row.get('cityName') or '').casefold()
                 city = (row.get('cityName') or '').casefold()
-                indexed.append((row, full, city))
+                entry = (row, full, city)
+                indexed.append(entry)
+                if len(city) >= 2:
+                    prefix_map[city[:2]].append(entry)
             _DESTINATIONS_CACHE = indexed
+            _DESTINATIONS_PREFIX_MAP = prefix_map
             _DESTINATIONS_MTIME = mtime
-        return _DESTINATIONS_CACHE
+        return _DESTINATIONS_CACHE, _DESTINATIONS_PREFIX_MAP
     except Exception:
-        return None
+        return None, None
 
 
 @api_view(['GET'])
@@ -88,19 +96,36 @@ def destinations(request):
     if len(query) < 2:
         return Response([])
 
-    indexed = _get_destinations()
-    if indexed is not None:
+    cache_key = f"hotel_dest_{query}"
+    cached = cache.get(cache_key)
+    if cached is not None:
+        return Response(cached)
+
+    indexed, prefix_map = _get_destinations()
+    if indexed is not None and prefix_map is not None:
         prefix_matches = []
         substring_matches = []
-        for row, full, city in indexed:
+        candidates = prefix_map.get(query[:2], [])
+        for row, full, city in candidates:
             if city.startswith(query):
                 prefix_matches.append(row)
             elif query in full:
                 substring_matches.append(row)
             if len(prefix_matches) >= 30:
                 break
+
+        if len(prefix_matches) + len(substring_matches) < 30:
+            for row, full, city in indexed:
+                if any(row is m for m in prefix_matches) or any(row is m for m in substring_matches):
+                    continue
+                if query in full:
+                    substring_matches.append(row)
+                if len(prefix_matches) + len(substring_matches) >= 30:
+                    break
+
         matched = (prefix_matches + substring_matches)[:30]
         if matched:
+            cache.set(cache_key, matched, 86400)
             return Response(matched)
 
     # Fallback to local City database
@@ -123,6 +148,7 @@ def destinations(request):
                 'fullRegionName': ', '.join(parts)
             })
         if results:
+            cache.set(cache_key, results, 86400)
             return Response(results)
     except Exception:
         pass
@@ -133,9 +159,15 @@ def destinations(request):
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def nationalities(request):
+    cached = cache.get('hotel_nationalities')
+    if cached is not None:
+        return Response(cached)
     try:
         rows = hotel_supplier.call('nationalities').get('nationalityInfos', [])
-        return Response(rows if isinstance(rows, list) else [])
+        data = rows if isinstance(rows, list) else []
+        if data:
+            cache.set('hotel_nationalities', data, 86400)
+        return Response(data)
     except TripJackError as exc:
         if exc.status in (502, 503):
             try:
@@ -151,9 +183,15 @@ def nationalities(request):
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def countries(request):
+    cached = cache.get('hotel_countries')
+    if cached is not None:
+        return Response(cached)
     try:
         rows = hotel_supplier.call('countries').get('hotelCountries', [])
-        return Response([name for name in rows if isinstance(name, str)] if isinstance(rows, list) else [])
+        data = [name for name in rows if isinstance(name, str)] if isinstance(rows, list) else []
+        if data:
+            cache.set('hotel_countries', data, 86400)
+        return Response(data)
     except TripJackError as exc:
         if exc.status in (502, 503):
             try:

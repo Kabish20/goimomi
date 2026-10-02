@@ -144,3 +144,16 @@ class TripJackTransportTests(SimpleTestCase):
             res = tripjack.call('search', {'searchQuery': {}})
             self.assertEqual(res['searchResult']['tripInfos'], {})
 
+    def test_modifiers_accepts_list_and_string_pfts(self):
+        serializer = flight_views.Modifiers(data={'pfts': ['REGULAR']})
+        self.assertTrue(serializer.is_valid())
+        self.assertEqual(serializer.validated_data['pfts'], 'REGULAR')
+
+        serializer = flight_views.Modifiers(data={'pfts': "['STUDENT']"})
+        self.assertTrue(serializer.is_valid())
+        self.assertEqual(serializer.validated_data['pfts'], 'STUDENT')
+
+        serializer = flight_views.Modifiers(data={'pfts': 'senior_citizen'})
+        self.assertTrue(serializer.is_valid())
+        self.assertEqual(serializer.validated_data['pfts'], 'SENIOR_CITIZEN')
+
