@@ -55,17 +55,79 @@ def context(request):
         raise TripJackError('Your hotel search expired. Please search again.', 410) from None
 
 
+_DESTINATIONS_CACHE = None
+_DESTINATIONS_MTIME = 0
+_HOTEL_STATIC_CACHE = {}
+
+
+def _get_destinations():
+    global _DESTINATIONS_CACHE, _DESTINATIONS_MTIME
+    dest_path = Path(settings.BASE_DIR) / 'hotel_destinations.json'
+    if not dest_path.exists():
+        return None
+    try:
+        mtime = dest_path.stat().st_mtime
+        if _DESTINATIONS_CACHE is None or mtime != _DESTINATIONS_MTIME:
+            raw_data = json.loads(dest_path.read_text(encoding='utf-8'))
+            indexed = []
+            for row in raw_data:
+                full = (row.get('fullRegionName') or row.get('cityName') or '').casefold()
+                city = (row.get('cityName') or '').casefold()
+                indexed.append((row, full, city))
+            _DESTINATIONS_CACHE = indexed
+            _DESTINATIONS_MTIME = mtime
+        return _DESTINATIONS_CACHE
+    except Exception:
+        return None
+
+
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def destinations(request):
     query = request.query_params.get('q', '').strip().casefold()
     if len(query) < 2:
         return Response([])
+
+    indexed = _get_destinations()
+    if indexed is not None:
+        prefix_matches = []
+        substring_matches = []
+        for row, full, city in indexed:
+            if city.startswith(query):
+                prefix_matches.append(row)
+            elif query in full:
+                substring_matches.append(row)
+            if len(prefix_matches) >= 30:
+                break
+        matched = (prefix_matches + substring_matches)[:30]
+        if matched:
+            return Response(matched)
+
+    # Fallback to local City database
     try:
-        rows = json.loads((Path(settings.BASE_DIR) / 'hotel_destinations.json').read_text(encoding='utf-8'))
-    except (OSError, ValueError):
-        return Response({'detail': 'Hotel destinations are not available yet. Please contact our travel team.'}, status=503)
-    return Response([row for row in rows if query in row.get('fullRegionName', row.get('cityName', '')).casefold()][:30])
+        from .models import City
+        from django.db.models import Q
+        cities = City.objects.filter(
+            Q(name__icontains=query) | Q(country__name__icontains=query)
+        ).select_related('country', 'region')[:30]
+        results = []
+        for c in cities:
+            parts = [c.name]
+            if c.region and c.region.name != c.name:
+                parts.append(c.region.name)
+            if c.country:
+                parts.append(c.country.name)
+            results.append({
+                'cityRegionId': c.id,
+                'cityName': c.name,
+                'fullRegionName': ', '.join(parts)
+            })
+        if results:
+            return Response(results)
+    except Exception:
+        pass
+
+    return Response({'detail': 'Hotel destinations are not available yet. Please contact our travel team.'}, status=503)
 
 
 @api_view(['GET'])
@@ -123,15 +185,22 @@ def operation(request, action):
             for hotel in result.get('hotels', []):
                 if not hotel.get('tjHotelId') and hotel.get('hotelId'):
                     hotel['tjHotelId'] = str(hotel['hotelId'])
-            # Catalogue data decorates cards; dynamic Listing remains the rate source.
-            try:
-                static = hotel_supplier.call('content', {'hotelIds': [str(i) for i in ids]})
-                content = {str(h.get('tjHotelId')): h for h in static.get('hotels', [])}
-                for hotel in result.get('hotels', []):
-                    record = content.get(str(hotel.get('tjHotelId')), {})
-                    hotel['static'] = {key: record[key] for key in ('star_rating', 'property_type', 'locale', 'images') if key in record}
-            except TripJackError:
-                pass
+            # Catalogue data decorates cards; cached static content minimizes supplier roundtrips.
+            missing_ids = [str(i) for i in ids if str(i) not in _HOTEL_STATIC_CACHE]
+            if missing_ids:
+                try:
+                    static = hotel_supplier.call('content', {'hotelIds': missing_ids})
+                    for h in static.get('hotels', []):
+                        if h.get('tjHotelId'):
+                            _HOTEL_STATIC_CACHE[str(h['tjHotelId'])] = {
+                                key: h[key] for key in ('star_rating', 'property_type', 'locale', 'images') if key in h
+                            }
+                except TripJackError:
+                    pass
+            for hotel in result.get('hotels', []):
+                record = _HOTEL_STATIC_CACHE.get(str(hotel.get('tjHotelId')), {})
+                if record:
+                    hotel['static'] = record
             state = {'query': values, 'hotels': [str(h.get('tjHotelId', '')) for h in result.get('hotels', [])], 'expires': time.time() + 900}
             result.update(token=token(state), expiresAt=state['expires'], hasMore=page + 1 < mapping.get('pageable', {}).get('totalPages', 1))
         elif action == 'pricing':

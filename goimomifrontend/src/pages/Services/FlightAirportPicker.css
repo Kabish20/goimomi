@@ -1,0 +1,282 @@
+.flight-airport-picker {
+  position: relative;
+  width: 50%;
+  height: 100%;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+}
+
+.flight-airport-picker:last-child {
+  border-left: 1px solid #c7c7cb;
+}
+
+.picker-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  height: 100%;
+  padding: 12px 14px;
+  cursor: text;
+  min-width: 0;
+}
+
+.flight-airport-picker:last-child .picker-input-wrap {
+  padding-left: 32px;
+}
+
+.picker-icon {
+  color: #8a9da2;
+  flex-shrink: 0;
+  transition: color 0.2s ease;
+}
+
+.flight-airport-picker:focus-within .picker-icon,
+.flight-airport-picker.picker-open .picker-icon {
+  color: #15803d;
+}
+
+.picker-input-wrap input {
+  min-width: 0;
+  width: 100%;
+  border: 0;
+  background: transparent;
+  height: 40px;
+  outline: none !important;
+  box-shadow: none !important;
+  font-size: 16px;
+  font-weight: 500;
+  color: #1e293b;
+  cursor: text;
+}
+
+.picker-input-wrap input:focus,
+.picker-input-wrap input:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.picker-input-wrap input::placeholder {
+  color: #465668;
+  opacity: 1;
+  font-weight: 400;
+}
+
+.picker-clear-btn {
+  background: #f1f5f9;
+  border: none;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+  margin-left: 2px;
+  padding: 0;
+}
+
+.picker-clear-btn:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+  transform: scale(1.06);
+}
+
+/* ==========================================================================
+   COMPACT & SMOOTH DROPDOWN MENU
+   ========================================================================== */
+.flight-airport-dropdown {
+  position: absolute;
+  top: calc(100% + 3px);
+  left: 0;
+  width: 100%;
+  min-width: 300px;
+  max-width: 350px;
+  background: #ffffff;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 10px 22px -3px rgba(15, 23, 42, 0.12),
+              0 4px 8px -2px rgba(15, 23, 42, 0.05),
+              0 0 0 1px rgba(15, 23, 42, 0.03);
+  z-index: 120;
+  overflow: hidden;
+  animation: flightDropdownSlide 0.16s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Align right-hand destination dropdown to its parent's right edge */
+.flight-airport-picker:last-child .flight-airport-dropdown {
+  left: auto;
+  right: 0;
+}
+
+@keyframes flightDropdownSlide {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dropdown-scroll-body {
+  max-height: 250px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+  scroll-behavior: smooth;
+}
+
+.dropdown-scroll-body::-webkit-scrollbar {
+  width: 5px;
+}
+
+.dropdown-scroll-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.dropdown-scroll-body::-webkit-scrollbar-thumb {
+  background-color: #cbd5e1;
+  border-radius: 4px;
+}
+
+.dropdown-scroll-body::-webkit-scrollbar-thumb:hover {
+  background-color: #94a3b8;
+}
+
+/* ==========================================================================
+   AIRPORT LIST ROW ITEM (COMPACT)
+   ========================================================================== */
+.flight-airport-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 13px;
+  border-bottom: 1px solid #f1f5f9;
+  cursor: pointer;
+  background-color: #ffffff;
+  transition: background-color 0.12s ease;
+  user-select: none;
+}
+
+.flight-airport-item:last-child {
+  border-bottom: none;
+}
+
+.flight-airport-item:hover,
+.flight-airport-item.is-highlighted {
+  background-color: #f0fdf4;
+}
+
+.flight-airport-item.is-selected {
+  background-color: #ecfdf5;
+  border-left: 3px solid #16a34a;
+  padding-left: 10px;
+}
+
+/* Column 1: IATA Code (Travel Green) */
+.airport-col-code {
+  color: #15803d;
+  font-size: 13.5px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  min-width: 44px;
+  flex-shrink: 0;
+}
+
+/* Column 2: City & Airport Name */
+.airport-col-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.airport-city-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1e293b;
+  line-height: 1.25;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.airport-sub-name {
+  font-size: 11px;
+  font-weight: 400;
+  color: #64748b;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Column 3: Country */
+.airport-col-country {
+  font-size: 12px;
+  font-weight: 600;
+  color: #475569;
+  text-align: right;
+  flex-shrink: 0;
+  margin-left: 6px;
+}
+
+/* Empty search state (compact) */
+.picker-empty-state {
+  padding: 22px 14px;
+  text-align: center;
+  color: #64748b;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.empty-search-icon {
+  color: #94a3b8;
+  margin-bottom: 2px;
+}
+
+.picker-empty-state p {
+  margin: 0;
+  font-weight: 600;
+  color: #334155;
+  font-size: 13.5px;
+}
+
+.picker-empty-state small {
+  color: #94a3b8;
+  font-size: 11.5px;
+}
+
+/* Responsive adjustment for small screens */
+@media (max-width: 768px) {
+  .flight-airport-picker {
+    width: 100%;
+  }
+
+  .flight-airport-picker:last-child {
+    border-left: none;
+    border-top: 1px solid #c7c7cb;
+  }
+
+  .flight-airport-picker:last-child .picker-input-wrap {
+    padding-left: 14px;
+  }
+
+  .flight-airport-dropdown {
+    width: 100%;
+    max-width: 100%;
+    left: 0 !important;
+    right: 0 !important;
+  }
+}

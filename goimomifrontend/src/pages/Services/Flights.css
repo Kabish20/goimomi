@@ -21,8 +21,12 @@
   cursor: not-allowed;
 }
 .flights-page :focus-visible {
-  outline: 3px solid #2575b8;
-  outline-offset: 3px;
+  outline: 2px solid #15803d;
+  outline-offset: 2px;
+}
+.flights-page input:focus-visible,
+.flight-route-inputs input:focus-visible {
+  outline: none !important;
 }
 .flight-container {
   width: calc(100% - 64px);
@@ -80,53 +84,36 @@
 }
 .flight-route-inputs {
   position: relative;
-}
-.flight-route-inputs label {
   display: flex;
-  align-items: center;
-  gap: 12px;
-  width: 50%;
-  padding: 15px 12px;
-  min-width: 0;
-  height: 100%;
-}
-.flight-route-inputs label:last-child {
-  border-left: 1px solid #c7c7cb;
-  padding-left: 35px;
+  align-items: stretch;
 }
 .flight-route-inputs svg,.flight-dates>svg,.flight-pax-trigger>svg {
   color: #8a9da2;
   flex-shrink: 0;
 }
-.flight-route-inputs input {
-  min-width: 0;
-  width: 100%;
-  border: 0;
-  background: transparent;
-  height: 44px;
-  outline-offset: 0;
-  font-size: 18px;
-  color: #25364e;
-}
-.flight-route-inputs input::placeholder {
-  color: #465668;
-  opacity: 1;
-}
 .flight-swap {
   position: absolute;
   left: 50%;
-  transform: translateX(-50%);
+  top: 50%;
+  transform: translate(-50%, -50%);
   display: grid;
   place-items: center;
-  border: 1px solid #d4d4d7;
+  border: 1.5px solid #d4d4d7;
   border-radius: 50%;
   background: white;
-  width: 49px;
-  height: 49px;
-  z-index: 1;
+  width: 44px;
+  height: 44px;
+  z-index: 10;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.flight-swap:hover {
+  transform: translate(-50%, -50%) rotate(180deg);
+  border-color: #16a34a;
+  box-shadow: 0 4px 14px rgba(22, 163, 74, 0.22);
 }
 .flight-swap svg {
-  color: var(--flight-primary);
+  color: #15803d;
 }
 .flight-dates {
   gap: 10px;
@@ -248,14 +235,18 @@
   gap: 20px;
   flex-wrap: wrap;
 }
-.flight-fare-types label,.direct-option {
+.flight-fare-types label,.direct-option,.credit-shell-option {
   display: flex;
   align-items: center;
   gap: 7px;
   font-weight: 600;
+  cursor: pointer;
 }
 .direct-option {
   margin-left: auto;
+}
+.credit-shell-option {
+  margin-left: 16px;
 }
 .flights-page input[type=checkbox],.flights-page input[type=radio] {
   accent-color: var(--flight-primary);
@@ -1769,3 +1760,208 @@
 .flight-fare-rules button { color: #14532d; background: white; border: 1px solid #14532d; border-radius: 5px; padding: 7px 12px; cursor: pointer; }
 .flight-fare-rules h4 { margin: 12px 0 6px; }
 .flight-fare-rules p { white-space: pre-line; }
+
+/* TripJack Passenger Details Form & Hold/Book Actions in Review Page */
+.pax-form-grid {
+  display: grid;
+  grid-template-columns: 100px 1fr 1fr;
+  gap: 14px;
+  margin-top: 14px;
+  margin-bottom: 14px;
+}
+
+.pax-contact-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.pax-input-group label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: #475569;
+  margin-bottom: 5px;
+}
+
+.pax-input-group input,
+.pax-input-group select {
+  width: 100%;
+  height: 42px;
+  padding: 0 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  font-size: 13.5px;
+  color: #1e293b;
+  background: #ffffff;
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+
+.pax-input-group input:focus,
+.pax-input-group select:focus {
+  border-color: #ea580c;
+  box-shadow: 0 0 0 2px rgba(234, 88, 12, 0.15);
+}
+
+.flight-review-actions-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.btn-hold-booking {
+  width: 100%;
+  background: #fff7ed;
+  border: 1.5px solid #fed7aa;
+  color: #ea580c;
+  font-weight: 700;
+  font-size: 14px;
+  padding: 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.15s ease;
+}
+
+.btn-hold-booking:hover:not(:disabled) {
+  background: #ffedd5;
+  border-color: #f97316;
+}
+
+.btn-hold-booking:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+@media (max-width: 640px) {
+  .pax-form-grid,
+  .pax-contact-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+
+/* Flight Results Skeleton Loader */
+.flight-results-skeleton {
+  width: 100%;
+  animation: fadeIn 0.3s ease;
+}
+
+.flight-skeleton-banner {
+  background: white;
+  border: 1px solid #e0e7e3;
+  border-radius: 12px;
+  padding: 14px 20px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 4px 14px rgba(0, 30, 20, 0.04);
+}
+
+.flight-skeleton-spinner {
+  width: 24px;
+  height: 24px;
+  border: 3px solid #d1fae5;
+  border-top-color: #14532d;
+  border-radius: 50%;
+  animation: flightSpin 0.8s linear infinite;
+  flex-shrink: 0;
+}
+
+.flight-skeleton-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.flight-skeleton-text strong {
+  color: #14532d;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.flight-skeleton-text small {
+  color: #64748b;
+  font-size: 12px;
+}
+
+.flight-card-skeleton {
+  pointer-events: none;
+  border-color: #e2e8f0;
+}
+
+.flight-card-skeleton .skeleton-bar {
+  background: linear-gradient(90deg, #edf2ef 25%, #f7faf8 50%, #edf2ef 75%);
+  background-size: 200% 100%;
+  animation: flightShimmer 1.5s infinite;
+  border-radius: 4px;
+}
+
+.flight-card-skeleton .airline-bar {
+  height: 18px;
+  width: 90px;
+  margin-bottom: 6px;
+}
+
+.flight-card-skeleton .flight-no-bar {
+  height: 12px;
+  width: 60px;
+}
+
+.flight-card-skeleton .code-bar {
+  height: 12px;
+  width: 32px;
+  margin-bottom: 4px;
+}
+
+.flight-card-skeleton .time-bar {
+  height: 22px;
+  width: 55px;
+}
+
+.flight-card-skeleton .stops-bar {
+  height: 12px;
+  width: 65px;
+  margin: 0 auto 6px;
+}
+
+.flight-route-line-skeleton {
+  height: 2px;
+  width: 70px;
+  background: #e2e8f0;
+  margin: 0 auto 6px;
+}
+
+.flight-card-skeleton .dur-bar {
+  height: 12px;
+  width: 50px;
+  margin: 0 auto;
+}
+
+.flight-card-skeleton .fare-box-bar {
+  height: 48px;
+  width: 100%;
+}
+
+.flight-card-skeleton .btn-bar {
+  height: 38px;
+  width: 85px;
+  border-radius: 6px;
+}
+
+@keyframes flightShimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes flightSpin {
+  to { transform: rotate(360deg); }
+}

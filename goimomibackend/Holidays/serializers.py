@@ -91,9 +91,16 @@ class CruiseTerminalSerializer(serializers.ModelSerializer):
 class AirportSerializer(serializers.ModelSerializer):
     city_name = serializers.ReadOnlyField(source='city.name')
     region_name = serializers.ReadOnlyField(source='city.region.name')
+    country_name = serializers.SerializerMethodField()
+
     class Meta:
         model = Airport
         fields = "__all__"
+
+    def get_country_name(self, obj):
+        if obj.city and obj.city.country:
+            return obj.city.country.name
+        return ""
 
 class CountrySerializer(serializers.ModelSerializer):
     class Meta:

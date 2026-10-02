@@ -309,9 +309,17 @@ class AirportViewSet(ModelViewSet):
     pagination_class = None
 
     def get_queryset(self):
-        queryset = Airport.objects.all().order_by('name')
+        queryset = Airport.objects.select_related('city', 'city__country', 'city__region').all().order_by('name')
+        search = self.request.query_params.get('search')
         city_id = self.request.query_params.get('city_id')
         country_id = self.request.query_params.get('country_id')
+        if search:
+            queryset = queryset.filter(
+                Q(iata_code__icontains=search) |
+                Q(name__icontains=search) |
+                Q(city__name__icontains=search) |
+                Q(city__country__name__icontains=search)
+            )
         if city_id and city_id != 'undefined':
             queryset = queryset.filter(city_id=city_id)
         if country_id and country_id != 'undefined':

@@ -1,0 +1,929 @@
+/* ==========================================================================
+   HOTEL BOOKINGS DASHBOARD (On Hold / Upcoming / Recent Searches)
+   Matching the TripJack Hotel B2B travel portal workflow and UI
+   ========================================================================== */
+
+.hotel-bookings-dashboard {
+  background: #ffffff;
+  padding: 26px 0 38px;
+  border-top: 1px solid #eef2f6;
+  border-bottom: 1px solid #eef2f6;
+}
+
+.hotel-dashboard-container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* Nav Bar with Tabs */
+.hotel-bookings-nav-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 14px;
+  margin-bottom: 22px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.hotel-bookings-nav-left {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.hotel-booking-tab-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+/* Tab Button */
+.hotel-booking-tab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: none;
+  font-size: 15px;
+  font-weight: 600;
+  color: #4b5563;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: all 0.15s ease;
+}
+
+.hotel-booking-tab-btn:hover {
+  color: #111827;
+}
+
+/* Active Tab Color */
+.hotel-booking-tab-btn.is-active {
+  color: #ea580c !important;
+}
+
+.hotel-nav-tab-divider {
+  width: 1px;
+  height: 20px;
+  background: #d1d5db;
+  margin: 0 10px;
+}
+
+/* Banner Notification */
+.hotel-dashboard-alert-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  color: #15803d;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 13.5px;
+  font-weight: 500;
+  margin-bottom: 18px;
+  animation: hotelFadeSlide 0.2s ease forwards;
+}
+
+@keyframes hotelFadeSlide {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Panel Base */
+.hotel-booking-panel {
+  animation: hotelFadeSlide 0.2s ease forwards;
+}
+
+/* ==========================================================================
+   PANEL 1: ON HOLD BOOKINGS
+   ========================================================================== */
+.hotel-panel-search-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.hotel-search-input-wrap {
+  position: relative;
+  width: 380px;
+  max-width: 100%;
+}
+
+.hotel-search-input-wrap .hotel-search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #64748b;
+  pointer-events: none;
+}
+
+.hotel-search-input-wrap input {
+  width: 100%;
+  height: 42px;
+  padding: 0 14px 0 38px;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #1e293b;
+  background: #ffffff;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.hotel-search-input-wrap input:focus {
+  border-color: #ea580c;
+  box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.12);
+}
+
+.hotel-panel-disclaimer {
+  font-size: 13px;
+  color: #64748b;
+  font-style: italic;
+}
+
+/* Empty Dashed Container (TripJack Reference) */
+.hotel-on-hold-empty-box {
+  border: 1.5px dashed #cbd5e1;
+  border-radius: 12px;
+  padding: 48px 20px;
+  text-align: center;
+  background: #ffffff;
+  margin-bottom: 8px;
+}
+
+.hotel-clock-icon-circle {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  margin: 0 auto 16px;
+  background: #fff7ed;
+  border: 1.5px solid #fed7aa;
+  color: #ea580c;
+}
+
+.hotel-on-hold-empty-box h3 {
+  font-size: 17.5px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0 0 6px;
+}
+
+.hotel-on-hold-empty-box p {
+  font-size: 14px;
+  color: #64748b;
+  margin: 0 auto;
+  max-width: 520px;
+  line-height: 1.5;
+}
+
+/* Cards Grid */
+.hotel-on-hold-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  gap: 18px;
+}
+
+.hotel-on-hold-card {
+  background: #ffffff;
+  border: 1.5px solid #fed7aa;
+  border-radius: 12px;
+  padding: 18px 20px;
+  box-shadow: 0 2px 8px rgba(234, 88, 12, 0.06);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 14px;
+  transition: all 0.2s ease;
+}
+
+.hotel-on-hold-card:hover {
+  border-color: #ea580c;
+  box-shadow: 0 6px 18px rgba(234, 88, 12, 0.12);
+}
+
+.hotel-on-hold-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.hotel-on-hold-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.hotel-on-hold-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16.5px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.hotel-on-hold-sub {
+  font-size: 13px;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.hotel-on-hold-timer-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 20px;
+  background: #fff7ed;
+  color: #ea580c;
+  border: 1px solid #fed7aa;
+  white-space: nowrap;
+}
+
+.hotel-on-hold-timer-badge.is-expired {
+  background: #fef2f2;
+  color: #dc2626;
+  border-color: #fecaca;
+}
+
+.hotel-on-hold-details {
+  border-top: 1px dashed #e2e8f0;
+  border-bottom: 1px dashed #e2e8f0;
+  padding: 10px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  color: #475569;
+}
+
+.hotel-detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.hotel-detail-label {
+  color: #64748b;
+}
+
+.hotel-detail-val {
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.hotel-fare-val {
+  font-size: 16px;
+  font-weight: 700;
+  color: #ea580c;
+}
+
+.hotel-on-hold-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.hotel-btn-release-hold {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  color: #64748b;
+  padding: 8px 14px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.hotel-btn-release-hold:hover {
+  background: #fee2e2;
+  border-color: #fca5a5;
+  color: #dc2626;
+}
+
+.hotel-btn-confirm-book {
+  background: #ea580c;
+  border: 1px solid #ea580c;
+  color: #ffffff;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.hotel-btn-confirm-book:hover:not(:disabled) {
+  background: #c2410c;
+  border-color: #c2410c;
+}
+
+.hotel-btn-confirm-book:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ==========================================================================
+   PANEL 2: UPCOMING BOOKINGS
+   TripJack Reference: Full-width dark bar when empty
+   ========================================================================== */
+.hotel-upcoming-empty-bar {
+  width: 100%;
+  background: #374151; /* Dark charcoal bar matching TripJack screenshot */
+  color: #ffffff;
+  font-size: 14.5px;
+  font-weight: 700;
+  text-align: center;
+  padding: 13px 20px;
+  border-radius: 4px;
+  letter-spacing: 0.2px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.hotel-upcoming-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  gap: 18px;
+}
+
+.hotel-upcoming-card {
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 18px 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: all 0.2s ease;
+}
+
+.hotel-upcoming-card:hover {
+  border-color: #0284c7;
+  box-shadow: 0 6px 18px rgba(2, 132, 199, 0.1);
+}
+
+.hotel-upcoming-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.hotel-upcoming-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16.5px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.hotel-voucher-badge {
+  font-family: monospace;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 4px;
+  background: #f1f5f9;
+  color: #334155;
+  border: 1px solid #cbd5e1;
+}
+
+.hotel-status-badge {
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 4px;
+  background: #f0fdf4;
+  color: #15803d;
+  border: 1px solid #bbf7d0;
+  letter-spacing: 0.3px;
+}
+
+.hotel-upcoming-details {
+  border-top: 1px solid #f1f5f9;
+  border-bottom: 1px solid #f1f5f9;
+  padding: 10px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  color: #475569;
+}
+
+.hotel-upcoming-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.hotel-btn-view-voucher {
+  background: #0284c7;
+  border: 1px solid #0284c7;
+  color: #ffffff;
+  padding: 7px 14px;
+  border-radius: 6px;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.hotel-btn-view-voucher:hover {
+  background: #0369a1;
+}
+
+/* ==========================================================================
+   PANEL 3: RECENT SEARCHES
+   ========================================================================== */
+.hotel-recent-cards-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #64748b;
+}
+
+.hotel-clear-recent-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: none;
+  font-size: 12px;
+  font-weight: 600;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 3px 8px;
+  border-radius: 4px;
+  transition: color 0.15s ease;
+}
+
+.hotel-clear-recent-btn:hover {
+  color: #ef4444;
+}
+
+.hotel-recent-cards-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.hotel-recent-search-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 14px 18px;
+  width: 290px;
+  max-width: 100%;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.hotel-recent-search-card:hover {
+  border-color: #ea580c;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(234, 88, 12, 0.12);
+}
+
+.hotel-recent-icon-wrap {
+  width: 38px;
+  height: 38px;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+  background: #fff7ed;
+  color: #ea580c;
+}
+
+.hotel-recent-card-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.hotel-recent-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 3px;
+}
+
+.hotel-recent-meta {
+  font-size: 12px;
+  color: #64748b;
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.hotel-recent-guests {
+  font-size: 11.5px;
+  color: #64748b;
+}
+
+.hotel-recent-empty-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 16px 20px;
+  width: 420px;
+  max-width: 100%;
+}
+
+.hotel-recent-empty-card .hotel-recent-icon-wrap {
+  color: #94a3b8;
+  background: #f1f5f9;
+}
+
+/* ==========================================================================
+   HOTEL VOUCHER MODAL
+   ========================================================================== */
+.hotel-voucher-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  animation: hotelModalOverlayFade 0.2s ease;
+}
+
+@keyframes hotelModalOverlayFade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.hotel-voucher-modal {
+  background: #ffffff;
+  border-radius: 16px;
+  width: 540px;
+  max-width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  animation: hotelModalScaleUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes hotelModalScaleUp {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.hotel-voucher-header {
+  background: linear-gradient(135deg, #0f172a, #1e293b);
+  color: #ffffff;
+  padding: 20px 24px;
+  border-top-left-radius: 16px;
+  border-top-right-radius: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.hotel-voucher-header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.hotel-voucher-close {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 6px;
+  transition: all 0.15s ease;
+}
+
+.hotel-voucher-close:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.hotel-voucher-body {
+  padding: 24px;
+}
+
+.hotel-voucher-banner {
+  background: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 14px 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.hotel-voucher-group span {
+  font-size: 11px;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+}
+
+.hotel-voucher-group strong {
+  display: block;
+  font-size: 17px;
+  font-family: monospace;
+  color: #0f172a;
+  letter-spacing: 0.5px;
+}
+
+.hotel-voucher-property {
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 16px;
+  margin-bottom: 16px;
+}
+
+.hotel-voucher-property h4 {
+  font-size: 20px;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0 0 4px;
+}
+
+.hotel-voucher-property p {
+  margin: 0;
+  font-size: 13px;
+  color: #64748b;
+}
+
+.hotel-voucher-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  font-size: 13px;
+  margin-bottom: 20px;
+}
+
+.hotel-voucher-item span {
+  display: block;
+  font-size: 11.5px;
+  color: #64748b;
+  margin-bottom: 2px;
+}
+
+.hotel-voucher-item strong {
+  color: #0f172a;
+}
+
+.hotel-voucher-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  border-top: 1px solid #e2e8f0;
+  padding-top: 18px;
+}
+
+.hotel-btn-print {
+  background: #0f172a;
+  color: #ffffff;
+  border: none;
+  padding: 9px 18px;
+  border-radius: 8px;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.hotel-btn-print:hover {
+  background: #334155;
+}
+
+/* ==========================================================================
+   RESPONSIVE DESIGN
+   ========================================================================== */
+@media (max-width: 768px) {
+  .hotel-bookings-nav-bar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .hotel-nav-tab-divider {
+    display: none;
+  }
+
+  .hotel-bookings-nav-left {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .hotel-panel-search-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .hotel-search-input-wrap {
+    width: 100%;
+  }
+
+  .hotel-on-hold-cards-grid,
+  .hotel-upcoming-cards-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .hotel-recent-search-card,
+  .hotel-recent-empty-card {
+    width: 100%;
+  }
+}
+
+/* ==========================================================================
+   HOTEL REVIEW GUEST FORM & TRIPJACK ACTIONS
+   ========================================================================== */
+.hotel-guest-form-card {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  border: 1px solid #e0e7e3;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.hotel-guest-form-card h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 17px;
+  margin-bottom: 4px;
+  color: #0f172a;
+}
+
+.hotel-pax-grid {
+  display: grid;
+  grid-template-columns: 110px 1fr 1fr;
+  gap: 12px;
+  margin-top: 14px;
+  margin-bottom: 14px;
+}
+
+.hotel-contact-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.hotel-input-group label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: #475569;
+  margin-bottom: 5px;
+}
+
+.hotel-input-group input,
+.hotel-input-group select,
+.hotel-input-group textarea {
+  width: 100%;
+  height: 42px;
+  padding: 0 12px;
+  border: 1px solid #cdd9d2;
+  border-radius: 6px;
+  font-size: 13.5px;
+  color: #1e293b;
+  background: #ffffff;
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+
+.hotel-input-group textarea {
+  height: 64px;
+  padding: 8px 12px;
+  resize: vertical;
+}
+
+.hotel-input-group input:focus,
+.hotel-input-group select:focus,
+.hotel-input-group textarea:focus {
+  border-color: #ea580c;
+  box-shadow: 0 0 0 2px rgba(234, 88, 12, 0.15);
+}
+
+.hotel-review-actions-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 22px;
+  max-width: 520px;
+}
+
+.btn-hotel-hold {
+  width: 100%;
+  background: #fff7ed;
+  border: 1.5px solid #fed7aa;
+  color: #ea580c;
+  font-weight: 700;
+  font-size: 14.5px;
+  padding: 13px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.15s ease;
+}
+
+.btn-hotel-hold:hover:not(:disabled) {
+  background: #ffedd5;
+  border-color: #f97316;
+}
+
+.btn-hotel-hold:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-hotel-confirm {
+  width: 100%;
+  background: #ea580c;
+  border: 1px solid #ea580c;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 14.5px;
+  padding: 13px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.15s ease;
+}
+
+.btn-hotel-confirm:hover:not(:disabled) {
+  background: #c2410c;
+}
+
+.btn-hotel-confirm:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+@media (max-width: 640px) {
+  .hotel-pax-grid,
+  .hotel-contact-grid {
+    grid-template-columns: 1fr;
+  }
+}
+

@@ -21,6 +21,49 @@ function FilterSection({ title, children, open = false }) {
   return <details className="flight-filter-section" open={open || undefined}><summary>{title}<span className="filter-toggle" /></summary><div>{children}</div></details>;
 }
 
+function FlightResultsSkeleton({ fromCode, toCode }) {
+  return (
+    <div className="flight-results-skeleton" role="status" aria-label="Loading flights">
+      <div className="flight-skeleton-banner">
+        <div className="flight-skeleton-spinner" />
+        <div className="flight-skeleton-text">
+          <strong>Searching best flights {fromCode && toCode ? `from ${fromCode} to ${toCode}` : ''}...</strong>
+          <small>Comparing IndiGo, Air India, SpiceJet, Akasa Air & international carriers</small>
+        </div>
+      </div>
+      {[1, 2, 3, 4].map(n => (
+        <article className="flight-card flight-card-skeleton" key={n}>
+          <div className="flight-card-grid">
+            <div className="flight-airline">
+              <div className="skeleton-bar airline-bar" />
+              <div className="skeleton-bar flight-no-bar" />
+            </div>
+            <div className="flight-time">
+              <div className="skeleton-bar code-bar" />
+              <div className="skeleton-bar time-bar" />
+            </div>
+            <div className="flight-duration">
+              <div className="skeleton-bar stops-bar" />
+              <div className="flight-route-line-skeleton" />
+              <div className="skeleton-bar dur-bar" />
+            </div>
+            <div className="flight-time">
+              <div className="skeleton-bar code-bar" />
+              <div className="skeleton-bar time-bar" />
+            </div>
+            <div className="flight-fares">
+              <div className="skeleton-bar fare-box-bar" />
+            </div>
+            <div className="flight-card-actions">
+              <div className="skeleton-bar btn-bar" />
+            </div>
+          </div>
+        </article>
+      ))}
+    </div>
+  );
+}
+
 export default function FlightResults() {
   const location = useLocation();
   return <Results key={location.key} />;
@@ -133,7 +176,7 @@ function Results() {
       <section className="flight-results-main" aria-label="Flight results" aria-busy={loading || reviewing}>
         {search.mode === 'ONE WAY' && <div className="flight-date-strip"><button aria-label="Previous day" disabled={route.travelDate <= today()} onClick={() => changeDate(shiftDate(route.travelDate, -1))}><ChevronLeft /></button>{Array.from({ length: 7 }, (_, index) => shiftDate(route.travelDate, index)).map((date, index) => <button key={date} className={index === 0 ? 'active' : ''} onClick={() => { if (index) changeDate(date); }}><span>{dayLabel(date)}</span><strong>{index === 0 ? 'Selected date' : 'Fetch Fare'}</strong></button>)}<button aria-label="Next week" onClick={() => changeDate(shiftDate(route.travelDate, 7))}><ChevronRight /></button></div>}
         <p className="flight-muted fare-note">Fares are live search results and remain subject to availability. Prices include all selected passengers.</p>
-        {loading && <div className="flight-empty" role="status"><div className="flight-spinner" /><h2>Finding your flights…</h2><p>Comparing available fares for your journey.</p></div>}
+        {loading && <FlightResultsSkeleton fromCode={route?.fromCityOrAirport?.code} toCode={route?.toCityOrAirport?.code} />}
         {error && <div className="flight-error" role="alert">{error}<div><button onClick={() => { setSelection({}); setRetry(value => value + 1); }}>Search again</button></div></div>}
         {!loading && result && <>
           {Object.keys(groups).length > 1 && <div className="flight-group-tabs">{Object.keys(groups).map((key, index) => <button key={key} aria-pressed={group === key} onClick={() => changeGroup(key)}>{key === 'ONWARD' ? 'Outbound' : key === 'RETURN' ? 'Return' : `Journey ${index + 1}`}{selection[key] ? ' ✓' : ''}</button>)}</div>}
