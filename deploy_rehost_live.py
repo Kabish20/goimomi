@@ -85,7 +85,6 @@ ALLOWED_HOSTS = [
     'www.goimomi.com',
     'localhost',
     '127.0.0.1',
-    '54.81.116.105',
 ]
 EOF
 

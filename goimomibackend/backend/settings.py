@@ -43,7 +43,7 @@ _cors_origins = os.getenv(
 CORS_ALLOWED_ORIGINS = [origin.strip().rstrip('/') for origin in _cors_origins.split(',') if origin.strip()]
 CORS_ALLOW_ALL_ORIGINS = DEBUG
 
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'goimomi.com,www.goimomi.com,54.81.116.105,localhost,127.0.0.1').split(',')
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'goimomi.com,www.goimomi.com,localhost,127.0.0.1').split(',')
 
 # Secure Proxy SSL Header
 # This tells Django it's behind a proxy that handles SSL

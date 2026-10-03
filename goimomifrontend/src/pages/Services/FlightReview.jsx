@@ -148,6 +148,42 @@ export default function FlightReview() {
         </div>
       </div>
 
+      <div className="tripjack-stepper-wrap">
+        <div className="flight-container tripjack-stepper">
+          <div className="step-item is-done">
+            <span className="step-badge"><Plane size={15} /></span>
+            <div className="step-text">
+              <small>FIRST STEP</small>
+              <strong>Flight Itinerary</strong>
+            </div>
+          </div>
+          <div className="step-arrow">→</div>
+          <div className="step-item is-active">
+            <span className="step-badge"><User size={15} /></span>
+            <div className="step-text">
+              <small>SECOND STEP</small>
+              <strong>Passenger Details</strong>
+            </div>
+          </div>
+          <div className="step-arrow">→</div>
+          <div className="step-item">
+            <span className="step-badge"><CheckCircle2 size={15} /></span>
+            <div className="step-text">
+              <small>THIRD STEP</small>
+              <strong>Review</strong>
+            </div>
+          </div>
+          <div className="step-arrow">→</div>
+          <div className="step-item">
+            <span className="step-badge"><ShieldCheck size={15} /></span>
+            <div className="step-text">
+              <small>FINISH STEP</small>
+              <strong>Payments</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div className="flight-container flight-review-layout">
         <section>
           <h1>Check flight details & traveller info</h1>
@@ -354,6 +390,13 @@ export default function FlightReview() {
           </Link>
         </aside>
       </div>
+
+      {remaining > 0 && (
+        <div className="tripjack-session-timer-footer">
+          <Clock size={16} />
+          <span>Your Session will expire in <strong>{Math.floor(remaining / 60)} mins : {String(remaining % 60).padStart(2, '0')} secs</strong></span>
+        </div>
+      )}
     </main>
   );
 }

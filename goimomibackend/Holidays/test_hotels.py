@@ -10,6 +10,8 @@ from .tripjack import TripJackError
 
 class HotelTests(SimpleTestCase):
     def setUp(self):
+        from django.core.cache import cache
+        cache.clear()
         self.factory = APIRequestFactory()
         day = timezone.localdate() + timedelta(days=5)
         self.query = {'regionId': '123', 'checkIn': str(day), 'checkOut': str(day + timedelta(days=2)),

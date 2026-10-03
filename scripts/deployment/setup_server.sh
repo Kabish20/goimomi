@@ -2,7 +2,7 @@
 # ==============================================================================
 # Goimomi Holidays - Full Server Provisioning & Setup Script
 # Target OS: Ubuntu 22.04 / 24.04 LTS (AWS EC2 / VPS)
-# Target IP: 54.81.116.105 / goimomi.com
+# Target: goimomi.com
 # ==============================================================================
 
 set -euo pipefail

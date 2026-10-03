@@ -1965,3 +1965,116 @@
 @keyframes flightSpin {
   to { transform: rotate(360deg); }
 }
+
+/* ==========================================================================
+   TripJack B2B Stepper & Session Countdown Styling
+   ========================================================================== */
+
+.tripjack-stepper-wrap {
+  background: white;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 14px 0;
+  margin-bottom: 24px;
+}
+
+.tripjack-stepper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.tripjack-stepper .step-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #64748b;
+}
+
+.tripjack-stepper .step-item.is-done {
+  color: #0f172a;
+}
+
+.tripjack-stepper .step-item.is-active {
+  color: #ea721c;
+}
+
+.tripjack-stepper .step-badge {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #f1f5f9;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  transition: all 0.2s ease;
+}
+
+.tripjack-stepper .step-item.is-done .step-badge {
+  background: #0f172a;
+  color: white;
+}
+
+.tripjack-stepper .step-item.is-active .step-badge {
+  background: #ea721c;
+  color: white;
+  box-shadow: 0 4px 10px rgba(234, 114, 28, 0.3);
+}
+
+.tripjack-stepper .step-text small {
+  display: block;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: #94a3b8;
+}
+
+.tripjack-stepper .step-item.is-active .step-text small {
+  color: #ea721c;
+}
+
+.tripjack-stepper .step-text strong {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.tripjack-stepper .step-arrow {
+  color: #cbd5e1;
+  font-size: 16px;
+}
+
+.tripjack-session-timer-footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #0f172a;
+  color: white;
+  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-size: 13px;
+  z-index: 1000;
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.tripjack-session-timer-footer strong {
+  color: #fb923c;
+  letter-spacing: 0.5px;
+}
+
+@media(max-width: 768px) {
+  .tripjack-stepper {
+    overflow-x: auto;
+    padding-bottom: 6px;
+  }
+  .tripjack-stepper .step-arrow {
+    display: none;
+  }
+}

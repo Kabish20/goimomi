@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # ==============================================================================
 # Goimomi Holidays - Automated Application Deployment Script
-# Runs on: 54.81.116.105 (Ubuntu Server)
+# Runs on: Production Ubuntu Server
 # Path: /home/ubuntu/goimomi/scripts/deployment/deploy.sh
 # ==============================================================================
 

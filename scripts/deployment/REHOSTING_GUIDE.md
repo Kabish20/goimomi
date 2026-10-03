@@ -1,6 +1,6 @@
 # 🌍 Goimomi Holidays — Complete Server Rehosting & Deployment Guide
 
-This guide provides the complete manual step-by-step instructions as well as automated 1-click scripts to rehost the entire Goimomi full-stack application on Ubuntu Linux (AWS EC2 `54.81.116.105` / `goimomi.com`).
+This guide provides the complete manual step-by-step instructions as well as automated 1-click scripts to rehost the entire Goimomi full-stack application on Ubuntu Linux (`goimomi.com`).
 
 > **Current production deployment:** Read [LIVE_DEPLOYMENT.md](LIVE_DEPLOYMENT.md) for the release deployed on 9 September 2026, verified service names, backups, and rollback instructions. The bootstrap commands below assume an older layout and must be adapted before use on the current server.
 
@@ -51,7 +51,7 @@ If you have already uploaded the repository to the server or cloned it:
 
 ```bash
 # 1. SSH into the server
-ssh -i /path/to/key.pem ubuntu@54.81.116.105
+ssh -i /path/to/key.pem ubuntu@<your-server-ip>
 
 # 2. Navigate to deployment scripts and execute master setup
 chmod +x /home/ubuntu/goimomi/scripts/deployment/*.sh
@@ -68,7 +68,7 @@ sudo /home/ubuntu/goimomi/scripts/deployment/setup_server.sh
 ### Step 1: Connect to the Server
 
 ```bash
-ssh -i /path/to/your-key.pem ubuntu@54.81.116.105
+ssh -i /path/to/your-key.pem ubuntu@<your-server-ip>
 ```
 
 ---
@@ -152,7 +152,7 @@ From your local machine (PowerShell / Terminal):
 
 ```powershell
 # Upload update_package.zip
-scp -i /path/to/key.pem update_package.zip ubuntu@54.81.116.105:/home/ubuntu/
+scp -i /path/to/key.pem update_package.zip ubuntu@<your-server-ip>:/home/ubuntu/
 ```
 
 On the Server:
@@ -189,7 +189,7 @@ DB_PASSWORD=your_secure_db_password
 DB_HOST=localhost
 DB_PORT=5432
 DEBUG=False
-ALLOWED_HOSTS=goimomi.com,www.goimomi.com,54.81.116.105,localhost,127.0.0.1
+ALLOWED_HOSTS=goimomi.com,www.goimomi.com,localhost,127.0.0.1
 SECRET_KEY=your_django_production_secret_key
 
 # Email Settings (Brevo SMTP)
@@ -392,7 +392,7 @@ Content:
 server {
     listen 80;
     listen [::]:80;
-    server_name goimomi.com www.goimomi.com 54.81.116.105;
+    server_name goimomi.com www.goimomi.com;
 
     client_max_body_size 50M;
 
@@ -488,7 +488,7 @@ sudo systemctl reload nginx
 
 ### Step 11: Setup Free SSL/TLS Certificates (Let's Encrypt)
 
-Once your domain DNS A-records for `goimomi.com` and `www.goimomi.com` point to `54.81.116.105`:
+Once your domain DNS A-records for `goimomi.com` and `www.goimomi.com` point to your server IP:
 
 ```bash
 sudo certbot --nginx -d goimomi.com -d www.goimomi.com

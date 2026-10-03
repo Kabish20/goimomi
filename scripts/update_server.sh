@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # ==============================================================================
 # Goimomi Holidays - Quick Update Script for Remote Server
-# Run on 54.81.116.105: bash update_server.sh
+# Run on remote server: bash update_server.sh
 # ==============================================================================
 
 set -euo pipefail

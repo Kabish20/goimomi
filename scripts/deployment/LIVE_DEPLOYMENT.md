@@ -1,6 +1,6 @@
 # Live Goimomi deployment
 
-Deployed on 9 September 2026 to `ubuntu@54.81.116.105`.
+Deployed on 9 September 2026 to production server.
 
 - Website: https://goimomi.com/ and https://www.goimomi.com/
 - Active release: `/home/ubuntu/goimomi-releases/20260909T105037Z`
