@@ -248,7 +248,7 @@ SIMPLE_JWT = {
 # Caching Configuration (Redis with LocMem fallback for local/test environments)
 REDIS_URL = config('REDIS_URL', default='redis://127.0.0.1:6379/1')
 try:
-    import redis
+    import redis  # type: ignore
     _r = redis.from_url(REDIS_URL, socket_timeout=0.5)
     _r.ping()
     CACHES = {
