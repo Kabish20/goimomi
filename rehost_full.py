@@ -51,12 +51,34 @@ with tarfile.open(dist_tar, 'w:gz') as tar:
     tar.add(str(frontend_dist), arcname='dist', filter=dist_filter)
 print(f"  Frontend archive created: {dist_tar.stat().st_size / 1024 / 1024:.2f} MB")
 
+SERVER_IP = '172.105.47.106'
+SERVER_USER = 'root'
+SERVER_PASS = 'goimomi@123$'
+
 # 3. Connect to SSH
-print("\n[Step 3/5] Connecting to Server 172.105.47.106...")
+print(f"\n[Step 3/5] Connecting to Server {SERVER_IP}...")
 ssh = paramiko.SSHClient()
 ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-ssh.connect('172.105.47.106', username='root', password='goimomi@123$', timeout=30)
-print("  Connected successfully.")
+
+connected = False
+for attempt in range(1, 11):
+    try:
+        print(f"  Attempt {attempt}/10: Connecting to {SERVER_IP}:22...")
+        ssh.connect(SERVER_IP, username=SERVER_USER, password=SERVER_PASS, timeout=8)
+        connected = True
+        print("  Connected successfully!")
+        break
+    except Exception as e:
+        print(f"  Attempt {attempt} failed: {e}")
+        if attempt < 10:
+            print("  Retrying in 5 seconds...")
+            time.sleep(5)
+
+if not connected:
+    print(f"\nERROR: Could not establish SSH connection to {SERVER_IP}:22 after 10 attempts.")
+    print("Please verify in Linode Cloud Manager that the VPS is Powered On and not blocked by a Cloud Firewall.")
+    sys.exit(1)
+
 
 stamp = datetime.datetime.now().strftime('%Y%m%dT%H%M%S')
 backup_dir = f"/var/backups/goimomi/rehost-release-{stamp}"
