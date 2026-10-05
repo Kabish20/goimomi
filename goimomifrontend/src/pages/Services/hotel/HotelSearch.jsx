@@ -938,7 +938,8 @@ export default function HotelSearch() {
                       onSelect={() => run('review', { token: detail.token, optionId: option.optionId }, data => {
                         setReview(data);
                         saveSession('hotel-review', data);
-                        navigate('/hotel/review');
+                        saveSession('hotel-detail', detail);
+                        navigate('/hotel/review', { state: { review: data, detail, form } });
                       })}
                     />
                   ))}

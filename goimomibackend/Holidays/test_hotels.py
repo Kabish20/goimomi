@@ -109,3 +109,38 @@ class HotelTests(SimpleTestCase):
         self.assertEqual(hotel_views.countries(self.factory.get('/')).data,
                          ['INDIA', 'UNITED ARAB EMIRATES'])
         self.assertEqual(supplier.call_count, 2)
+
+    @patch('Holidays.services.zoho_payment.ZohoPaymentService.create_hotel_checkout_session')
+    def test_create_hotel_payment_session(self, mock_create):
+        mock_session = Mock(payments_session_id='sess_htl_123', access_key='key_htl_abc')
+        mock_create.return_value = mock_session
+
+        req = self.factory.post('/api/hotels/create-payment-session/', {
+            'bookingId': 'TJ-HTL-TEST',
+            'amount': 6091.59,
+            'name': 'Rahul Sharma',
+            'email': 'rahul@example.com',
+            'phone': '9876543210',
+            'hotelName': 'Hotel 72 Sharjah',
+            'roomName': 'Superior Room',
+        }, format='json')
+        resp = hotel_views.create_hotel_payment_session(req)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.data['payments_session_id'], 'sess_htl_123')
+        self.assertEqual(resp.data['access_key'], 'key_htl_abc')
+        self.assertIn('hostedcheckout/key_htl_abc', resp.data['redirect_url'])
+
+    @patch('Holidays.services.zoho_payment.ZohoPaymentService.get_payment_session')
+    def test_verify_hotel_payment(self, mock_get):
+        mock_session = Mock(status='completed')
+        mock_get.return_value = mock_session
+
+        req = self.factory.post('/api/hotels/verify-payment/', {
+            'sessionId': 'sess_htl_123',
+            'bookingId': 'TJ-HTL-TEST',
+        }, format='json')
+        resp = hotel_views.verify_hotel_payment(req)
+        self.assertEqual(resp.status_code, 200)
+        self.assertTrue(resp.data['verified'])
+        self.assertEqual(resp.data['booking_id'], 'TJ-HTL-TEST')
+

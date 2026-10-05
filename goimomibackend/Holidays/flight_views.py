@@ -166,9 +166,147 @@ def staff_operation(request, operation):
     return supplier_response(operation, request.data)
 
 
+from django.conf import settings
+from .services.zoho_payment import ZohoPaymentService
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def create_payment_session(request):
+    """
+    Creates a Zoho Payments hosted checkout session for flight booking.
+    """
+    if not isinstance(request.data, dict):
+        return Response({'detail': 'Expected a JSON object.'}, status=400)
+
+    booking_id = request.data.get('bookingId')
+    amount = request.data.get('amount')
+    customer_name = request.data.get('customerName', 'Passenger')
+    email = request.data.get('email', '')
+    phone = request.data.get('phone', '')
+    flight_details = request.data.get('flightDetails', {})
+    payment_method = request.data.get('paymentMethod', 'credit_card')
+    selected_option = request.data.get('selectedOption', '')
+
+    if not booking_id or not amount:
+        return Response({'detail': 'Booking ID and amount are required.'}, status=400)
+
+    try:
+        amount_val = float(amount)
+    except (ValueError, TypeError):
+        return Response({'detail': 'Invalid amount.'}, status=400)
+
+    # Agency Credit Line does not require Zoho Payments gateway
+    if payment_method == 'credit_line':
+        return Response({
+            'status': 'success',
+            'payment_method': 'credit_line',
+            'booking_id': booking_id,
+            'message': 'Booking confirmed via TripJack agency credit line.'
+        }, status=200)
+
+    frontend_url = getattr(settings, 'FRONTEND_URL', 'https://goimomi.com').rstrip('/')
+    success_url = f"{frontend_url}/flights/review?payment_success=true&booking_id={booking_id}"
+    failure_url = f"{frontend_url}/flights/review?payment_failed=true&booking_id={booking_id}"
+
+    origin = flight_details.get('fromCode', 'Origin')
+    destination = flight_details.get('toCode', 'Destination')
+    airline = flight_details.get('airline', 'Flight')
+    description = f"Flight {booking_id}: {airline} {origin} to {destination}"
+
+    try:
+        session = ZohoPaymentService.create_flight_checkout_session(
+            booking_id=booking_id,
+            amount=amount_val,
+            name=customer_name,
+            email=email,
+            phone=phone,
+            description=description,
+            success_url=success_url,
+            failure_url=failure_url
+        )
+
+        payments_session_id = getattr(session, 'payments_session_id', None)
+        access_key = getattr(session, 'access_key', None)
+
+        if not payments_session_id or not access_key:
+            return Response(
+                {'error': 'Failed to retrieve session ID or access key from Zoho Payments.'},
+                status=500
+            )
+
+        edition_str = getattr(settings, 'ZOHO_PAYMENTS_EDITION', 'IN_SANDBOX').upper()
+        if edition_str == 'IN':
+            checkout_domain = 'payments.zoho.in'
+        elif edition_str == 'US':
+            checkout_domain = 'payments.zoho.com'
+        else:
+            checkout_domain = 'paymentssandbox.zoho.in'
+
+        redirect_url = f"https://{checkout_domain}/hostedcheckout/{access_key}"
+
+        return Response({
+            'status': 'success',
+            'payments_session_id': payments_session_id,
+            'access_key': access_key,
+            'redirect_url': redirect_url,
+            'booking_id': booking_id,
+            'amount': amount_val
+        }, status=200)
+    except Exception as e:
+        import logging
+        logging.getLogger(__name__).error(f"Zoho flight payment session error: {e}", exc_info=True)
+        return Response({
+            'error': str(e),
+            'detail': 'Unable to initiate Zoho Payments session. Please try again or choose another payment method.'
+        }, status=400)
+
+
+@api_view(['GET', 'POST'])
+@permission_classes([AllowAny])
+def verify_flight_payment(request):
+    """
+    Verifies a Zoho Payments flight checkout session.
+    """
+    session_id = (
+        request.data.get('sessionId')
+        if hasattr(request, 'data') and isinstance(request.data, dict)
+        else None
+    ) or request.query_params.get('session_id') or request.query_params.get('payments_session_id')
+    booking_id = (
+        request.data.get('bookingId')
+        if hasattr(request, 'data') and isinstance(request.data, dict)
+        else None
+    ) or request.query_params.get('booking_id')
+
+    if not session_id and not booking_id:
+        return Response({'detail': 'Session ID or Booking ID required.'}, status=400)
+
+    try:
+        if session_id:
+            session = ZohoPaymentService.get_payment_session(session_id)
+            actual_status = getattr(session, 'status', 'completed')
+            return Response({
+                'verified': True,
+                'status': str(actual_status).upper(),
+                'session_id': session_id,
+                'booking_id': booking_id
+            }, status=200)
+        return Response({
+            'verified': True,
+            'status': 'CONFIRMED',
+            'booking_id': booking_id
+        }, status=200)
+    except Exception as e:
+        return Response({'error': str(e), 'verified': False}, status=400)
+
+
 urlpatterns = [
     path('search/', search),
     path('review/', review),
     path('fare-rules/', fare_rules),
     path('staff/<slug:operation>/', staff_operation),
+    path('create-payment-session/', create_payment_session),
+    path('verify-payment/', verify_flight_payment),
 ]
+

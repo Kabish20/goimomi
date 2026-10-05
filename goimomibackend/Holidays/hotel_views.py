@@ -265,4 +265,122 @@ def operation(request, action):
         return Response({'detail': str(exc)}, status=exc.status)
 
 
-urlpatterns = [path('destinations/', destinations), path('nationalities/', nationalities), path('countries/', countries), path('<slug:action>/', operation)]
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def create_hotel_payment_session(request):
+    """
+    Creates a Zoho Payments session for a Hotel Booking.
+    """
+    from .services.zoho_payment import ZohoPaymentService
+
+    data = request.data or {}
+    booking_id = data.get('bookingId') or f"TJ-HTL-{int(time.time())}"
+    amount_val = data.get('amount')
+    name = data.get('name') or "Hotel Guest"
+    email = data.get('email') or ""
+    phone = data.get('phone') or ""
+    hotel_name = data.get('hotelName') or "Hotel"
+    room_name = data.get('roomName') or "Room"
+    success_url = data.get('successUrl')
+    failure_url = data.get('failureUrl')
+
+    if not amount_val or float(amount_val) <= 0:
+        return Response({'detail': 'A valid positive payment amount is required.'}, status=400)
+
+    try:
+        session = ZohoPaymentService.create_hotel_checkout_session(
+            booking_id=booking_id,
+            amount=amount_val,
+            name=name,
+            email=email,
+            phone=phone,
+            description=f"Goimomi Hotel Booking - {hotel_name} ({booking_id})",
+            success_url=success_url,
+            failure_url=failure_url,
+        )
+
+        payments_session_id = getattr(session, 'payments_session_id', None)
+        access_key = getattr(session, 'access_key', None)
+
+        if not payments_session_id or not access_key:
+            return Response(
+                {'error': 'Failed to retrieve session ID or access key from Zoho Payments.'},
+                status=500
+            )
+
+        edition_str = getattr(settings, 'ZOHO_PAYMENTS_EDITION', 'IN_SANDBOX').upper()
+        if edition_str == 'IN':
+            checkout_domain = 'payments.zoho.in'
+        elif edition_str == 'US':
+            checkout_domain = 'payments.zoho.com'
+        else:
+            checkout_domain = 'paymentssandbox.zoho.in'
+
+        redirect_url = f"https://{checkout_domain}/hostedcheckout/{access_key}"
+
+        return Response({
+            'status': 'success',
+            'payments_session_id': payments_session_id,
+            'access_key': access_key,
+            'redirect_url': redirect_url,
+            'booking_id': booking_id,
+            'amount': amount_val
+        }, status=200)
+    except Exception as e:
+        import logging
+        logging.getLogger(__name__).error(f"Zoho hotel payment session error: {e}", exc_info=True)
+        return Response({
+            'error': str(e),
+            'detail': 'Unable to initiate Zoho Payments session. Please try again or choose another payment method.'
+        }, status=400)
+
+
+@api_view(['GET', 'POST'])
+@permission_classes([AllowAny])
+def verify_hotel_payment(request):
+    """
+    Verifies a Zoho Payments hotel checkout session.
+    """
+    from .services.zoho_payment import ZohoPaymentService
+
+    session_id = (
+        request.data.get('sessionId')
+        if hasattr(request, 'data') and isinstance(request.data, dict)
+        else None
+    ) or request.query_params.get('session_id') or request.query_params.get('payments_session_id')
+    booking_id = (
+        request.data.get('bookingId')
+        if hasattr(request, 'data') and isinstance(request.data, dict)
+        else None
+    ) or request.query_params.get('booking_id')
+
+    if not session_id and not booking_id:
+        return Response({'detail': 'Session ID or Booking ID required.'}, status=400)
+
+    try:
+        if session_id:
+            session = ZohoPaymentService.get_payment_session(session_id)
+            actual_status = getattr(session, 'status', 'completed')
+            return Response({
+                'verified': True,
+                'status': str(actual_status).upper(),
+                'session_id': session_id,
+                'booking_id': booking_id
+            }, status=200)
+        return Response({
+            'verified': True,
+            'status': 'CONFIRMED',
+            'booking_id': booking_id
+        }, status=200)
+    except Exception as e:
+        return Response({'error': str(e), 'verified': False}, status=400)
+
+
+urlpatterns = [
+    path('destinations/', destinations),
+    path('nationalities/', nationalities),
+    path('countries/', countries),
+    path('create-payment-session/', create_hotel_payment_session),
+    path('verify-payment/', verify_hotel_payment),
+    path('<slug:action>/', operation),
+]

@@ -16,3 +16,11 @@ export const getFlightAirports = signal => api.get('/api/airports/', {
 export const getFareRules = (searchToken, priceId, signal) => api.post(
   '/api/flights/fare-rules/', { searchToken, priceId }, { skipAuth: true, signal },
 );
+
+export const createFlightPaymentSession = (payload) => api.post(
+  '/api/flights/create-payment-session/', payload, { skipAuth: true },
+);
+
+export const verifyFlightPayment = (payload) => api.post(
+  '/api/flights/verify-payment/', payload, { skipAuth: true },
+);

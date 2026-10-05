@@ -266,6 +266,88 @@ class ZohoPaymentService:
             raise e
 
     @classmethod
+    def create_flight_checkout_session(cls, booking_id, amount, name, email="", phone="", description=None, success_url=None, failure_url=None):
+        """
+        Creates a Zoho Payments session for a Flight Booking.
+        """
+        try:
+            client = cls.get_client()
+
+            hosted_params = HostedPageParams(
+                description=description or f"Flight Booking {booking_id} payment",
+                success_url=success_url,
+                failure_url=failure_url,
+                name=name or "Passenger",
+                email=email or "",
+                phone=phone or "",
+            )
+
+            config_params = ConfigurationsParams(
+                hosted_page_parameters=hosted_params
+            )
+
+            edition_str = getattr(settings, 'ZOHO_PAYMENTS_EDITION', 'IN_SANDBOX').upper()
+            currency = 'USD' if edition_str == 'US' else 'INR'
+
+            create_params = PaymentSessionCreateParams(
+                amount=float(amount),
+                currency=currency,
+                description=description or f"Goimomi Holidays Flight Booking - {booking_id}",
+                configurations=config_params,
+                reference_number=str(booking_id),
+            )
+
+            logger.info(f"[ZohoPayments] Creating payment session for flight booking={booking_id}, amount={amount} {currency}")
+
+            session = client.payment_sessions().create(create_params)
+            logger.info(f"[ZohoPayments] Payment session created successfully for flight booking={booking_id}")
+            return session
+        except Exception as e:
+            logger.error(f"[ZohoPayments] Error creating checkout session for flight booking {booking_id}: {e}", exc_info=True)
+            raise e
+
+    @classmethod
+    def create_hotel_checkout_session(cls, booking_id, amount, name, email="", phone="", description=None, success_url=None, failure_url=None):
+        """
+        Creates a Zoho Payments session for a Hotel Booking.
+        """
+        try:
+            client = cls.get_client()
+
+            hosted_params = HostedPageParams(
+                description=description or f"Hotel Booking {booking_id} payment",
+                success_url=success_url,
+                failure_url=failure_url,
+                name=name or "Hotel Guest",
+                email=email or "",
+                phone=phone or "",
+            )
+
+            config_params = ConfigurationsParams(
+                hosted_page_parameters=hosted_params
+            )
+
+            edition_str = getattr(settings, 'ZOHO_PAYMENTS_EDITION', 'IN_SANDBOX').upper()
+            currency = 'USD' if edition_str == 'US' else 'INR'
+
+            create_params = PaymentSessionCreateParams(
+                amount=float(amount),
+                currency=currency,
+                description=description or f"Goimomi Holidays Hotel Booking - {booking_id}",
+                configurations=config_params,
+                reference_number=str(booking_id),
+            )
+
+            logger.info(f"[ZohoPayments] Creating payment session for hotel booking={booking_id}, amount={amount} {currency}")
+
+            session = client.payment_sessions().create(create_params)
+            logger.info(f"[ZohoPayments] Payment session created successfully for hotel booking={booking_id}")
+            return session
+        except Exception as e:
+            logger.error(f"[ZohoPayments] Error creating checkout session for hotel booking {booking_id}: {e}", exc_info=True)
+            raise e
+
+    @classmethod
     def get_payment_session(cls, session_id):
         """
         Retrieves the details of a Zoho Payment Session.

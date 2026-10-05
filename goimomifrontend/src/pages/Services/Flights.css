@@ -4302,3 +4302,967 @@
     box-shadow: none;
   }
 }
+
+/* ========================================================
+   TRIPJACK THEMED AIRLINE CHECKOUT & PAYMENTS SYSTEM (Screenshots 1 - 5)
+   ======================================================== */
+
+/* Passport OCR Upload Box (Screenshot 1) */
+.tj-passport-upload-card {
+  background: #f8fafc;
+  border: 1px dashed #cbd5e1;
+  border-radius: 6px;
+  padding: 14px 18px;
+  margin: 12px 0 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tj-passport-upload-header {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.tj-passport-dropzone {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 16px;
+  background: #ffffff;
+  border: 1.5px dashed #94a3b8;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.tj-passport-dropzone:hover {
+  border-color: #f97316;
+  background: #fffaf5;
+}
+
+.tj-passport-dropzone-icon {
+  color: #0284c7;
+  flex-shrink: 0;
+}
+
+.tj-passport-dropzone-text {
+  font-size: 13px;
+  color: #475569;
+}
+
+.tj-passport-dropzone-text strong {
+  color: #0284c7;
+  text-decoration: underline;
+}
+
+.tj-passport-dropzone-text small {
+  display: block;
+  font-size: 11px;
+  color: #94a3b8;
+  margin-top: 2px;
+}
+
+/* Passport Details Section (Screenshot 1) */
+.tj-passport-info-section {
+  border-top: 1px solid #f1f5f9;
+  padding-top: 14px;
+  margin-top: 14px;
+}
+
+.tj-passport-info-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: #475569;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+  display: block;
+}
+
+.tj-passport-inputs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.tj-bulk-upload-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #ea580c;
+  cursor: pointer;
+  text-decoration: none;
+  background: none;
+  border: none;
+  padding: 0;
+}
+
+.tj-bulk-upload-link:hover {
+  text-decoration: underline;
+}
+
+/* ========================================================
+   REVIEW STEP ENHANCEMENTS (Screenshot 2)
+   ======================================================== */
+.tj-instant-offer-badge {
+  display: inline-block;
+  background: #fdf2f8;
+  color: #db2777;
+  border: 1px solid #fbcfe8;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 4px;
+  margin-bottom: 8px;
+}
+
+.tj-offer-notes-box {
+  background: #fffbeb;
+  border: 1px solid #fef3c7;
+  border-radius: 6px;
+  padding: 12px 14px;
+  font-size: 12px;
+  color: #92400e;
+  line-height: 1.5;
+  margin: 10px 0;
+}
+
+.tj-offer-notes-box strong {
+  display: block;
+  font-size: 12px;
+  color: #78350f;
+  margin-bottom: 4px;
+}
+
+.tj-offer-notes-box ul {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.tj-offer-notes-box li {
+  margin-bottom: 2px;
+}
+
+.tj-baggage-allowance-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: #334155;
+  background: #f1f5f9;
+  padding: 6px 12px;
+  border-radius: 4px;
+  margin-top: 8px;
+}
+
+.tj-btn-orange {
+  background: #ea580c;
+  color: #ffffff;
+  border: none;
+  border-radius: 4px;
+  padding: 9px 20px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tj-btn-orange:hover {
+  background: #c2410c;
+}
+
+/* ========================================================
+   PAYMENTS FINISH STEP (Screenshot 3)
+   ======================================================== */
+.tj-payments-layout-card {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.tj-flight-passenger-chip {
+  display: inline-block;
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  color: #0f172a;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 4px;
+  margin-top: 6px;
+}
+
+.tj-payments-split-box {
+  display: flex;
+  border-top: 1px solid #e2e8f0;
+  min-height: 420px;
+}
+
+.tj-payments-left-menu {
+  width: 200px;
+  background: #f8fafc;
+  border-right: 1px solid #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+}
+
+.tj-payments-tab-btn {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  padding: 14px 16px;
+  background: transparent;
+  border: none;
+  border-left: 3px solid transparent;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 13px;
+  font-weight: 600;
+  color: #475569;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.tj-payments-tab-btn:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+.tj-payments-tab-btn.is-active {
+  background: #ffffff;
+  color: #ea580c;
+  border-left-color: #ea580c;
+  font-weight: 700;
+}
+
+.tj-payments-right-area {
+  flex: 1;
+  padding: 24px;
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.tj-payments-area-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #ea580c;
+  margin-bottom: 16px;
+}
+
+.tj-pay-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.tj-pay-card-box {
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: all 0.15s;
+  background: #ffffff;
+}
+
+.tj-pay-card-box:hover {
+  border-color: #94a3b8;
+}
+
+.tj-pay-card-box.is-selected {
+  border-color: #0284c7;
+  box-shadow: 0 0 0 1px #0284c7;
+}
+
+.tj-pay-card-box input[type="radio"] {
+  accent-color: #0284c7;
+  cursor: pointer;
+}
+
+.tj-pay-card-details {
+  flex: 1;
+}
+
+.tj-pay-card-details strong {
+  display: block;
+  font-size: 13px;
+  color: #0f172a;
+  margin-bottom: 4px;
+}
+
+.tj-network-logos-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tj-logo-badge {
+  font-size: 10px;
+  font-weight: 800;
+  padding: 2px 5px;
+  border-radius: 3px;
+  letter-spacing: 0.5px;
+  line-height: 1;
+}
+
+.tj-logo-visa {
+  background: #1a1f71;
+  color: #f7b600;
+}
+
+.tj-logo-mc {
+  background: #eb001b;
+  color: #f79e1b;
+}
+
+.tj-logo-diners {
+  background: #004a97;
+  color: #ffffff;
+}
+
+.tj-logo-amex {
+  background: #007bc1;
+  color: #ffffff;
+}
+
+.tj-logo-rupay {
+  background: #00a454;
+  color: #ffffff;
+}
+
+.tj-cards-note-banner {
+  background: #fffbeb;
+  border: 1px solid #fef3c7;
+  border-radius: 4px;
+  padding: 10px 14px;
+  font-size: 12px;
+  color: #78350f;
+  margin-bottom: 14px;
+}
+
+.tj-bank-redirect-box {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  padding: 12px 14px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 12px;
+  color: #475569;
+  line-height: 1.4;
+  margin-bottom: 16px;
+}
+
+.tj-bank-redirect-box strong {
+  color: #0f172a;
+}
+
+.tj-payment-fee-line {
+  font-size: 13px;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 16px;
+}
+
+.tj-btn-pay-now-large {
+  background: #ea580c;
+  color: #ffffff;
+  border: none;
+  border-radius: 4px;
+  padding: 14px 28px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  max-width: 320px;
+}
+
+.tj-btn-pay-now-large:hover {
+  background: #c2410c;
+}
+
+.tj-btn-pay-now-large:disabled {
+  background: #94a3b8;
+  cursor: not-allowed;
+}
+
+/* ========================================================
+   SEAT MAP MODAL / SCREENSHOT 5 STYLING
+   ======================================================== */
+.tj-seatmap-container {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 18px;
+  margin-top: 16px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+}
+
+.tj-seatmap-top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.tj-seatmap-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  color: #0f172a;
+}
+
+.tj-seatmap-route-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  background: #fff7ed;
+  border: 1.5px solid #ea580c;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #ea580c;
+}
+
+.tj-seatmap-plane {
+  font-size: 14px;
+}
+
+.tj-seatmap-legend-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 10px 14px;
+  margin-bottom: 16px;
+}
+
+.tj-legend-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.tj-legend-heading {
+  font-size: 11px;
+  font-weight: 800;
+  color: #334155;
+  letter-spacing: 0.5px;
+}
+
+.tj-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #475569;
+}
+
+.tj-legend-badge {
+  width: 18px;
+  height: 18px;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tj-legend-badge.status-selected {
+  background: #16a34a;
+  color: #ffffff;
+}
+
+.tj-legend-badge.status-booked {
+  background: #94a3b8;
+  color: #ffffff;
+}
+
+.tj-attr-box {
+  width: 18px;
+  height: 18px;
+  border-radius: 3px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.tier-free {
+  background: #86efac;
+}
+
+.tier-legroom {
+  background: #fca5a5;
+}
+
+.tier-exit {
+  background: #bbf7d0;
+}
+
+.tier-blue {
+  background: #7dd3fc;
+}
+
+.tier-purple {
+  background: #c4b5fd;
+}
+
+.tier-orange {
+  background: #fdba74;
+}
+
+.tj-plane-viewport {
+  overflow-x: auto;
+  padding: 16px 0;
+  display: flex;
+  justify-content: center;
+}
+
+.tj-plane-fuselage {
+  display: flex;
+  align-items: center;
+  background: #f8fafc;
+  border: 2px solid #cbd5e1;
+  border-radius: 40px 12px 12px 40px;
+  padding: 16px 20px 16px 12px;
+  gap: 16px;
+  min-width: 780px;
+}
+
+.tj-plane-nose {
+  width: 70px;
+  height: 140px;
+  border-right: 2px dashed #cbd5e1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.tj-cockpit-glass {
+  width: 32px;
+  height: 50px;
+  border-radius: 50% 0 0 50%;
+  border-left: 4px solid #334155;
+  border-top: 4px solid #334155;
+  border-bottom: 4px solid #334155;
+  background: #94a3b8;
+}
+
+.tj-nose-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+}
+
+.tj-plane-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+}
+
+.tj-seat-row-strip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tj-col-char {
+  width: 20px;
+  font-size: 12px;
+  font-weight: 800;
+  color: #475569;
+  text-align: center;
+}
+
+.tj-seat-unit {
+  width: 38px;
+  height: 34px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  color: #1e293b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.12s;
+  padding: 0;
+}
+
+.tj-seat-unit:hover:not(:disabled) {
+  transform: scale(1.08);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12);
+}
+
+.tj-seat-unit.is-booked {
+  background: #cbd5e1 !important;
+  color: #64748b;
+  cursor: not-allowed;
+  opacity: 0.8;
+}
+
+.tj-seat-unit.is-selected {
+  background: #16a34a !important;
+  color: #ffffff !important;
+  border-color: #15803d;
+  box-shadow: 0 0 0 2px #16a34a;
+}
+
+.tj-seat-unit.is-mine {
+  animation: pulse-mine 1.5s infinite;
+}
+
+@keyframes pulse-mine {
+  0% { box-shadow: 0 0 0 1px #16a34a; }
+  50% { box-shadow: 0 0 0 3px #86efac; }
+  100% { box-shadow: 0 0 0 1px #16a34a; }
+}
+
+.tj-aisle-number-strip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 4px 0;
+}
+
+.tj-aisle-blank {
+  width: 20px;
+}
+
+.tj-aisle-row-num {
+  width: 38px;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: #64748b;
+}
+
+.tj-seatmap-bottom-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid #f1f5f9;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.tj-seatmap-pax-tabs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.tj-pax-select-pill {
+  padding: 8px 14px;
+  background: #ffffff;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  transition: all 0.15s;
+}
+
+.tj-pax-select-pill.is-active {
+  border-color: #ea580c;
+  background: #fff7ed;
+}
+
+.tj-pax-select-pill span {
+  font-size: 10px;
+  color: #64748b;
+  text-transform: uppercase;
+}
+
+.tj-pax-select-pill strong {
+  font-size: 12px;
+  color: #ea580c;
+}
+
+.tj-seatmap-fee-display {
+  font-size: 14px;
+  color: #334155;
+}
+
+.tj-seatmap-fee-display strong {
+  color: #ea580c;
+  font-size: 16px;
+}
+
+/* ========================================================
+   ADD-ONS: SELECT MEAL, SELECT BAGGAGE & OTHER SERVICES (New Screenshots)
+   ======================================================== */
+
+.tj-addon-section-card {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 18px 20px;
+  margin-top: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.tj-addon-header-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #f1f5f9;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.tj-addon-header-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.tj-addon-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.tj-addon-route-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  background: #fff7ed;
+  border: 1.5px solid #ea580c;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #ea580c;
+}
+
+.tj-diet-filter-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tj-diet-icon-btn {
+  width: 24px;
+  height: 24px;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  transition: all 0.15s;
+}
+
+.tj-diet-icon-btn:hover {
+  border-color: #94a3b8;
+}
+
+.tj-diet-icon-btn.is-active {
+  border-color: #ea580c;
+  box-shadow: 0 0 0 1px #ea580c;
+}
+
+.tj-diet-dot-veg {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #16a34a;
+}
+
+.tj-diet-dot-nonveg {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #dc2626;
+}
+
+.tj-addon-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.tj-addon-card-item {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 100px;
+  transition: all 0.15s;
+}
+
+.tj-addon-card-item:hover {
+  border-color: #94a3b8;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.tj-addon-card-item.has-selected {
+  border-color: #ea580c;
+  background: #fffaf5;
+}
+
+.tj-addon-card-top {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.tj-addon-card-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1e293b;
+  line-height: 1.4;
+  flex: 1;
+}
+
+.tj-addon-card-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.tj-addon-card-price {
+  font-size: 15px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.tj-addon-stepper {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tj-stepper-btn {
+  width: 28px;
+  height: 28px;
+  border: 1.5px solid #ea580c;
+  border-radius: 6px;
+  background: #ffffff;
+  color: #ea580c;
+  font-size: 16px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s;
+  padding: 0;
+}
+
+.tj-stepper-btn:hover:not(:disabled) {
+  background: #ea580c;
+  color: #ffffff;
+}
+
+.tj-stepper-btn:disabled {
+  border-color: #cbd5e1;
+  color: #94a3b8;
+  cursor: not-allowed;
+}
+
+.tj-stepper-val {
+  min-width: 18px;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.tj-addon-bottom-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 14px;
+  border-top: 1px solid #f1f5f9;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.tj-addon-pax-pill {
+  padding: 8px 16px;
+  background: #fff7ed;
+  border: 1.5px solid #ea580c;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  transition: all 0.15s;
+}
+
+.tj-addon-pax-pill span {
+  font-size: 11px;
+  font-weight: 700;
+  color: #1e293b;
+  text-transform: uppercase;
+}
+
+.tj-addon-pax-pill strong {
+  font-size: 12px;
+  color: #ea580c;
+}
+
+.tj-addon-fee-display {
+  font-size: 14px;
+  color: #334155;
+}
+
+.tj-addon-fee-display strong {
+  color: #ea580c;
+  font-size: 16px;
+}
+
+.tj-baggage-icon-blue {
+  color: #0284c7;
+  flex-shrink: 0;
+}
