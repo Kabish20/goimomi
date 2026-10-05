@@ -74,3 +74,5 @@ goimomifrontend/design/**/desktop-*.png
 goimomifrontend/design/**/mobile-*.png
 goimomifrontend/design/**/*-desktop.png
 goimomifrontend/design/**/*-mobile.png
+test_screenshots/
+.release_tmp/

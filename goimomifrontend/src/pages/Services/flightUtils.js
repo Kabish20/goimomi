@@ -20,3 +20,35 @@ export function flightError(error) {
   return flatten(data).slice(0, 3).join(' ') || 'Unable to complete this request. Please search again.';
 }
 export const cabinLabel = cabin => ({ ECONOMY: 'Economy', PREMIUM_ECONOMY: 'Premium Economy', BUSINESS: 'Business', FIRST: 'First' })[cabin] || cabin;
+
+export const formatFullDate = value => {
+  if (!value) return '';
+  const d = new Date(`${value.slice(0, 10)}T12:00:00`);
+  const day = d.getDate();
+  const suffix = ['th', 'st', 'nd', 'rd'][(day % 10 > 3 || Math.floor((day % 100) / 10) === 1) ? 0 : day % 10];
+  const weekday = d.toLocaleDateString('en-US', { weekday: 'short' });
+  const month = d.toLocaleDateString('en-US', { month: 'short' });
+  return `${weekday}, ${month} ${day}${suffix} ${d.getFullYear()}`;
+};
+
+export const isNextDay = (dep, arr) => {
+  if (!dep || !arr) return false;
+  return arr.slice(0, 10) > dep.slice(0, 10);
+};
+
+export const airlineMeta = code => {
+  const map = {
+    '6E': { name: 'IndiGo', color: '#001b94', bg: '#e0e7ff', text: '#1e3a8a' },
+    'SG': { name: 'SpiceJet', color: '#dc2626', bg: '#fee2e2', text: '#991b1b' },
+    'AI': { name: 'Air India', color: '#b91c1c', bg: '#fee2e2', text: '#991b1b' },
+    'QP': { name: 'Akasa Air', color: '#ea580c', bg: '#ffedd5', text: '#9a3412' },
+    'IX': { name: 'AI Express', color: '#c2410c', bg: '#ffedd5', text: '#9a3412' },
+    'EK': { name: 'Emirates', color: '#dc2626', bg: '#fee2e2', text: '#991b1b' },
+    'EY': { name: 'Etihad Airways', color: '#b45309', bg: '#fef3c7', text: '#92400e' },
+    'SQ': { name: 'Singapore Airlines', color: '#1d4ed8', bg: '#dbeafe', text: '#1e40af' },
+    'QR': { name: 'Qatar Airways', color: '#831843', bg: '#fce7f3', text: '#831843' },
+    'MH': { name: 'Malaysia Airline', color: '#0369a1', bg: '#e0f2fe', text: '#075985' },
+  };
+  return map[code] || { name: code, color: '#334155', bg: '#f1f5f9', text: '#334155' };
+};
+

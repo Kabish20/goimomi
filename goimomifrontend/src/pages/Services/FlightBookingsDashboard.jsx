@@ -242,7 +242,7 @@ export default function FlightBookingsDashboard({ onSelectSearch, defaultTab = '
                         <div className="on-hold-card-top">
                           <div className="on-hold-route-info">
                             <div className="on-hold-route-title">
-                              <Plane size={18} style={{ color: '#ea580c' }} />
+                              <Plane size={18} style={{ color: '#006633' }} />
                               <span>{item.fromCode} → {item.toCode}</span>
                             </div>
                             <span className="on-hold-airline">

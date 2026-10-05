@@ -57,7 +57,7 @@
 
 /* Active Tab Color */
 .booking-tab-btn.is-active {
-  color: #ea580c !important;
+  color: #006633 !important;
 }
 
 .nav-tab-divider {
@@ -149,8 +149,8 @@
 }
 
 .search-input-wrap input:focus {
-  border-color: #ea580c;
-  box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.12);
+  border-color: #006633;
+  box-shadow: 0 0 0 3px rgba(0, 102, 51, 0.12);
 }
 
 .panel-disclaimer {
@@ -176,9 +176,9 @@
   display: grid;
   place-items: center;
   margin: 0 auto 16px;
-  background: #fff7ed;
-  border: 1.5px solid #fed7aa;
-  color: #ea580c;
+  background: #e6f5ee;
+  border: 1.5px solid #a3e0c0;
+  color: #006633;
 }
 
 .on-hold-empty-box h3 {
@@ -217,8 +217,8 @@
 }
 
 .on-hold-card:hover {
-  border-color: #ea580c;
-  box-shadow: 0 6px 18px rgba(234, 88, 12, 0.12);
+  border-color: #006633;
+  box-shadow: 0 6px 18px rgba(0, 102, 51, 0.12);
 }
 
 .on-hold-card-top {
@@ -257,9 +257,9 @@
   font-weight: 700;
   padding: 4px 10px;
   border-radius: 20px;
-  background: #fff7ed;
-  color: #ea580c;
-  border: 1px solid #fed7aa;
+  background: #e6f5ee;
+  color: #006633;
+  border: 1px solid #a3e0c0;
   white-space: nowrap;
 }
 
@@ -298,7 +298,7 @@
 .on-hold-fare-val {
   font-size: 16px;
   font-weight: 700;
-  color: #ea580c;
+  color: #006633;
 }
 
 .on-hold-actions {
@@ -327,8 +327,8 @@
 }
 
 .btn-issue-ticket {
-  background: #ea580c;
-  border: 1px solid #ea580c;
+  background: #006633;
+  border: 1px solid #006633;
   color: #ffffff;
   padding: 8px 16px;
   border-radius: 6px;
@@ -342,8 +342,8 @@
 }
 
 .btn-issue-ticket:hover:not(:disabled) {
-  background: #c2410c;
-  border-color: #c2410c;
+  background: #005229;
+  border-color: #005229;
 }
 
 .btn-issue-ticket:disabled {
@@ -518,9 +518,9 @@
 }
 
 .recent-search-card:hover {
-  border-color: #ea580c;
+  border-color: #006633;
   transform: translateY(-2px);
-  box-shadow: 0 6px 18px rgba(234, 88, 12, 0.12);
+  box-shadow: 0 6px 18px rgba(0, 102, 51, 0.12);
 }
 
 .recent-card-icon-wrap {
@@ -531,8 +531,8 @@
   place-items: center;
   flex-shrink: 0;
   transition: all 0.2s ease;
-  background: #fff7ed;
-  color: #ea580c;
+  background: #e6f5ee;
+  color: #006633;
 }
 
 .recent-card-body {
@@ -729,7 +729,7 @@
 }
 
 .ticket-arrow {
-  color: #ea580c;
+  color: #006633;
 }
 
 .ticket-info-grid {

@@ -63,7 +63,7 @@
 
 /* Active Tab Color */
 .hotel-booking-tab-btn.is-active {
-  color: #ea580c !important;
+  color: #006633 !important;
 }
 
 .hotel-nav-tab-divider {
@@ -146,8 +146,8 @@
 }
 
 .hotel-search-input-wrap input:focus {
-  border-color: #ea580c;
-  box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.12);
+  border-color: #006633;
+  box-shadow: 0 0 0 3px rgba(0, 102, 51, 0.12);
 }
 
 .hotel-panel-disclaimer {
@@ -173,9 +173,9 @@
   display: grid;
   place-items: center;
   margin: 0 auto 16px;
-  background: #fff7ed;
-  border: 1.5px solid #fed7aa;
-  color: #ea580c;
+  background: #e6f5ee;
+  border: 1.5px solid #a3e0c0;
+  color: #006633;
 }
 
 .hotel-on-hold-empty-box h3 {
@@ -214,8 +214,8 @@
 }
 
 .hotel-on-hold-card:hover {
-  border-color: #ea580c;
-  box-shadow: 0 6px 18px rgba(234, 88, 12, 0.12);
+  border-color: #006633;
+  box-shadow: 0 6px 18px rgba(0, 102, 51, 0.12);
 }
 
 .hotel-on-hold-card-top {
@@ -254,9 +254,9 @@
   font-weight: 700;
   padding: 4px 10px;
   border-radius: 20px;
-  background: #fff7ed;
-  color: #ea580c;
-  border: 1px solid #fed7aa;
+  background: #e6f5ee;
+  color: #006633;
+  border: 1px solid #a3e0c0;
   white-space: nowrap;
 }
 
@@ -295,7 +295,7 @@
 .hotel-fare-val {
   font-size: 16px;
   font-weight: 700;
-  color: #ea580c;
+  color: #006633;
 }
 
 .hotel-on-hold-actions {
@@ -324,8 +324,8 @@
 }
 
 .hotel-btn-confirm-book {
-  background: #ea580c;
-  border: 1px solid #ea580c;
+  background: #006633;
+  border: 1px solid #006633;
   color: #ffffff;
   padding: 8px 16px;
   border-radius: 6px;
@@ -339,8 +339,8 @@
 }
 
 .hotel-btn-confirm-book:hover:not(:disabled) {
-  background: #c2410c;
-  border-color: #c2410c;
+  background: #005229;
+  border-color: #005229;
 }
 
 .hotel-btn-confirm-book:disabled {
@@ -515,9 +515,9 @@
 }
 
 .hotel-recent-search-card:hover {
-  border-color: #ea580c;
+  border-color: #006633;
   transform: translateY(-2px);
-  box-shadow: 0 6px 18px rgba(234, 88, 12, 0.12);
+  box-shadow: 0 6px 18px rgba(0, 102, 51, 0.12);
 }
 
 .hotel-recent-icon-wrap {
@@ -528,8 +528,8 @@
   place-items: center;
   flex-shrink: 0;
   transition: all 0.2s ease;
-  background: #fff7ed;
-  color: #ea580c;
+  background: #e6f5ee;
+  color: #006633;
 }
 
 .hotel-recent-card-body {
@@ -855,8 +855,8 @@
 .hotel-input-group input:focus,
 .hotel-input-group select:focus,
 .hotel-input-group textarea:focus {
-  border-color: #ea580c;
-  box-shadow: 0 0 0 2px rgba(234, 88, 12, 0.15);
+  border-color: #006633;
+  box-shadow: 0 0 0 2px rgba(0, 102, 51, 0.15);
 }
 
 .hotel-review-actions-group {
@@ -869,9 +869,9 @@
 
 .btn-hotel-hold {
   width: 100%;
-  background: #fff7ed;
-  border: 1.5px solid #fed7aa;
-  color: #ea580c;
+  background: #e6f5ee;
+  border: 1.5px solid #a3e0c0;
+  color: #006633;
   font-weight: 700;
   font-size: 14.5px;
   padding: 13px;
@@ -885,8 +885,8 @@
 }
 
 .btn-hotel-hold:hover:not(:disabled) {
-  background: #ffedd5;
-  border-color: #f97316;
+  background: #d1fae5;
+  border-color: #006633;
 }
 
 .btn-hotel-hold:disabled {
@@ -896,8 +896,8 @@
 
 .btn-hotel-confirm {
   width: 100%;
-  background: #ea580c;
-  border: 1px solid #ea580c;
+  background: #006633;
+  border: 1px solid #006633;
   color: #ffffff;
   font-weight: 700;
   font-size: 14.5px;
@@ -912,7 +912,8 @@
 }
 
 .btn-hotel-confirm:hover:not(:disabled) {
-  background: #c2410c;
+  background: #005229;
+  border-color: #005229;
 }
 
 .btn-hotel-confirm:disabled {

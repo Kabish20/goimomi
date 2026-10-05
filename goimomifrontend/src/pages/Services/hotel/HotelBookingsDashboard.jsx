@@ -233,7 +233,7 @@ export default function HotelBookingsDashboard({ onSelectSearch, defaultTab = 'o
                         <div className="hotel-on-hold-card-top">
                           <div className="hotel-on-hold-info">
                             <div className="hotel-on-hold-title">
-                              <Building2 size={18} style={{ color: '#ea580c' }} />
+                              <Building2 size={18} style={{ color: '#006633' }} />
                               <span>{item.hotelName}</span>
                             </div>
                             <span className="hotel-on-hold-sub">
