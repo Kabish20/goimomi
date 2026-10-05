@@ -18,6 +18,16 @@ import usePageSEO from "../../../hooks/usePageSEO";
 
 const cabHeroImages = [cabHero1, cabHero2, cabHero3, cabHero4, cabHero5];
 
+/**
+ * Cab & Airport Transfer Booking Page
+ * 
+ * Features:
+ * - Dynamic animated hero carousel of premium vehicle fleet
+ * - Origin & Destination search with airport pickup/drop points
+ * - Vehicle fleet catalog: Sedans, SUVs, Minivans, and Luxury Coaches
+ * - One-Way, Round-Trip, and Hourly Chauffeur rental options
+ * - Integrated booking enquiry and Zoho payment gateway flow
+ */
 const Cab = () => {
   usePageSEO(
     "Premium Cab & Transfer Services | Goimomi Holidays",

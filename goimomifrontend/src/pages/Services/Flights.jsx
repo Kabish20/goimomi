@@ -3,19 +3,25 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { ArrowLeftRight, CalendarDays, ChevronDown, PlaneLanding, PlaneTakeoff, X } from 'lucide-react';
 import { getFlightAirports } from './flightApi';
 import { readSession, saveSession, today, dayLabel } from './flightUtils';
-import { mergeAirportData, POPULAR_AIRPORTS } from './flightAirportsData';
+import { mergeAirportData } from './flightAirportsData';
 import FlightAirportPicker from './FlightAirportPicker';
 import FlightPassengerPicker from './FlightPassengerPicker';
 import FlightFareOption from './FlightFareOption';
 import FlightBookingsDashboard from './FlightBookingsDashboard';
 import './Flights.css';
 
+/**
+ * Creates an initial empty flight route leg object with origin, destination, and today's departure date.
+ */
 const emptyRoute = () => ({
   fromCityOrAirport: { code: '' },
   toCityOrAirport: { code: '' },
   travelDate: today()
 });
 
+/**
+ * Major domestic and international airline codes supported for preferred filtering.
+ */
 const airlines = [
   ['6E', 'IndiGo'],
   ['SG', 'SpiceJet'],
@@ -29,27 +35,64 @@ const airlines = [
   ['MH', 'Malaysia Airline']
 ];
 
+// In-memory cache for loaded airport master dataset
 let _cachedAirports = null;
 try {
   const stored = typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('goimomi_airports_data') : null;
   if (stored) _cachedAirports = JSON.parse(stored);
-} catch (e) {}
+} catch (cacheErr) {
+  console.warn('Unable to read airport cache from session storage:', cacheErr);
+}
 
+/**
+ * Flights
+ * 
+ * Main flight booking home and search landing page:
+ * - Trip Modes: One-Way, Round-Trip, and Multi-City journey planners
+ * - Autocomplete Airport Pickers for Origin & Destination with city, airport name, and IATA codes
+ * - Date Picker & Cabin Class Selector (Economy, Premium Economy, Business, First Class)
+ * - Passenger Configuration: Adults, Children, and Infants
+ * - Special Fare Tiers: Regular, Student, Senior Citizen, Armed Forces, Doctors & Nurses
+ * - Integrated Flight Bookings Dashboard showing On-Hold, Upcoming, and Recent searches
+ */
 export default function Flights() {
   const navigate = useNavigate();
   const location = useLocation();
+
+  // Load prior search query from router navigation state or session storage
   const initial = location.state?.search || readSession('flight-search');
+
+  // Journey mode: 'ONE WAY' | 'ROUND TRIP' | 'MULTI CITY'
   const [mode, setMode] = useState(initial?.mode || 'ONE WAY');
+
+  // Active route legs (1 for one-way, 2 for round-trip, 2+ for multi-city)
   const [routes, setRoutes] = useState(initial?.searchQuery?.routeInfos || [emptyRoute()]);
+
+  // Passenger counts per age category
   const [pax, setPax] = useState(initial?.searchQuery?.paxInfo || { ADULT: 1, CHILD: 0, INFANT: 0 });
+
+  // Selected cabin class
   const [cabin, setCabin] = useState(initial?.searchQuery?.cabinClass || 'ECONOMY');
+
+  // Direct flights only filter toggle
   const [direct, setDirect] = useState(initial?.searchQuery?.searchModifiers?.isDirectFlight || false);
+
+  // Credit shell toggle for airline voucher redemptions
   const [creditShell, setCreditShell] = useState(false);
+
+  // Selected fare type (REGULAR, STUDENT, SENIOR_CITIZEN, ARMED_FORCES, etc.)
   const [fareType, setFareType] = useState(initial?.searchQuery?.searchModifiers?.pfts || 'REGULAR');
+
+  // Preferred airline codes list
   const [preferred, setPreferred] = useState(initial?.searchQuery?.preferredAirline?.map(a => a.code) || []);
+
+  // Complete airport dataset initialized with fallback and fetched asynchronously
   const [airports, setAirports] = useState(() => _cachedAirports || mergeAirportData([]));
+
+  // Form submission / search error message
   const [error, setError] = useState('');
 
+  // Fetch full airport master list on mount and cache in session storage
   useEffect(() => {
     if (_cachedAirports && _cachedAirports.length > 50) {
       return;
@@ -64,7 +107,9 @@ export default function Flights() {
           if (typeof sessionStorage !== 'undefined') {
             sessionStorage.setItem('goimomi_airports_data', JSON.stringify(merged));
           }
-        } catch (e) {}
+        } catch (storageErr) {
+          console.warn('Unable to cache airports in sessionStorage:', storageErr);
+        }
         setAirports(merged);
       })
       .catch(() => {
@@ -221,10 +266,13 @@ export default function Flights() {
         pax,
         cabin,
       };
+      // Persist recent search to localStorage for instant re-search on dashboard
       const existing = JSON.parse(localStorage.getItem('recent_flight_searches') || '[]');
       const filtered = existing.filter(item => !(item.fromCode === fCode && item.toCode === tCode));
       localStorage.setItem('recent_flight_searches', JSON.stringify([newRecent, ...filtered].slice(0, 6)));
-    } catch (_) { }
+    } catch (saveErr) {
+      console.warn('Unable to persist recent flight search to localStorage:', saveErr);
+    }
 
     const search = {
       mode,

@@ -12,6 +12,14 @@ import umrahImage from "../../../assets/umrah.png";
 import umrah2Image from "../../../assets/umrah2.png";
 import umrah3Image from "../../../assets/umrah3.png";
 
+/**
+ * Customized Umrah Pilgrimage Packages
+ * 
+ * Features:
+ * - Spiritual guidance, accommodation tiers near Haram Sharif (Makkah & Madinah)
+ * - Transparent Ziyarat itineraries, ground transportation, and catering options
+ * - Integrated lead inquiry modal connecting directly to Zoho CRM
+ */
 const CustomizedUmrah = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [selectedPackage, setSelectedPackage] = useState("");

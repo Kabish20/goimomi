@@ -10,6 +10,15 @@ import { simpleCache } from "../../../utils/cache";
 import { downloadPackagePDF } from "../../../utils/pdfGenerator";
 // PDF Static Assets are handled by pdfGenerator utility
 
+/**
+ * Holiday Package Detailed Itinerary & Booking Page
+ * 
+ * Features:
+ * - Day-by-day rich itinerary visualization with activities, sightseeing spots, and accommodations
+ * - Fixed departure slots with real-time tier pricing (Standard, Deluxe, Luxury)
+ * - Inclusions, exclusions, policy terms, and downloadable PDF brochure
+ * - Direct Zoho CRM lead capture form
+ */
 const HolidayDetails = () => {
   const { id } = useParams();
   const tabsRef = React.useRef(null);

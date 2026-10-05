@@ -24,6 +24,15 @@ const getCountryHeroImage = (name) => {
 };
 
 
+/**
+ * Visa Search Results Page
+ * 
+ * Features:
+ * - Real-time visa package listing based on nationality and destination country
+ * - Comprehensive documentation requirements popup and fee breakdown breakdown
+ * - Bulk visa sharing via Email, WhatsApp, and link copying
+ * - Direct transition to VisaApplication checkout workflow
+ */
 const VisaResults = () => {
     const [searchParams, setSearchParams] = useSearchParams();
     const navigate = useNavigate();

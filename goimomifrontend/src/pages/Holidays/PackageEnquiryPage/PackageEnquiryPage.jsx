@@ -7,6 +7,14 @@ import "react-phone-input-2/lib/style.css";
 import SuccessModal from "../../../components/common/SuccessModal";
 import usePageSEO from "../../../hooks/usePageSEO";
 
+/**
+ * Dedicated Holiday Package Lead Enquiry Page
+ * 
+ * Features:
+ * - Dynamic pre-filling with selected package details, duration, and default traveler counts
+ * - Traveler details form: name, email, phone with country code, budget, departure date
+ * - Direct lead synchronization with backend and Zoho CRM
+ */
 const PackageEnquiryPage = () => {
     const location = useLocation();
     const navigate = useNavigate();

@@ -1,6 +1,19 @@
 import React, { useState } from 'react';
-import { X, AlertTriangle, Luggage } from 'lucide-react';
 
+/**
+ * FlightConfirmProceedModal
+ * 
+ * Interstitial confirmation modal displayed when a user selects a flight tier with
+ * specific baggage rules (e.g. Hand Baggage Only) or when fare adjustments occur between
+ * search time and checkout.
+ *
+ * @param {Object} props
+ * @param {boolean} props.isOpen - Controls modal visibility
+ * @param {Object} props.trip - Flight trip details containing flight segments (sI)
+ * @param {Object} props.fare - Selected fare structure containing price and baggage allowance (fD)
+ * @param {Function} props.onClose - Callback to dismiss modal and return to results
+ * @param {Function} props.onProceed - Callback to proceed to passenger review and checkout
+ */
 export default function FlightConfirmProceedModal({
   isOpen,
   trip,
@@ -8,13 +21,15 @@ export default function FlightConfirmProceedModal({
   onClose,
   onProceed,
 }) {
+  // Currently active tab index when viewing multi-segment flight differences
   const [activeTabIdx, setActiveTabIdx] = useState(0);
 
+  // Early return if modal is closed or flight data is unavailable
   if (!isOpen || !trip || !fare) return null;
 
+  // Extract flight segments and adult baggage allowance rules
   const segments = trip.sI || [];
   const adultBaggage = fare.fD?.ADULT?.bI || {};
-  const isHandBaggageOnly = !adultBaggage.iB || adultBaggage.iB === '0 Kg' || adultBaggage.iB === '0';
 
   return (
     <div className="flight-modal-backdrop" onClick={onClose}>
@@ -25,12 +40,13 @@ export default function FlightConfirmProceedModal({
         aria-label="Confirm to Proceed"
         onClick={e => e.stopPropagation()}
       >
+        {/* Modal Title Header */}
         <div className="tj-confirm-modal-header">
           <h2>CONFIRM TO PROCEED</h2>
         </div>
 
         <div className="tj-confirm-modal-body">
-          {/* Segment warning list matching Screenshot 2 */}
+          {/* Section 1: Baggage Policy Warning List per Segment */}
           <div className="tj-confirm-segments-notice">
             {segments.map((seg, idx) => {
               const segFrom = seg.da?.code || 'MAA';
@@ -47,10 +63,11 @@ export default function FlightConfirmProceedModal({
             })}
           </div>
 
-          {/* Fare / Baggage check table matching Screenshot 3 */}
+          {/* Section 2: Fare & Baggage Comparison Diff Table */}
           <div className="tj-confirm-change-section">
             <h4 className="tj-change-subtitle">Fare have changed</h4>
 
+            {/* Segment Selector Tabs (for Multi-city / Connecting flights) */}
             {segments.length > 1 && (
               <div className="tj-confirm-tabs">
                 {segments.map((seg, idx) => {
@@ -69,6 +86,7 @@ export default function FlightConfirmProceedModal({
               </div>
             )}
 
+            {/* Old vs New Baggage Allowance Breakdown Table */}
             <div className="tj-confirm-diff-table-wrap">
               <table className="tj-confirm-diff-table">
                 <thead>

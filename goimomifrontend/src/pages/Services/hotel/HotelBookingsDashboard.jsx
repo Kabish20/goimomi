@@ -1,7 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Clock, Building2, ChevronRight, ChevronDown, ChevronUp, Trash2, CheckCircle2, X, Printer, CalendarDays, Users } from 'lucide-react';
+import { Search, Clock, Building2, ChevronRight, ChevronDown, ChevronUp, Trash2, CheckCircle2, X, Printer } from 'lucide-react';
 import './HotelBookingsDashboard.css';
 
+/**
+ * Formats a remaining millisecond duration into an interactive countdown string.
+ * Examples: "1h 45m 12s", "12m 45s", or "Hold Expired" when remaining time <= 0.
+ *
+ * @param {number} ms - Milliseconds remaining until room hold reservation expires
+ * @returns {string} Human-readable countdown string
+ */
 function formatCountdown(ms) {
   if (ms <= 0) return 'Hold Expired';
   const totalSeconds = Math.floor(ms / 1000);
@@ -14,16 +21,41 @@ function formatCountdown(ms) {
   return `${minutes}m ${seconds}s`;
 }
 
+/**
+ * HotelBookingsDashboard
+ * 
+ * Interactive hotel operations dashboard rendered directly beneath the hotel search widget.
+ * Features:
+ * - On Hold Bookings: Active tentative hotel room reservations with live countdown timers and instant "Confirm & Book" action
+ * - Upcoming Bookings: Confirmed hotel vouchers with guest names, check-in/out dates, and printable vouchers
+ * - Recent Searches: Historical hotel destination queries with one-click re-search capability
+ *
+ * @param {Object} props
+ * @param {Function} props.onSelectSearch - Callback to re-populate search form with a saved destination query
+ * @param {string} props.defaultTab - Initial open tab ('on_hold' | 'upcoming' | 'recent')
+ */
 export default function HotelBookingsDashboard({ onSelectSearch, defaultTab = 'on_hold' }) {
+  // Current active tab or null if collapsed
   const [activeTab, setActiveTab] = useState(defaultTab);
+
+  // Search filter query for filtering bookings by hotel name, city, or voucher number
   const [searchQuery, setSearchQuery] = useState('');
+
+  // Local storage state arrays
   const [recentSearches, setRecentSearches] = useState([]);
   const [upcomingBookings, setUpcomingBookings] = useState([]);
   const [onHoldBookings, setOnHoldBookings] = useState([]);
+
+  // Toast / notification banner message
   const [bannerMessage, setBannerMessage] = useState('');
+
+  // Selected hotel booking displayed in printable voucher modal
   const [selectedVoucher, setSelectedVoucher] = useState(null);
+
+  // Live timestamp updated every second for active room hold countdowns
   const [now, setNow] = useState(Date.now());
 
+  // Keep live timer active for room hold expirations
   useEffect(() => {
     const timer = setInterval(() => {
       setNow(Date.now());
@@ -31,12 +63,14 @@ export default function HotelBookingsDashboard({ onSelectSearch, defaultTab = 'o
     return () => clearInterval(timer);
   }, []);
 
+  // Sync tab if defaultTab changes from parent component
   useEffect(() => {
     if (defaultTab) {
       setActiveTab(defaultTab);
     }
   }, [defaultTab]);
 
+  // Load hotel reservations and recent destination searches from browser storage
   useEffect(() => {
     try {
       const storedRecent = localStorage.getItem('recent_hotel_searches');
@@ -46,7 +80,9 @@ export default function HotelBookingsDashboard({ onSelectSearch, defaultTab = 'o
           setRecentSearches(parsed);
         }
       }
-    } catch (_) { }
+    } catch (err) {
+      console.warn('Unable to load recent hotel searches:', err);
+    }
 
     try {
       const storedUpcoming = localStorage.getItem('upcoming_hotel_bookings');
@@ -56,7 +92,9 @@ export default function HotelBookingsDashboard({ onSelectSearch, defaultTab = 'o
           setUpcomingBookings(parsed);
         }
       }
-    } catch (_) { }
+    } catch (err) {
+      console.warn('Unable to load upcoming hotel bookings:', err);
+    }
 
     try {
       const storedHolds = localStorage.getItem('on_hold_hotel_bookings');
@@ -66,21 +104,34 @@ export default function HotelBookingsDashboard({ onSelectSearch, defaultTab = 'o
           setOnHoldBookings(parsed);
         }
       }
-    } catch (_) { }
+    } catch (err) {
+      console.warn('Unable to load on-hold hotel bookings:', err);
+    }
   }, []);
 
+  /**
+   * Toggles the active dashboard tab open or closed.
+   */
   function handleTabClick(tab) {
     setActiveTab(prev => (prev === tab ? null : tab));
   }
 
+  /**
+   * Clears saved recent searches from browser storage and resets state.
+   */
   function handleClearRecentSearches(e) {
     e.stopPropagation();
     try {
       localStorage.removeItem('recent_hotel_searches');
-    } catch (_) { }
+    } catch (err) {
+      console.warn('Unable to clear recent hotel searches:', err);
+    }
     setRecentSearches([]);
   }
 
+  /**
+   * Triggers callback to repopulate search form when a saved search card is clicked.
+   */
   function handleCardClick(searchItem) {
     if (onSelectSearch) {
       onSelectSearch(searchItem);

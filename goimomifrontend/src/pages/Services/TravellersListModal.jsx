@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Search, UserCheck, X, Plus, Check } from 'lucide-react';
+import { Search, X, Check } from 'lucide-react';
 
+/**
+ * Default sample frequent travellers populated on first launch if local storage is uninitialized.
+ * Facilitates quick testing and immediate auto-fill during flight passenger selection.
+ */
 const DEFAULT_TRAVELLERS = [
   { id: 't-1', title: 'Mr', firstName: 'Rahul', lastName: 'Sharma', gender: 'MALE', phone: '9876543210', email: 'rahul.sharma@example.com', ffAirline: '6E', ffNumber: '6E982012' },
   { id: 't-2', title: 'Mrs', firstName: 'Priya', lastName: 'Sharma', gender: 'FEMALE', phone: '9876543211', email: 'priya.sharma@example.com', ffAirline: '6E', ffNumber: '6E982013' },
@@ -8,11 +12,28 @@ const DEFAULT_TRAVELLERS = [
   { id: 't-4', title: 'Ms', firstName: 'Ananya', lastName: 'Iyer', gender: 'FEMALE', phone: '9880192837', email: 'ananya.iyer@example.com', ffAirline: '6E', ffNumber: '6E338192' },
 ];
 
+/**
+ * TravellersListModal
+ * 
+ * Interactive modal that allows users to search, browse, and select from saved travellers
+ * or frequent flyers to auto-populate passenger details in the flight checkout flow.
+ *
+ * @param {Object} props
+ * @param {boolean} props.isOpen - Controls modal visibility
+ * @param {Function} props.onClose - Callback to close modal
+ * @param {Function} props.onSelectTraveller - Callback invoked with the selected traveller object
+ */
 export default function TravellersListModal({ isOpen, onClose, onSelectTraveller }) {
+  // Search query entered by user to filter travellers by name, phone, or email
   const [query, setQuery] = useState('');
+
+  // Active list of travellers loaded from localStorage or initialized with defaults
   const [travellers, setTravellers] = useState(DEFAULT_TRAVELLERS);
+
+  // Active highlight state for user click interaction
   const [selectedId, setSelectedId] = useState(null);
 
+  // Synchronize saved travellers with localStorage on initial mount
   useEffect(() => {
     try {
       const stored = localStorage.getItem('goimomi_saved_travellers');
@@ -24,11 +45,15 @@ export default function TravellersListModal({ isOpen, onClose, onSelectTraveller
       } else {
         localStorage.setItem('goimomi_saved_travellers', JSON.stringify(DEFAULT_TRAVELLERS));
       }
-    } catch (_) {}
+    } catch (storageError) {
+      // Gracefully fall back to memory state if localStorage is blocked
+      console.warn('Unable to access localStorage for saved travellers:', storageError);
+    }
   }, []);
 
   if (!isOpen) return null;
 
+  // Filter travellers based on query matching first name, last name, phone, or email
   const filtered = travellers.filter(t =>
     `${t.firstName} ${t.lastName} ${t.phone} ${t.email}`.toLowerCase().includes(query.toLowerCase())
   );
@@ -42,16 +67,18 @@ export default function TravellersListModal({ isOpen, onClose, onSelectTraveller
         aria-label="Search from Travellers List"
         onClick={e => e.stopPropagation()}
       >
+        {/* Modal Header */}
         <div className="tj-traveller-modal-header">
           <div>
             <h3>Search from Travellers List</h3>
             <p>Select a frequent flyer or saved traveller to instantly auto-fill details</p>
           </div>
-          <button type="button" className="tj-modal-close-btn" onClick={onClose}>
+          <button type="button" className="tj-modal-close-btn" onClick={onClose} aria-label="Close travellers modal">
             <X size={18} />
           </button>
         </div>
 
+        {/* Search Input Bar */}
         <div className="tj-traveller-search-wrap">
           <Search size={17} className="tj-traveller-search-icon" />
           <input
@@ -62,12 +89,13 @@ export default function TravellersListModal({ isOpen, onClose, onSelectTraveller
             autoFocus
           />
           {query && (
-            <button type="button" onClick={() => setQuery('')} className="tj-clear-search">
+            <button type="button" onClick={() => setQuery('')} className="tj-clear-search" aria-label="Clear search">
               <X size={14} />
             </button>
           )}
         </div>
 
+        {/* Travellers Results Body */}
         <div className="tj-traveller-list-body">
           {filtered.length === 0 ? (
             <div className="tj-traveller-empty">

@@ -11,6 +11,15 @@ import visaBg from "../../../assets/Hero/visa_bg.jpg";
 
 
 
+/**
+ * Visa Online Application & Document Upload Workflow
+ * 
+ * Features:
+ * - Multi-step traveler application pipeline (Internal ID, Group Name, Traveler Docs, Review, Submit)
+ * - Automated Passport OCR parsing using Tesseract.js / PassportParser
+ * - File upload and validation for passport front/back, photograph, and supplemental documents
+ * - Real-time quotation, processing fee calculation, and payment checkout
+ */
 const VisaApplication = () => {
     const { id } = useParams();
     const location = useLocation();

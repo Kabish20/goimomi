@@ -1,11 +1,14 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { BedDouble, CalendarDays, ChevronDown, ChevronLeft, Hotel, MapPin, Search, Star, Users, X, Clock, CheckCircle2, Heart, Check, Coffee, ShieldCheck, Share2, Sparkles } from 'lucide-react';
+import { BedDouble, CalendarDays, ChevronDown, ChevronLeft, Hotel, MapPin, Search, Users, X, Clock, CheckCircle2, Heart, Check, Coffee } from 'lucide-react';
 import api from '../../../api';
 import { readSession, saveSession, shiftDate, today } from '../flightUtils';
 import HotelBookingsDashboard from './HotelBookingsDashboard';
 import './HotelSearch.css';
 
+/**
+ * Utility wrappers for hotel API interaction, pricing formatting, and calculations
+ */
 const post = (action, body) => api.post(`/api/hotels/${action}/`, body, { skipAuth: true });
 const message = error => error.response?.data?.detail || 'Hotel search is unavailable. Please check your details or contact our travel team.';
 const money = (value, currency = 'INR') => new Intl.NumberFormat('en-IN', { style: 'currency', currency: /^[A-Z]{3}$/.test(currency) ? currency : 'INR', maximumFractionDigits: 0 }).format(Number(value) || 0);
@@ -18,6 +21,10 @@ const imageOf = hotel => {
 };
 const guests = rooms => rooms.reduce((sum, room) => sum + room.adults + room.children, 0);
 const countryLabel = name => name.toLowerCase().replace(/\b[a-z]/g, letter => letter.toUpperCase());
+
+/**
+ * Default search form state specifying 1-night stay starting tomorrow for 2 adults in 1 room.
+ */
 const defaultForm = () => ({ query: '', city: null, checkIn: shiftDate(today(), 1), checkOut: shiftDate(today(), 2), nationality: '', residence: 'INDIA', rating: [5, 4, 3], rooms: [{ adults: 2, children: 0, childAge: [] }] });
 const formStorageKey = 'hotel-search-ui-v2';
 const savedForm = () => {
@@ -27,10 +34,13 @@ const savedForm = () => {
 };
 const defaultFilters = () => ({ name: '', stars: [], meals: [], types: [], maximum: '', breakfast: false, refundable: false });
 
+/**
+ * Renders an individual room rate option card with pricing, bed specs, meal inclusions, and cancellation policy.
+ */
 function Option({ option, nights = 1, onSelect, busy, expired }) {
   const p = option.pricing || {};
   const perNight = p.totalPrice != null ? Math.round(Number(p.totalPrice) / nights) : null;
-  const roomName = option.roomInfo?.map((room, i) => room.name).join(' · ') || 'Standard Room';
+  const roomName = option.roomInfo?.map(room => room.name).join(' · ') || 'Standard Room';
   const isRefundable = option.cancellation?.isRefundable;
   const isBreakfast = /breakfast/i.test(option.mealBasis || '') || option.inclusions?.some(inc => /breakfast/i.test(inc));
 
@@ -340,7 +350,7 @@ export default function HotelSearch() {
           setDestOpen(true);
           setDestHighlightedIndex(0);
         })
-        .catch(e => {
+        .catch(_err => {
           if (!controller.signal.aborted) {
             setDestLoading(false);
           }
@@ -417,6 +427,7 @@ export default function HotelSearch() {
       setListing(data);
       saveSession('hotel-listing', data);
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stage, criteria]);
 
   useEffect(() => {
@@ -513,14 +524,20 @@ export default function HotelSearch() {
       status: 'On Hold',
     };
 
+    // Persist tentative reservation in local storage for Dashboard retrieval
     try {
       const existingHolds = JSON.parse(localStorage.getItem('on_hold_hotel_bookings') || '[]');
       localStorage.setItem('on_hold_hotel_bookings', JSON.stringify([holdItem, ...existingHolds]));
-    } catch (_) { }
+    } catch (saveErr) {
+      console.warn('Unable to persist on-hold hotel booking:', saveErr);
+    }
 
     navigate('/hotel', { state: { dashboardTab: 'on_hold' } });
   }
 
+  /**
+   * Confirms and issues hotel booking voucher, storing record in upcoming bookings.
+   */
   function handleConfirmHotel(e) {
     e.preventDefault();
     if (!validateGuestForm()) return;
@@ -549,14 +566,20 @@ export default function HotelSearch() {
       status: 'Confirmed',
     };
 
+    // Persist confirmed booking in local storage
     try {
       const existing = JSON.parse(localStorage.getItem('upcoming_hotel_bookings') || '[]');
       localStorage.setItem('upcoming_hotel_bookings', JSON.stringify([confirmedItem, ...existing]));
-    } catch (_) { }
+    } catch (saveErr) {
+      console.warn('Unable to persist upcoming hotel booking:', saveErr);
+    }
 
     navigate('/hotel', { state: { dashboardTab: 'upcoming' } });
   }
 
+  /**
+   * Submits hotel search parameters and queries hotel availability.
+   */
   function find(event) {
     event.preventDefault();
     if (!form.city) {
@@ -573,7 +596,7 @@ export default function HotelSearch() {
       return;
     }
 
-    // Persist search to Recent Searches
+    // Persist destination query to Recent Searches
     try {
       const recentItem = {
         id: `htl-search-${Date.now()}`,
@@ -592,7 +615,9 @@ export default function HotelSearch() {
       const existing = JSON.parse(localStorage.getItem('recent_hotel_searches') || '[]');
       const filteredRecent = existing.filter(i => !(i.cityName === recentItem.cityName && i.checkIn === recentItem.checkIn));
       localStorage.setItem('recent_hotel_searches', JSON.stringify([recentItem, ...filteredRecent].slice(0, 6)));
-    } catch (_) { }
+    } catch (saveErr) {
+      console.warn('Unable to persist recent hotel search:', saveErr);
+    }
 
     const next = {
       regionId: String(form.city.cityRegionId),

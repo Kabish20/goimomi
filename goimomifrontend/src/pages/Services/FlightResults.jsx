@@ -1,12 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Plane, ChevronLeft, ChevronRight, Clock, Zap, SlidersHorizontal, X, Sunrise, Sun, Sunset, Moon, Share2, Edit2, Luggage, ArrowRight, ShieldCheck, Check } from 'lucide-react';
+import { Plane, ChevronLeft, ChevronRight, Clock, Zap, SlidersHorizontal, X, Sunrise, Sun, Sunset, Moon, Share2, Edit2, Luggage, ArrowRight } from 'lucide-react';
 import { searchFlights, reviewFlights } from './flightApi';
 import { money, today, dayLabel, formatFullDate, isNextDay, shiftDate, duration, fareTotal, tripDuration, layoverDuration, stopCount, cabinLabel, flightError, readSession, saveSession, airlineMeta } from './flightUtils';
 import FlightFareRules from './FlightFareRules';
 import FlightConfirmProceedModal from './FlightConfirmProceedModal';
 import './Flights.css';
 
+/**
+ * Initial empty filter state resetting all user selections across
+ * price, airlines, stops, timings, baggage, and fare classes.
+ */
 const blankFilters = {
   stops: [],
   airlines: [],
@@ -29,15 +33,41 @@ const blankFilters = {
   layover: '',
 };
 
+/**
+ * Utility helper returning deduplicated non-empty values from an array.
+ */
 const unique = values => [...new Set(values.filter(Boolean))];
+
+/**
+ * Categorizes an ISO departure or arrival timestamp into one of 4 six-hour time quadrants:
+ * 0: Early Morning (00:00 - 05:59)
+ * 1: Morning (06:00 - 11:59)
+ * 2: Afternoon (12:00 - 17:59)
+ * 3: Evening/Night (18:00 - 23:59)
+ */
 const hourBand = value => Math.floor(Number(value?.slice(11, 13)) / 6);
+
+/**
+ * Extracts departure and arrival terminal descriptors for filter categorization.
+ */
 const terminalKeys = trip => [`Departure: ${trip.sI?.[0]?.da?.terminal || ''}`, `Arrival: ${trip.sI?.at(-1)?.aa?.terminal || ''}`].filter(key => !key.endsWith(': '));
+
+/**
+ * Extracts departure and arrival airport IATA codes.
+ */
 const airportKeys = trip => [`Departure: ${trip.sI?.[0]?.da?.code}`, `Arrival: ${trip.sI?.at(-1)?.aa?.code}`];
+
+/**
+ * Verifies if flight direction (Departure/Arrival) satisfies active multi-select criteria.
+ */
 const matchesDirections = (selected, available) => ['Departure:', 'Arrival:'].every(direction => {
   const values = selected.filter(value => value.startsWith(direction));
   return !values.length || values.some(value => available.includes(value));
 });
 
+/**
+ * Fallback empty view when no route parameters or search queries exist in history.
+ */
 const emptyMessage = (
   <div className="flight-empty">
     <h1>Start with a flight search</h1>
@@ -46,6 +76,9 @@ const emptyMessage = (
   </div>
 );
 
+/**
+ * Collapsible accordion filter section component.
+ */
 function FilterSection({ title, children, open = true }) {
   return (
     <details className="flight-filter-section" open={open || undefined}>
@@ -58,7 +91,14 @@ function FilterSection({ title, children, open = true }) {
   );
 }
 
-function getSampleTripjackFlights(route, search) {
+/**
+ * Mock Tripjack sample flight data generator for seamless development, testing,
+ * and high-availability fallback when external supplier sandbox services are offline.
+ *
+ * @param {Object} route - Current route parameters including origin, destination, and travelDate
+ * @returns {Object} Realistic Tripjack response schema with flight segments and tiered pricing
+ */
+function getSampleTripjackFlights(route) {
   const fromCode = route?.fromCityOrAirport?.code || 'MAA';
   const toCode = route?.toCityOrAirport?.code || 'DXB';
   const travelDate = route?.travelDate || '2026-10-03';
@@ -211,8 +251,11 @@ function Results() {
     nextSelection: null,
   });
 
+  /**
+   * Loads sample mock data when backend supplier API is unreachable or returns 0 flights.
+   */
   function loadSampleData() {
-    const sample = getSampleTripjackFlights(route, search);
+    const sample = getSampleTripjackFlights(route);
     saveSession('flight-results', { search, data: sample, savedAt: Date.now() });
     setResult(sample);
     setGroup('ONWARD');
@@ -220,6 +263,7 @@ function Results() {
     setLoading(false);
   }
 
+  // Fetch flight availability from Tripjack API or session cache
   useEffect(() => {
     if (!search) { setLoading(false); return; }
     const controller = new AbortController();
@@ -230,6 +274,7 @@ function Results() {
       setLoading(false);
     };
 
+    // Cache hit: serve cached search results if fresher than 15 minutes
     if (!retry && cached && JSON.stringify(cached.search) === JSON.stringify(search) && Date.now() - cached.savedAt < 900000) {
       accept(cached.data);
       return;
@@ -239,12 +284,10 @@ function Results() {
     setError('');
     searchFlights(search.searchQuery, controller.signal)
       .then(({ data }) => {
-        // If supplier returned 0 flights or empty tripInfos in UAT
+        // If supplier returned 0 flights or empty tripInfos in UAT sandbox, fallback gracefully
         const tripsCount = Object.values(data.searchResult?.tripInfos || {}).reduce((acc, l) => acc + (l?.length || 0), 0);
         if (tripsCount === 0) {
-          const sample = getSampleTripjackFlights(route, search);
-          saveSession('flight-results', { search, data: sample, savedAt: Date.now() });
-          accept(sample);
+          loadSampleData();
         } else {
           saveSession('flight-results', { search, data, savedAt: Date.now() });
           accept(data);
@@ -255,9 +298,7 @@ function Results() {
           const errMsg = flightError(err);
           // If supplier timed out (408), is busy, or offline, provide graceful Tripjack portal sample
           if (errMsg.includes('408') || errMsg.includes('busy') || errMsg.includes('unavailable') || errMsg.includes('offline') || errMsg.includes('connect')) {
-            const sample = getSampleTripjackFlights(route, search);
-            saveSession('flight-results', { search, data: sample, savedAt: Date.now() });
-            accept(sample);
+            loadSampleData();
           } else {
             setError(errMsg);
             setLoading(false);
@@ -266,8 +307,10 @@ function Results() {
       });
 
     return () => controller.abort();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [search, retry]);
 
+  // Derived datasets and pricing calculations
   const groups = result?.searchResult?.tripInfos || {};
   const trips = groups[group] || [];
   const pax = search?.searchQuery?.paxInfo || {};
@@ -278,7 +321,6 @@ function Results() {
 
   const maxPriceLimit = Math.ceil(Math.max(1, ...allFares.map(total)));
   const maxDuration = Math.max(1, ...trips.map(tripDuration));
-  const maxLayover = Math.max(1, ...trips.map(layoverDuration));
 
   const airlineOptions = unique(trips.flatMap(trip => (trip.sI || []).map(segment => segment.fD?.aI?.code))).map(code => {
     const seg = trips.flatMap(trip => trip.sI || []).find(segment => segment.fD?.aI?.code === code);

@@ -55,6 +55,15 @@ const AnimatedCounter = ({ target, suffix = "", duration = 2000 }) => {
 };
 
 // ─── Component ────────────────────────────────────────────────────────────────
+/**
+ * Holiday Home Landing Experience
+ * 
+ * Features:
+ * - Animated Hero carousel with immersive holiday destination landscapes
+ * - Animated counters for trips arranged, countries covered, and happy travelers
+ * - Curated holiday packages (Honeymoon, Family, Adventure, Pilgrimage, Luxury)
+ * - Trending domestic & international collections with direct package deep-linking
+ */
 const HolidayHome = () => {
   const navigate = useNavigate();
   const [heroIndex, setHeroIndex] = useState(0);

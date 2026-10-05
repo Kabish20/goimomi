@@ -2,46 +2,81 @@ import React, { useState } from 'react';
 import { Armchair, Check, X, ShieldAlert } from 'lucide-react';
 import { money } from './flightUtils';
 
-// Pre-seeded realistic booked seats for authenticity
+/**
+ * Pre-seeded realistic booked seats for visual authenticity and collision checking.
+ * Matches standard airline seat allocation patterns.
+ */
 const BOOKED_SEATS_SET = new Set(['1C', '2A', '3B', '5E', '6F', '8A', '9C', '11D', '12B', '14E']);
 
+/**
+ * FlightSeatMap
+ * 
+ * Interactive airline seat selector designed around standard commercial narrow-body
+ * aircraft (Airbus A320 / Boeing 737) with a 3-3 seat configuration (Rows 1-15).
+ * Supports multi-segment flights and multi-passenger seat assignment with tier pricing.
+ *
+ * @param {Object} props
+ * @param {Array} props.segments - List of flight segments (legs) in the booking
+ * @param {Array} props.passengers - List of passenger profiles requiring seat assignments
+ * @param {Object} props.selectedSeats - Map of selected seats structured as { [segIdx]: { [paxIdx]: seatPayload } }
+ * @param {Function} props.onSelectSeat - Callback invoked when a seat is chosen or deselected
+ */
 export default function FlightSeatMap({
   segments = [],
   passengers = [{ title: 'Mr', firstName: 'Rahul', lastName: 'Sharma' }],
   selectedSeats = {}, // { [segIdx]: { [paxIdx]: seat } }
   onSelectSeat,
 }) {
+  // Currently active flight segment tab index (for multi-leg journeys)
   const [activeSegIdx, setActiveSegIdx] = useState(0);
+
+  // Currently focused passenger index who is choosing a seat
   const [activePaxIdx, setActivePaxIdx] = useState(0);
 
+  // Current flight segment details and IATA codes
   const currentSegment = segments[activeSegIdx] || segments[0] || {};
   const originCode = currentSegment.da?.code || 'MAA';
   const destCode = currentSegment.aa?.code || 'DXB';
 
+  // Seats allocated for the active flight segment
   const currentSegSeats = selectedSeats[activeSegIdx] || {};
   const selectedCount = Object.keys(currentSegSeats).length;
   const totalPax = passengers.length || 1;
 
-  // 15 rows of standard A320 / B737 layout: 3-3 configuration
+  // 15 rows of standard A320 / B737 layout: 3-3 configuration (A-B-C / D-E-F)
   const rows = Array.from({ length: 15 }, (_, i) => i + 1);
 
-  function getSeatPrice(rowNumber, colLetter) {
+  /**
+   * Calculates pricing and categorization tier based on seat row and column.
+   *
+   * @param {number} rowNumber - The 1-indexed row number
+   * @param {string} _colLetter - The seat column letter (A, B, C, D, E, F)
+   * @returns {Object} Seat pricing metadata { price, label, type }
+   */
+  function getSeatPrice(rowNumber, _colLetter) {
     if (rowNumber === 1) return { price: 450, label: 'Extra Legroom', type: 'legroom' };
     if (rowNumber === 12 || rowNumber === 13) return { price: 350, label: 'Exit Row Seats', type: 'exit' };
     if (rowNumber <= 5) return { price: 150, label: 'Front Row', type: 'preferred' };
     return { price: 0, label: 'Standard', type: 'free' };
   }
 
+  /**
+   * Handles user interaction when selecting or deselecting a seat in the grid.
+   * Prevents booking collisions and automatically advances to next unassigned passenger.
+   *
+   * @param {string} seatCode - Seat coordinate code (e.g. '12A')
+   * @param {Object} seatInfo - Seat metadata including price and category tier
+   */
   function handleSeatClick(seatCode, seatInfo) {
     if (BOOKED_SEATS_SET.has(seatCode)) return;
 
-    // Check if this seat is already selected by another passenger on this segment
+    // Verify seat is not already claimed by another passenger in this flight leg
     const existingPaxForSeat = Object.entries(currentSegSeats).find(
       ([pIdx, s]) => s?.code === seatCode && Number(pIdx) !== activePaxIdx
     );
     if (existingPaxForSeat) return;
 
-    // If currently selected passenger clicks their own selected seat, unselect it
+    // Toggle: unselect seat if the currently active passenger clicks their own assigned seat
     if (currentSegSeats[activePaxIdx]?.code === seatCode) {
       if (onSelectSeat) onSelectSeat(activeSegIdx, activePaxIdx, null);
       return;
@@ -59,7 +94,7 @@ export default function FlightSeatMap({
       onSelectSeat(activeSegIdx, activePaxIdx, seatPayload);
     }
 
-    // Auto-advance to next unassigned passenger if any
+    // Auto-advance cursor to next passenger who does not have an assigned seat yet
     const nextUnassigned = passengers.findIndex((_, idx) => !currentSegSeats[idx] && idx !== activePaxIdx);
     if (nextUnassigned !== -1) {
       setActivePaxIdx(nextUnassigned);
@@ -193,7 +228,7 @@ export default function FlightSeatMap({
             const isFront = rowNum === 1;
 
             return (
-              <div key={rowNum} className={`tj-seat-row ${isExit ? 'is-exit-row' : ''}`}>
+              <div key={rowNum} className={`tj-seat-row ${isExit ? 'is-exit-row' : ''} ${isFront ? 'is-front-row' : ''}`}>
                 <span className="tj-row-num">{rowNum}</span>
 
                 {/* Left Trio (A, B, C) */}

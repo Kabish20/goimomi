@@ -34,6 +34,15 @@ const isVisaDestination = (name) =>
 
 const visaHeroImages = [visaHero1, visaHero2, visaHero3, visaHero4, visaHero5];
 
+/**
+ * Visa Search & Discovery Hub
+ * 
+ * Features:
+ * - Dynamic animated hero carousel of top global destinations
+ * - Dual country picker: "I am a citizen of" and "I am travelling to"
+ * - Instant nationality compatibility check and visa requirements lookup
+ * - Curated visa deals, popular destinations, and step-by-step application guidance
+ */
 const VisaSearch = () => {
   const navigate = useNavigate();
   const [heroImageIndex, setHeroImageIndex] = useState(0);

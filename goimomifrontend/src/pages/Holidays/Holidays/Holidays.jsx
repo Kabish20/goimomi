@@ -26,6 +26,15 @@ import pdfImg15 from "../../../assets/pdf/100 Most Beautiful UNESCO World Herita
 import pdfImg16 from "../../../assets/pdf/15 Best Places In Turkey To Visit - Hand Luggage Only - Travel, Food And Photography Blog.jpeg";
 
 
+/**
+ * HolidayCard
+ * 
+ * Renders an individual package card with interactive tabs:
+ * - Hotels: Accommodations and star ratings
+ * - Inclusions: Sightseeing, transfers, meals, and flight tags
+ * - Itinerary Preview: Day-by-day activity breakdown
+ * - Dynamic PDF quotation generator and direct Zoho enquiry modal
+ */
 const HolidayCard = ({ pkg, navigate, generateShareText, setEmailModalPkg, downloadPackagePDF, setViewDetailsPkg }) => {
   const [activeTab, setActiveTab] = useState("Hotels");
   const [selectedTier, setSelectedTier] = useState("Standard");
@@ -317,6 +326,15 @@ const HolidayCard = ({ pkg, navigate, generateShareText, setEmailModalPkg, downl
   );
 };
 
+/**
+ * Holidays Discovery & Catalog Hub
+ * 
+ * Features:
+ * - Comprehensive holiday package search, filtering by destination, starting city, nights, budget, and flights
+ * - Dynamic SEO meta tags driven by category and destination parameters
+ * - Instant package PDF download and email sharing
+ * - Integrated lead booking modal connecting directly to Zoho CRM
+ */
 const Holidays = () => {
   const navigate = useNavigate();
   const location = useLocation();

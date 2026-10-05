@@ -8,6 +8,12 @@ const contactDetails = {
   address: "5, Crescent Park Apartment, Hazrath Sulaiman Street, Kaja Nagar, Trichy - 620020, Tamil Nadu, India",
 };
 
+/**
+ * Shared Policy Page Layout & Typography Components
+ * 
+ * Provides consistent semantic hierarchy, sidebar navigation, jump anchors,
+ * contact cards, and responsive styling across legal policy documents.
+ */
 export const PolicySection = ({ id, number, title, children }) => (
   <section id={id} className="scroll-mt-32 border-t border-slate-200 pt-10 first:border-t-0 first:pt-0">
     <div className="mb-5 flex items-start gap-3">

@@ -1,7 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Clock, Plane, ChevronRight, ChevronDown, ChevronUp, Trash2, CheckCircle2, AlertCircle, X, Printer } from 'lucide-react';
+import { Search, Clock, Plane, ChevronRight, ChevronDown, ChevronUp, Trash2, CheckCircle2, X, Printer } from 'lucide-react';
 import './FlightBookingsDashboard.css';
 
+/**
+ * Formats a remaining millisecond duration into an interactive digital countdown string.
+ * Examples: "1h 45m 12s", "12m 45s", or "Hold Expired" when remaining time <= 0.
+ *
+ * @param {number} ms - Milliseconds remaining until hold reservation expires
+ * @returns {string} Human-readable countdown string
+ */
 function formatCountdown(ms) {
   if (ms <= 0) return 'Hold Expired';
   const totalSeconds = Math.floor(ms / 1000);
@@ -14,14 +21,38 @@ function formatCountdown(ms) {
   return `${minutes}m ${seconds}s`;
 }
 
+/**
+ * FlightBookingsDashboard
+ * 
+ * Interactive flight operations dashboard embedded directly beneath the search widget on `/flights`.
+ * Features:
+ * - On Hold Bookings: Active tentative reservations with live countdown timers and "Issue Ticket" actions
+ * - Upcoming Bookings: Confirmed e-tickets with PNR, passenger manifest, seat assignments, and PDF print preview
+ * - Recent Searches: Historical flight route queries with one-click re-search capability
+ *
+ * @param {Object} props
+ * @param {Function} props.onSelectSearch - Callback to re-populate search form with a saved query
+ * @param {string} props.defaultTab - Initial open tab ('on_hold' | 'upcoming' | 'recent')
+ */
 export default function FlightBookingsDashboard({ onSelectSearch, defaultTab = 'on_hold' }) {
+  // Current active tab or null if collapsed
   const [activeTab, setActiveTab] = useState(defaultTab); // 'on_hold' | 'upcoming' | 'recent' | null
+
+  // Instant filter query for searching through bookings by PNR, passenger, or city
   const [searchQuery, setSearchQuery] = useState('');
+
+  // Local state holding records loaded from browser storage
   const [recentSearches, setRecentSearches] = useState([]);
   const [upcomingBookings, setUpcomingBookings] = useState([]);
   const [onHoldBookings, setOnHoldBookings] = useState([]);
+
+  // Toast / notification banner message
   const [bannerMessage, setBannerMessage] = useState('');
+
+  // Selected booking record currently displayed in the full e-ticket modal
   const [selectedTicket, setSelectedTicket] = useState(null);
+
+  // Live timestamp updated every second for active hold timers
   const [now, setNow] = useState(Date.now());
 
   // Keep live timer active for hold expirations
@@ -32,14 +63,14 @@ export default function FlightBookingsDashboard({ onSelectSearch, defaultTab = '
     return () => clearInterval(timer);
   }, []);
 
-  // Sync tab if defaultTab changes
+  // Sync tab if defaultTab changes from parent
   useEffect(() => {
     if (defaultTab) {
       setActiveTab(defaultTab);
     }
   }, [defaultTab]);
 
-  // Load bookings and searches from localStorage
+  // Load bookings and recent search history from localStorage
   useEffect(() => {
     try {
       const stored = localStorage.getItem('recent_flight_searches');
@@ -52,7 +83,8 @@ export default function FlightBookingsDashboard({ onSelectSearch, defaultTab = '
           setRecentSearches([]);
         }
       }
-    } catch (_) {
+    } catch (err) {
+      console.warn('Unable to read recent flight searches from storage:', err);
       setRecentSearches([]);
     }
 
@@ -64,7 +96,9 @@ export default function FlightBookingsDashboard({ onSelectSearch, defaultTab = '
           setUpcomingBookings(parsed);
         }
       }
-    } catch (_) { }
+    } catch (err) {
+      console.warn('Unable to read upcoming bookings from storage:', err);
+    }
 
     try {
       const storedHolds = localStorage.getItem('on_hold_flight_bookings');
@@ -74,21 +108,34 @@ export default function FlightBookingsDashboard({ onSelectSearch, defaultTab = '
           setOnHoldBookings(parsed);
         }
       }
-    } catch (_) { }
+    } catch (err) {
+      console.warn('Unable to read on-hold bookings from storage:', err);
+    }
   }, []);
 
+  /**
+   * Toggles the active dashboard tab open or closed.
+   */
   function handleTabClick(tab) {
     setActiveTab(prev => (prev === tab ? null : tab));
   }
 
+  /**
+   * Clears saved recent searches from browser storage and resets state.
+   */
   function handleClearRecentSearches(e) {
     e.stopPropagation();
     try {
       localStorage.removeItem('recent_flight_searches');
-    } catch (_) { }
+    } catch (err) {
+      console.warn('Unable to clear recent searches from storage:', err);
+    }
     setRecentSearches([]);
   }
 
+  /**
+   * Triggers callback to repopulate search parameters when a card is clicked.
+   */
   function handleCardClick(searchItem) {
     if (onSelectSearch) {
       onSelectSearch(searchItem);

@@ -5,6 +5,12 @@ import { ShieldCheck } from 'lucide-react';
 const ZOHO_SHEET_URL =
   'https://sheet.zohopublic.in/sheet/publishedrange/62d39942bdecb0b2b7038a88612b7c9983f26a8af09ea1a09de8af601afc6b95?type=grid&mode=embed';
 
+/**
+ * B2B Umrah Group Tickets Portal
+ * 
+ * Embeds a real-time Zoho Sheet grid displaying live seat allocations,
+ * charter flight departures, and wholesale agency pricing.
+ */
 const UmrahGroupTicketB2B = () => {
   usePageSEO(
     'B2B Umrah Group Tickets | Goimomi Holidays',

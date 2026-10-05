@@ -2,28 +2,46 @@ import React, { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   ArrowLeft, CheckCircle2, Plane, Clock, User, ShieldCheck,
-  ChevronDown, ChevronUp, Search, Luggage, CreditCard,
-  Printer, Download, AlertCircle, FileText, Check, Plus, X
+  ChevronDown, ChevronUp, Search, CreditCard,
+  Printer, Download, AlertCircle, FileText, Check
 } from 'lucide-react';
-import { money, duration, readSession, dayLabel, formatFullDate, cabinLabel } from './flightUtils';
+import { money, duration, readSession, dayLabel, cabinLabel } from './flightUtils';
 import FlightSeatMap from './FlightSeatMap';
 import TravellersListModal from './TravellersListModal';
 import './Flights.css';
 
+/**
+ * FlightReview
+ * 
+ * Multi-step booking checkout flow implementing the Tripjack airline design standard:
+ * - Step 1: Flight Search (Redirect back to /flights/results)
+ * - Step 2: Passenger & Contact Information, Add-ons, and Interactive Seat Map
+ * - Step 3: Review Itinerary, Cancellation Policies, GST, and Booking Summary
+ * - Step 4: Payments & Ticketing (Instant issuance via TJ Balance/Online or On Hold Booking)
+ * - Step 5: Booking Voucher Confirmation Screen with Print, PDF Download, and Dashboard routing
+ */
 export default function FlightReview() {
   const navigate = useNavigate();
   const location = useLocation();
+
+  // Load flight itinerary and selected fare details passed via navigation state or session storage
   const [reviewed] = useState(() => location.state?.reviewed || readSession('flight-review'));
 
-  // Workflow Steps: 2 = 'pax' (Passenger Details), 3 = 'review' (Review Itinerary), 4 = 'payments' (Payments), 5 = 'confirmed' (Voucher)
+  // Multi-step progress tracker:
+  // Step 2 = 'pax' (Passenger Details & Seat Map)
+  // Step 3 = 'review' (Itinerary & Policy Confirmation)
+  // Step 4 = 'payments' (Payment Methods & Hold Option)
+  // Step 5 = 'confirmed' (Booking Confirmation Voucher)
   const [currentStep, setCurrentStep] = useState(2);
 
-  const [accepted, setAccepted] = useState(false);
+  // Live timestamp ticker for hold expiry calculation
   const [now, setNow] = useState(Date.now());
+
+  // Saved Travellers Picker Modal state
   const [showTravellersModal, setShowTravellersModal] = useState(false);
   const [activeTravellerPaxIdx, setActiveTravellerPaxIdx] = useState(0);
 
-  // Form States
+  // Passenger input form state
   const [passengers, setPassengers] = useState([
     {
       title: 'Mr',
@@ -41,6 +59,7 @@ export default function FlightReview() {
     }
   ]);
 
+  // Primary contact details for e-ticket and SMS delivery
   const [contact, setContact] = useState({
     countryCode: '+91',
     countryName: 'India',
@@ -48,9 +67,11 @@ export default function FlightReview() {
     email: 'hello@goimomi.com',
   });
 
+  // Special requests / airline notes
   const [notes, setNotes] = useState('');
   const [showNotes, setShowNotes] = useState(false);
 
+  // Corporate GST billing details
   const [gst, setGst] = useState({
     gstNo: '',
     companyName: '',
@@ -58,28 +79,29 @@ export default function FlightReview() {
   });
   const [showGst, setShowGst] = useState(false);
 
-  // Seat Selection State: { [segmentIndex]: { [paxIndex]: seatObject } }
+  // Seat Selection State: { [segmentIndex]: { [paxIndex]: seatPayload } }
   const [selectedSeats, setSelectedSeats] = useState({});
 
   // TripSafe Protection Add-on (₹500 per passenger)
   const [tripSafeOpted, setTripSafeOpted] = useState(true);
 
-  // TJ Cash & Voucher state
-  const [tjCashApplied, setTjCashApplied] = useState(0);
+  // Promo code & voucher discounts
   const [voucherCode, setVoucherCode] = useState('');
   const [voucherDiscount, setVoucherDiscount] = useState(0);
   const [voucherMessage, setVoucherMessage] = useState('');
+  const tjCashApplied = 0; // TJ Cash wallet discount applied
 
-  // Payment method
-  const [paymentMethod, setPaymentMethod] = useState('tj_balance'); // 'tj_balance' | 'online' | 'hold'
+  // Payment method selection: 'tj_balance' | 'online' | 'hold'
+  const [paymentMethod, setPaymentMethod] = useState('tj_balance');
 
-  // Booking Confirmation details
+  // Booking Confirmation details upon completion
   const [confirmedBooking, setConfirmedBooking] = useState(null);
 
+  // Form validation errors and submission loading state
   const [formError, setFormError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Session timer ticker
+  // Keep live time updated every second for session countdown timers
   useEffect(() => {
     const interval = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(interval);
@@ -294,7 +316,7 @@ export default function FlightReview() {
         name: `${p.title} ${p.firstName} ${p.lastName}`.trim(),
         type: p.type || 'ADULT',
         ticketNo: `098-${Math.floor(1000000000 + Math.random() * 9000000000)}`,
-        seats: Object.entries(selectedSeats).map(([segIdx, seatsMap]) => seatsMap[idx]?.code).filter(Boolean).join(', ') || 'Auto-Assigned',
+        seats: Object.entries(selectedSeats).map(([_segIdx, seatsMap]) => seatsMap[idx]?.code).filter(Boolean).join(', ') || 'Auto-Assigned',
         ff: p.ffNumber ? `${p.ffAirline || '6E'}-${p.ffNumber}` : '',
       })),
       fare: grossAmountToPay,
@@ -308,13 +330,16 @@ export default function FlightReview() {
       issuedAt: new Date().toISOString(),
     };
 
+    // Persist booking record to localStorage for Dashboard retrieval
     try {
       const storageKey = isHold ? 'on_hold_flight_bookings' : 'upcoming_flight_bookings';
       const existing = JSON.parse(localStorage.getItem(storageKey) || '[]');
       localStorage.setItem(storageKey, JSON.stringify([bookingPayload, ...existing]));
-    } catch (_) {}
+    } catch (persistErr) {
+      console.warn('Unable to persist booking to local dashboard cache:', persistErr);
+    }
 
-    // Save passengers to saved frequent flyer list if checked
+    // Persist new travellers to saved frequent flyer list if opt-in checkbox was selected
     try {
       const existingTravellers = JSON.parse(localStorage.getItem('goimomi_saved_travellers') || '[]');
       const newlySaved = passengers
@@ -333,7 +358,9 @@ export default function FlightReview() {
       if (newlySaved.length) {
         localStorage.setItem('goimomi_saved_travellers', JSON.stringify([...newlySaved, ...existingTravellers]));
       }
-    } catch (_) {}
+    } catch (saveTravellerErr) {
+      console.warn('Unable to save traveller to frequent list:', saveTravellerErr);
+    }
 
     setConfirmedBooking(bookingPayload);
     setCurrentStep(5); // Show Confirmation Voucher screen
@@ -770,7 +797,7 @@ export default function FlightReview() {
                     <tbody>
                       {passengers.map((p, idx) => {
                         const assignedSeatsList = Object.entries(selectedSeats)
-                          .map(([segIdx, seatsMap]) => seatsMap[idx]?.code)
+                          .map(([_segIdx, seatsMap]) => seatsMap[idx]?.code)
                           .filter(Boolean);
 
                         return (

@@ -14,6 +14,15 @@ import { simpleCache } from "../../../utils/cache";
 
 const cruiseHeroImages = [cruiseHero1, cruiseHero2, cruiseHero3, cruiseHero4, cruiseHero5];
 
+/**
+ * Luxury Cruise Holidays Page
+ * 
+ * Features:
+ * - Dynamic animated hero carousel of ocean cruise liners
+ * - Cruise calendar and schedules (Cordelia Cruises, International sailings)
+ * - Cabin categories, amenities, entertainment, and culinary offerings
+ * - Direct Zoho cruise enquiry and booking modal integration
+ */
 const Cruise = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [selectedCruise, setSelectedCruise] = useState("");
