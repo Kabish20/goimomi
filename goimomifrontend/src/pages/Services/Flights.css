@@ -4728,6 +4728,8 @@
   margin-bottom: 14px;
   padding-bottom: 12px;
   border-bottom: 1px solid #f1f5f9;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 .tj-seatmap-title {
@@ -4736,6 +4738,41 @@
   gap: 8px;
   font-size: 15px;
   color: #0f172a;
+}
+
+.tj-seatmap-badge {
+  background: #f1f5f9;
+  color: #475569;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+
+.tj-seatmap-controls-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.tj-orientation-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #ffffff;
+  border: 1.5px solid #cbd5e1;
+  color: #334155;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.tj-orientation-toggle-btn:hover {
+  border-color: #ea580c;
+  color: #ea580c;
+  background: #fff7ed;
 }
 
 .tj-seatmap-route-pill {
@@ -4769,7 +4806,7 @@
 .tj-legend-row {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 18px;
   flex-wrap: wrap;
 }
 
@@ -4789,186 +4826,304 @@
 }
 
 .tj-legend-badge {
-  width: 18px;
-  height: 18px;
-  border-radius: 3px;
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
+  font-size: 11px;
+}
+
+.tj-legend-badge.status-available {
+  background: #ffffff;
+  border: 1.5px solid #cbd5e1;
+}
+
+.tj-legend-badge.status-blue {
+  background: #f0f9ff;
+  border: 1.5px solid #38bdf8;
 }
 
 .tj-legend-badge.status-selected {
   background: #16a34a;
+  border: 1.5px solid #15803d;
   color: #ffffff;
 }
 
 .tj-legend-badge.status-booked {
-  background: #94a3b8;
-  color: #ffffff;
+  background: #f1f5f9;
+  border: 1.5px solid #e2e8f0;
+  color: #94a3b8;
 }
 
-.tj-attr-box {
-  width: 18px;
-  height: 18px;
-  border-radius: 3px;
-  border: 1px solid rgba(0, 0, 0, 0.1);
-}
-
-.tier-free {
-  background: #86efac;
-}
-
-.tier-legroom {
-  background: #fca5a5;
-}
-
-.tier-exit {
-  background: #bbf7d0;
-}
-
-.tier-blue {
-  background: #7dd3fc;
-}
-
-.tier-purple {
-  background: #c4b5fd;
-}
-
-.tier-orange {
-  background: #fdba74;
-}
-
-.tj-plane-viewport {
+/* ========================================================
+   HORIZONTAL FUSELAGE STYLING (Left to Right)
+   ======================================================== */
+.tj-plane-viewport-horiz {
   overflow-x: auto;
-  padding: 16px 0;
-  display: flex;
-  justify-content: center;
-}
-
-.tj-plane-fuselage {
-  display: flex;
-  align-items: center;
+  padding: 16px 8px 24px;
   background: #f8fafc;
-  border: 2px solid #cbd5e1;
-  border-radius: 40px 12px 12px 40px;
-  padding: 16px 20px 16px 12px;
-  gap: 16px;
-  min-width: 780px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  display: flex;
 }
 
-.tj-plane-nose {
-  width: 70px;
-  height: 140px;
-  border-right: 2px dashed #cbd5e1;
+.tj-horiz-fuselage-wrap {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-width: max-content;
+  padding: 8px 16px;
+}
+
+.tj-horiz-nose-cap {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  height: 100%;
+  padding-right: 14px;
+  border-right: 2px dashed #cbd5e1;
 }
 
-.tj-cockpit-glass {
-  width: 32px;
-  height: 50px;
-  border-radius: 50% 0 0 50%;
-  border-left: 4px solid #334155;
-  border-top: 4px solid #334155;
-  border-bottom: 4px solid #334155;
-  background: #94a3b8;
-}
-
-.tj-nose-label {
-  font-size: 10px;
-  font-weight: 700;
-  color: #64748b;
-  text-transform: uppercase;
-}
-
-.tj-plane-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  flex: 1;
-}
-
-.tj-seat-row-strip {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.tj-col-char {
-  width: 20px;
-  font-size: 12px;
+.tj-horiz-nose-pill {
+  writing-mode: vertical-lr;
+  transform: rotate(180deg);
+  background: #e2e8f0;
+  color: #334155;
+  font-size: 11px;
   font-weight: 800;
-  color: #475569;
+  letter-spacing: 2px;
+  padding: 16px 8px;
+  border-radius: 30px;
   text-align: center;
 }
 
-.tj-seat-unit {
-  width: 38px;
-  height: 34px;
-  border: 1px solid rgba(0, 0, 0, 0.12);
+.tj-horiz-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tj-horiz-col-strip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tj-col-head {
+  width: 32px;
+  font-size: 13px;
+  font-weight: 800;
+  color: #0284c7;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.tj-horiz-aisle-strip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 6px 0;
+  padding: 4px 0;
+  background: #f1f5f9;
   border-radius: 4px;
+}
+
+.tj-aisle-head {
+  color: #64748b !important;
+  font-size: 10px !important;
+  letter-spacing: 0.5px;
+}
+
+.tj-aisle-num {
+  width: 44px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: #64748b;
+  flex-shrink: 0;
+}
+
+/* ========================================================
+   VERTICAL FUSELAGE STYLING (Top to Bottom)
+   ======================================================== */
+.tj-plane-viewport-vert {
+  overflow-y: auto;
+  max-height: 520px;
+  padding: 20px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  display: flex;
+  justify-content: center;
+}
+
+.tj-vert-fuselage-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: max-content;
+}
+
+.tj-vert-nose-cap {
+  margin-bottom: 16px;
+}
+
+.tj-vert-nose-pill {
+  background: #e2e8f0;
+  color: #334155;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  padding: 8px 24px;
+  border-radius: 20px;
+}
+
+.tj-vert-col-headers {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.tj-vert-row-blank {
+  width: 24px;
+}
+
+.tj-vert-col-label {
+  width: 44px;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 800;
+  color: #0284c7;
+}
+
+.tj-vert-aisle-label {
+  width: 32px;
   font-size: 10px;
+  color: #64748b;
+}
+
+.tj-vert-rows-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tj-vert-row-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tj-vert-row-number {
+  width: 24px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #94a3b8;
+  text-align: right;
+  padding-right: 4px;
+}
+
+.tj-vert-aisle-spacer {
+  width: 32px;
+}
+
+/* ========================================================
+   SEAT UNIT STYLES (Matching user screenshot)
+   ======================================================== */
+.tj-seat-box {
+  width: 44px;
+  height: 44px;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 8px;
+  background: #ffffff;
+  font-size: 13px;
   font-weight: 700;
   color: #1e293b;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.12s;
+  transition: all 0.15s ease;
   padding: 0;
+  flex-shrink: 0;
 }
 
-.tj-seat-unit:hover:not(:disabled) {
-  transform: scale(1.08);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12);
+.tj-seat-box:hover:not(:disabled) {
+  border-color: #0284c7;
+  background: #f0f9ff;
+  color: #0284c7;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(2, 132, 199, 0.2);
 }
 
-.tj-seat-unit.is-booked {
-  background: #cbd5e1 !important;
-  color: #64748b;
-  cursor: not-allowed;
-  opacity: 0.8;
+/* Blue Tier (Row 1 / Extra Legroom matching screenshot) */
+.tj-seat-box.tier-blue-border {
+  border-color: #38bdf8;
+  background: #f0f9ff;
+  color: #0284c7;
 }
 
-.tj-seat-unit.is-selected {
+/* Booked Seat (Gray with ×) */
+.tj-seat-box.is-booked {
+  background: #f1f5f9 !important;
+  border-color: #e2e8f0 !important;
+  color: #94a3b8 !important;
+  cursor: not-allowed !important;
+  opacity: 0.9;
+}
+
+.tj-booked-x {
+  font-size: 16px;
+  font-weight: 400;
+  color: #94a3b8;
+  line-height: 1;
+}
+
+/* Selected Seat (Active passenger) */
+.tj-seat-box.is-selected {
   background: #16a34a !important;
+  border-color: #15803d !important;
   color: #ffffff !important;
-  border-color: #15803d;
-  box-shadow: 0 0 0 2px #16a34a;
+  box-shadow: 0 2px 8px rgba(22, 163, 74, 0.35);
 }
 
-.tj-seat-unit.is-mine {
-  animation: pulse-mine 1.5s infinite;
+.tj-selected-code {
+  font-size: 11px;
+  font-weight: 800;
+  color: #ffffff;
 }
 
-@keyframes pulse-mine {
+/* Selected by another passenger */
+.tj-seat-box.is-selected-other {
+  background: #ffedd5 !important;
+  border-color: #ea580c !important;
+  color: #ea580c !important;
+}
+
+.tj-other-code {
+  font-size: 11px;
+  font-weight: 700;
+}
+
+/* Pulse animation for active selected seat */
+.tj-seat-box.is-mine {
+  animation: pulse-seat-mine 1.5s infinite;
+}
+
+@keyframes pulse-seat-mine {
   0% { box-shadow: 0 0 0 1px #16a34a; }
-  50% { box-shadow: 0 0 0 3px #86efac; }
+  50% { box-shadow: 0 0 0 4px rgba(134, 239, 172, 0.5); }
   100% { box-shadow: 0 0 0 1px #16a34a; }
 }
 
-.tj-aisle-number-strip {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin: 4px 0;
-}
-
-.tj-aisle-blank {
-  width: 20px;
-}
-
-.tj-aisle-row-num {
-  width: 38px;
-  text-align: center;
-  font-size: 11px;
-  font-weight: 700;
-  color: #64748b;
-}
-
+/* Bottom Bar */
 .tj-seatmap-bottom-bar {
   display: flex;
   justify-content: space-between;
