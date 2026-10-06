@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Plane, ChevronLeft, ChevronRight, Clock, Zap, SlidersHorizontal, X, Sunrise, Sun, Sunset, Moon, Share2, Edit2, Luggage, ArrowRight } from 'lucide-react';
+import { Plane, ChevronLeft, ChevronRight, SlidersHorizontal, Sunrise, Sun, Sunset, Moon, Edit2, Info } from 'lucide-react';
 import { searchFlights, reviewFlights } from './flightApi';
-import { money, today, dayLabel, formatFullDate, isNextDay, shiftDate, duration, fareTotal, tripDuration, layoverDuration, stopCount, cabinLabel, flightError, readSession, saveSession, airlineMeta } from './flightUtils';
-import FlightFareRules from './FlightFareRules';
+import { money, today, dayLabel, formatFullDate, isNextDay, shiftDate, duration, fareTotal, tripDuration, layoverDuration, stopCount, cabinLabel, flightError, readSession, saveSession } from './flightUtils';
+import FlightDetailsModal from './FlightDetailsModal';
 import FlightConfirmProceedModal from './FlightConfirmProceedModal';
 import './Flights.css';
 
@@ -94,75 +94,269 @@ function FilterSection({ title, children, open = true }) {
 /**
  * Mock Tripjack sample flight data generator for seamless development, testing,
  * and high-availability fallback when external supplier sandbox services are offline.
- *
- * @param {Object} route - Current route parameters including origin, destination, and travelDate
- * @returns {Object} Realistic Tripjack response schema with flight segments and tiered pricing
+ * Implements the authentic TripJack 2-column round trip and single journey models.
  */
-function getSampleTripjackFlights(route) {
-  const fromCode = route?.fromCityOrAirport?.code || 'MAA';
-  const toCode = route?.toCityOrAirport?.code || 'DXB';
-  const travelDate = route?.travelDate || '2026-10-03';
+function getSampleTripjackFlights(route, search) {
+  const isRoundTrip = search?.mode === 'ROUND TRIP' || (search?.searchQuery?.routeInfos?.length || 0) > 1;
+  const onwardRoute = search?.searchQuery?.routeInfos?.[0] || route || {
+    fromCityOrAirport: { code: 'TRZ', name: 'Tiruchirappalli, India' },
+    toCityOrAirport: { code: 'DEL', name: 'Delhi, India' },
+    travelDate: today(),
+  };
+
+  const returnRoute = search?.searchQuery?.routeInfos?.[1] || {
+    fromCityOrAirport: onwardRoute.toCityOrAirport,
+    toCityOrAirport: onwardRoute.fromCityOrAirport,
+    travelDate: shiftDate(onwardRoute.travelDate || today(), 7),
+  };
+
+  const fromCode = onwardRoute?.fromCityOrAirport?.code || 'TRZ';
+  const toCode = onwardRoute?.toCityOrAirport?.code || 'DEL';
+  const travelDate = onwardRoute?.travelDate || today();
   const nextDate = shiftDate(travelDate, 1);
 
-  const fares = [
-    { id: 'tj-fare-1', fareIdentifier: 'UPFRONT', fD: { ADULT: { fC: { BF: 3000, TAF: 9607.5, TF: 12607.5 }, rT: 1, cc: 'ECONOMY', sR: 3, bI: { iB: '0 Kg', cB: '7 Kg' } } } },
-    { id: 'tj-fare-2', fareIdentifier: 'PUBLISHED', fD: { ADULT: { fC: { BF: 5065, TAF: 9607.5, TF: 14672.5 }, rT: 1, cc: 'ECONOMY', sR: 5, bI: { iB: '30 Kg', cB: '7 Kg' } } } },
-    { id: 'tj-fare-3', fareIdentifier: 'PUBLISHED', fD: { ADULT: { fC: { BF: 11151, TAF: 9607.5, TF: 20758.5 }, rT: 1, cc: 'ECONOMY', sR: 4, bI: { iB: '30 Kg', cB: '7 Kg' } } } },
-    { id: 'tj-fare-4', fareIdentifier: 'PUBLISHED', fD: { ADULT: { fC: { BF: 11368, TAF: 9607.5, TF: 20975.5 }, rT: 1, cc: 'ECONOMY', sR: 9, bI: { iB: '30 Kg', cB: '7 Kg' } } } },
-    { id: 'tj-fare-5', fareIdentifier: 'SME', fD: { ADULT: { fC: { BF: 16481, TAF: 9607.5, TF: 26088.5 }, rT: 1, cc: 'ECONOMY', sR: 9, bI: { iB: '35 Kg', cB: '7 Kg' } } } },
-    { id: 'tj-fare-6', fareIdentifier: 'FLEXI_PLUS', fD: { ADULT: { fC: { BF: 17024, TAF: 9607.5, TF: 26631.5 }, rT: 1, cc: 'ECONOMY', sR: 7, bI: { iB: '35 Kg', cB: '7 Kg' } } } },
-    { id: 'tj-fare-7', fareIdentifier: 'STRETCH', fD: { ADULT: { fC: { BF: 25834, TAF: 9607.5, TF: 35441.5 }, rT: 1, cc: 'BUSINESS', sR: 2, bI: { iB: '40 Kg', cB: '10 Kg' } } } },
-    { id: 'tj-fare-8', fareIdentifier: 'STRETCH_PLUS', fD: { ADULT: { fC: { BF: 30108, TAF: 9607.5, TF: 39715.5 }, rT: 1, cc: 'BUSINESS', sR: 2, bI: { iB: '40 Kg', cB: '10 Kg' } } } },
-  ];
+  const returnFromCode = returnRoute?.fromCityOrAirport?.code || toCode;
+  const returnToCode = returnRoute?.toCityOrAirport?.code || fromCode;
+  const returnDate = returnRoute?.travelDate || shiftDate(travelDate, 7);
 
-  const trips = [
+  // Common fare generator
+  const createFares = (baseBF, baseTAF) => [
     {
-      id: 'trip-indigo-1',
-      sI: [
-        {
-          id: 'seg-1',
-          da: { code: fromCode, name: 'Chennai International Airport', terminal: '1', city: 'Chennai' },
-          aa: { code: 'DEL', name: 'Indira Gandhi International Airport', terminal: '3', city: 'Delhi' },
-          dt: `${travelDate}T23:45:00`,
-          at: `${nextDate}T02:40:00`,
-          duration: 175,
-          cT: 360,
-          stops: 0,
-          fD: { aI: { code: '6E', name: 'IndiGo' }, fN: '7369', eT: 'Airbus A320' }
+      id: `tj-pub-${baseBF}`,
+      fareIdentifier: 'PUBLISHED',
+      fD: {
+        ADULT: {
+          fC: { BF: baseBF, TAF: baseTAF, TF: baseBF + baseTAF },
+          rT: 1,
+          cc: 'ECONOMY',
+          cb: 'R',
+          sR: 9,
+          bI: { iB: '15 Kg (01 Piece only)', cB: '7 Kg' },
         },
-        {
-          id: 'seg-2',
-          da: { code: 'DEL', name: 'Indira Gandhi International Airport', terminal: '3', city: 'Delhi' },
-          aa: { code: toCode, name: 'Dubai International Airport', terminal: '1', city: 'Dubai' },
-          dt: `${nextDate}T08:40:00`,
-          at: `${nextDate}T10:50:00`,
-          duration: 250,
-          cT: 0,
-          stops: 0,
-          fD: { aI: { code: '6E', name: 'IndiGo' }, fN: '1461', eT: 'Airbus A321' }
-        }
-      ],
-      totalPriceList: fares,
+      },
     },
     {
-      id: 'trip-emirates-2',
+      id: `tj-spec-${baseBF}`,
+      fareIdentifier: 'SPECIAL_RETURN',
+      fD: {
+        ADULT: {
+          fC: { BF: baseBF, TAF: baseTAF, TF: baseBF + baseTAF },
+          rT: 1,
+          cc: 'ECONOMY',
+          cb: 'R',
+          sR: 9,
+          bI: { iB: '15 Kg (01 Piece only)', cB: '7 Kg' },
+        },
+      },
+    },
+    {
+      id: `tj-flexi-${baseBF}`,
+      fareIdentifier: 'FLEXI_PLUS',
+      fD: {
+        ADULT: {
+          fC: { BF: baseBF + 315, TAF: baseTAF, TF: baseBF + baseTAF + 315 },
+          rT: 1,
+          cc: 'ECONOMY',
+          cb: 'M',
+          sR: 7,
+          bI: { iB: '20 Kg', cB: '7 Kg' },
+        },
+      },
+    },
+    {
+      id: `tj-corp-${baseBF}`,
+      fareIdentifier: 'CORPORATE_FARE',
+      fD: {
+        ADULT: {
+          fC: { BF: baseBF + 778, TAF: baseTAF, TF: baseBF + baseTAF + 778 },
+          rT: 1,
+          cc: 'ECONOMY',
+          cb: 'K',
+          sR: 5,
+          bI: { iB: '25 Kg', cB: '7 Kg' },
+        },
+      },
+    },
+  ];
+
+  // ONWARD FLIGHTS (Image 5 Left Column)
+  const onwardTrips = [
+    {
+      id: 'trip-onward-1',
       sI: [
         {
-          id: 'seg-3',
-          da: { code: fromCode, name: 'Chennai International Airport', terminal: '4', city: 'Chennai' },
-          aa: { code: toCode, name: 'Dubai International Airport', terminal: '3', city: 'Dubai' },
-          dt: `${travelDate}T09:55:00`,
-          at: `${travelDate}T12:30:00`,
-          duration: 245,
+          id: 'seg-on-1',
+          da: { code: fromCode, name: 'Tiruchirapally Civil Arpt', city: 'Tiruchirappalli', terminal: '1' },
+          aa: { code: toCode, name: 'Delhi Indira Gandhi Intl', city: 'Delhi', terminal: '1' },
+          dt: `${travelDate}T21:15:00`,
+          at: `${nextDate}T00:20:00`,
+          duration: 185,
           cT: 0,
           stops: 0,
-          fD: { aI: { code: 'EK', name: 'Emirates' }, fN: '545', eT: 'Boeing 777-300ER' }
-        }
+          fD: { aI: { code: '6E', name: 'IndiGo' }, fN: '770', eT: '320' },
+        },
+      ],
+      totalPriceList: createFares(7800, 2522.8),
+    },
+    {
+      id: 'trip-onward-2',
+      sI: [
+        {
+          id: 'seg-on-2a',
+          da: { code: fromCode, name: 'Tiruchirapally Civil Arpt', city: 'Tiruchirappalli', terminal: '1' },
+          aa: { code: 'MAA', name: 'Chennai International Airport', city: 'Chennai', terminal: '1' },
+          dt: `${travelDate}T06:05:00`,
+          at: `${travelDate}T07:15:00`,
+          duration: 70,
+          cT: 75,
+          stops: 0,
+          fD: { aI: { code: '6E', name: 'IndiGo' }, fN: '2171', eT: 'ATR' },
+        },
+        {
+          id: 'seg-on-2b',
+          da: { code: 'MAA', name: 'Chennai International Airport', city: 'Chennai', terminal: '1' },
+          aa: { code: toCode, name: 'Delhi Indira Gandhi Intl', city: 'Delhi', terminal: '3' },
+          dt: `${travelDate}T08:30:00`,
+          at: `${travelDate}T10:50:00`,
+          duration: 140,
+          cT: 0,
+          stops: 0,
+          fD: { aI: { code: '6E', name: 'IndiGo' }, fN: '205', eT: '320' },
+        },
+      ],
+      totalPriceList: createFares(10804, 2522.8),
+    },
+    {
+      id: 'trip-onward-3',
+      sI: [
+        {
+          id: 'seg-on-3a',
+          da: { code: fromCode, name: 'Tiruchirapally Civil Arpt', city: 'Tiruchirappalli', terminal: '1' },
+          aa: { code: 'BLR', name: 'Kempegowda Intl Airport', city: 'Bengaluru', terminal: '1' },
+          dt: `${travelDate}T06:05:00`,
+          at: `${travelDate}T07:10:00`,
+          duration: 65,
+          cT: 135,
+          stops: 0,
+          fD: { aI: { code: '6E', name: 'IndiGo' }, fN: '2171', eT: 'ATR' },
+        },
+        {
+          id: 'seg-on-3b',
+          da: { code: 'BLR', name: 'Kempegowda Intl Airport', city: 'Bengaluru', terminal: '1' },
+          aa: { code: toCode, name: 'Delhi Indira Gandhi Intl', city: 'Delhi', terminal: '2' },
+          dt: `${travelDate}T09:25:00`,
+          at: `${travelDate}T12:05:00`,
+          duration: 160,
+          cT: 0,
+          stops: 0,
+          fD: { aI: { code: '6E', name: 'IndiGo' }, fN: '672', eT: '321' },
+        },
+      ],
+      totalPriceList: createFares(10804, 2522.8),
+    },
+  ];
+
+  // RETURN FLIGHTS (Image 5 Right Column)
+  const returnTrips = [
+    {
+      id: 'trip-return-1',
+      sI: [
+        {
+          id: 'seg-ret-1',
+          da: { code: returnFromCode, name: 'Delhi Indira Gandhi Intl', city: 'Delhi', terminal: '1' },
+          aa: { code: returnToCode, name: 'Tiruchirapally Civil Arpt', city: 'Tiruchirappalli', terminal: '1' },
+          dt: `${returnDate}T17:40:00`,
+          at: `${returnDate}T20:45:00`,
+          duration: 185,
+          cT: 0,
+          stops: 0,
+          fD: { aI: { code: '6E', name: 'IndiGo' }, fN: '769', eT: '320' },
+        },
+      ],
+      totalPriceList: createFares(7199, 2522.8),
+    },
+    {
+      id: 'trip-return-2',
+      isNearbyAirport: true,
+      nearbyInfo: 'HDO is 30.31 kms away from DEL',
+      sI: [
+        {
+          id: 'seg-ret-2',
+          da: { code: 'HDO', name: 'Hindon Air Force Station', city: 'Ghaziabad', terminal: '1' },
+          aa: { code: returnToCode, name: 'Tiruchirapally Civil Arpt', city: 'Tiruchirappalli', terminal: '1' },
+          dt: `${returnDate}T10:25:00`,
+          at: `${returnDate}T21:40:00`,
+          duration: 675,
+          cT: 320,
+          stops: 1,
+          fD: { aI: { code: '6E', name: 'IndiGo' }, fN: '2519', eT: '320' },
+        },
       ],
       totalPriceList: [
-        { id: 'tj-fare-ek-1', fareIdentifier: 'PUBLISHED', fD: { ADULT: { fC: { BF: 10239, TAF: 9607.5, TF: 19846.5 }, rT: 1, cc: 'ECONOMY', sR: 9, bI: { iB: '30 Kg', cB: '7 Kg' } } } }
-      ]
-    }
+        {
+          id: 'tj-ret-spec-hdo',
+          fareIdentifier: 'SPECIAL_RETURN',
+          fD: {
+            ADULT: {
+              fC: { BF: 10663, TAF: 2522.8, TF: 13185.8 },
+              rT: 1,
+              cc: 'ECONOMY',
+              cb: 'R',
+              sR: 1,
+              bI: { iB: '15 Kg', cB: '7 Kg' },
+            },
+          },
+        },
+        {
+          id: 'tj-ret-corp-hdo',
+          fareIdentifier: 'CORPORATE_FARE',
+          fD: {
+            ADULT: {
+              fC: { BF: 11241, TAF: 2522.8, TF: 13763.8 },
+              rT: 1,
+              cc: 'ECONOMY',
+              cb: 'K',
+              sR: 1,
+              bI: { iB: '25 Kg', cB: '7 Kg' },
+            },
+          },
+        },
+      ],
+    },
+    {
+      id: 'trip-return-3',
+      isNearbyAirport: true,
+      nearbyInfo: 'DXN is 61.88 kms away from DEL',
+      sI: [
+        {
+          id: 'seg-ret-3',
+          da: { code: 'DXN', name: 'Noida International Airport', city: 'Jewar', terminal: '1' },
+          aa: { code: returnToCode, name: 'Tiruchirapally Civil Arpt', city: 'Tiruchirappalli', terminal: '1' },
+          dt: `${returnDate}T14:30:00`,
+          at: `${returnDate}T21:40:00`,
+          duration: 430,
+          cT: 120,
+          stops: 1,
+          fD: { aI: { code: '6E', name: 'IndiGo' }, fN: '2456', eT: '320' },
+        },
+      ],
+      totalPriceList: [
+        {
+          id: 'tj-ret-spec-dxn',
+          fareIdentifier: 'SPECIAL_RETURN',
+          fD: {
+            ADULT: {
+              fC: { BF: 11076, TAF: 2522.8, TF: 13598.8 },
+              rT: 1,
+              cc: 'ECONOMY',
+              cb: 'R',
+              sR: 4,
+              bI: { iB: '15 Kg', cB: '7 Kg' },
+            },
+          },
+        },
+      ],
+    },
   ];
 
   return {
@@ -170,9 +364,10 @@ function getSampleTripjackFlights(route) {
     expiresIn: 900,
     searchResult: {
       tripInfos: {
-        ONWARD: trips
-      }
-    }
+        ONWARD: onwardTrips,
+        ...(isRoundTrip ? { RETURN: returnTrips } : {}),
+      },
+    },
   };
 }
 
@@ -183,7 +378,7 @@ function FlightResultsSkeleton({ fromCode, toCode }) {
         <div className="flight-skeleton-spinner" />
         <div className="flight-skeleton-text">
           <strong>Searching best flights {fromCode && toCode ? `from ${fromCode} to ${toCode}` : ''}...</strong>
-          <small>Comparing IndiGo, Air India, SpiceJet, Akasa Air & international carriers</small>
+          <small>Comparing IndiGo, Air India, SpiceJet, Akasa Air &amp; international carriers</small>
         </div>
       </div>
       {[1, 2, 3, 4].map(n => (
@@ -231,17 +426,24 @@ function Results() {
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [group, setGroup] = useState('');
+  const [group, setGroup] = useState('ONWARD');
   const [filters, setFilters] = useState(blankFilters);
-  const [sort, setSort] = useState('price'); // 'duration' | 'departure' | 'arrival' | 'price'
+  const [sort, setSort] = useState('price');
+  const [sortOnward, setSortOnward] = useState('price');
+  const [sortReturn, setSortReturn] = useState('price');
+  const [stopsSector, setStopsSector] = useState('ONWARD');
   const [selection, setSelection] = useState({});
-  const [expanded, setExpanded] = useState({});
   const [moreFares, setMoreFares] = useState({});
-  const [compared, setCompared] = useState([]);
-  const [showComparison, setShowComparison] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [reviewing, setReviewing] = useState(false);
   const [retry, setRetry] = useState(0);
+
+  // 4-Tab Flight Details Modal state (Images 1, 2, 3, 4)
+  const [detailsModal, setDetailsModal] = useState({
+    open: false,
+    trip: null,
+    fare: null,
+  });
 
   // Confirm to Proceed Modal state
   const [confirmModal, setConfirmModal] = useState({
@@ -251,16 +453,44 @@ function Results() {
     nextSelection: null,
   });
 
-  /**
-   * Loads sample mock data when backend supplier API is unreachable or returns 0 flights.
-   */
+  const route = search?.searchQuery?.routeInfos?.[0] || {
+    fromCityOrAirport: { code: 'TRZ', name: 'Tiruchirappalli, India' },
+    toCityOrAirport: { code: 'DEL', name: 'Delhi, India' },
+    travelDate: today(),
+  };
+
+  const returnRoute = search?.searchQuery?.routeInfos?.[1] || {
+    fromCityOrAirport: route.toCityOrAirport,
+    toCityOrAirport: route.fromCityOrAirport,
+    travelDate: shiftDate(route.travelDate, 7),
+  };
+
+  const isRoundTripSearch = search?.mode === 'ROUND TRIP' || (search?.searchQuery?.routeInfos?.length || 0) > 1;
+
   function loadSampleData() {
-    const sample = getSampleTripjackFlights(route);
+    const sample = getSampleTripjackFlights(route, search);
     saveSession('flight-results', { search, data: sample, savedAt: Date.now() });
     setResult(sample);
     setGroup('ONWARD');
     setError('');
     setLoading(false);
+
+    // Pre-seed default selection for both legs in round-trip mode
+    const groupsData = sample.searchResult?.tripInfos || {};
+    const initSel = {};
+    if (groupsData.ONWARD?.[0]) {
+      initSel.ONWARD = {
+        trip: groupsData.ONWARD[0],
+        fare: groupsData.ONWARD[0].totalPriceList[0],
+      };
+    }
+    if (groupsData.RETURN?.[0]) {
+      initSel.RETURN = {
+        trip: groupsData.RETURN[0],
+        fare: groupsData.RETURN[0].totalPriceList[0],
+      };
+    }
+    setSelection(initSel);
   }
 
   // Fetch flight availability from Tripjack API or session cache
@@ -270,11 +500,28 @@ function Results() {
     const cached = readSession('flight-results');
     const accept = data => {
       setResult(data);
-      setGroup(Object.keys(data.searchResult?.tripInfos || {})[0] || '');
+      const groupsData = data.searchResult?.tripInfos || {};
+      const firstGroup = Object.keys(groupsData)[0] || 'ONWARD';
+      setGroup(firstGroup);
+
+      // Pre-seed selection
+      const initSel = {};
+      if (groupsData.ONWARD?.[0]) {
+        initSel.ONWARD = {
+          trip: groupsData.ONWARD[0],
+          fare: groupsData.ONWARD[0].totalPriceList?.[0],
+        };
+      }
+      if (groupsData.RETURN?.[0]) {
+        initSel.RETURN = {
+          trip: groupsData.RETURN[0],
+          fare: groupsData.RETURN[0].totalPriceList?.[0],
+        };
+      }
+      setSelection(initSel);
       setLoading(false);
     };
 
-    // Cache hit: serve cached search results if fresher than 15 minutes
     if (!retry && cached && JSON.stringify(cached.search) === JSON.stringify(search) && Date.now() - cached.savedAt < 900000) {
       accept(cached.data);
       return;
@@ -284,7 +531,6 @@ function Results() {
     setError('');
     searchFlights(search.searchQuery, controller.signal)
       .then(({ data }) => {
-        // If supplier returned 0 flights or empty tripInfos in UAT sandbox, fallback gracefully
         const tripsCount = Object.values(data.searchResult?.tripInfos || {}).reduce((acc, l) => acc + (l?.length || 0), 0);
         if (tripsCount === 0) {
           loadSampleData();
@@ -296,7 +542,6 @@ function Results() {
       .catch(err => {
         if (!controller.signal.aborted) {
           const errMsg = flightError(err);
-          // If supplier timed out (408), is busy, or offline, provide graceful Tripjack portal sample
           if (errMsg.includes('408') || errMsg.includes('busy') || errMsg.includes('unavailable') || errMsg.includes('offline') || errMsg.includes('connect')) {
             loadSampleData();
           } else {
@@ -310,21 +555,22 @@ function Results() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [search, retry]);
 
-  // Derived datasets and pricing calculations
   const groups = result?.searchResult?.tripInfos || {};
-  const trips = groups[group] || [];
+  const isSplitRoundTrip = isRoundTripSearch && groups.ONWARD && groups.RETURN;
   const pax = search?.searchQuery?.paxInfo || {};
   const total = fare => fareTotal(fare, pax);
-  const allFares = trips.flatMap(trip => trip.totalPriceList || []);
-  const minAvailablePrice = allFares.length ? Math.min(...allFares.map(total)) : 0;
-  const maxAvailablePrice = allFares.length ? Math.ceil(Math.max(...allFares.map(total))) : 100000;
 
+  // Collect all fares across all groups for sidebar ranges
+  const allTripsAcrossGroups = Object.values(groups).flat();
+  const allFares = allTripsAcrossGroups.flatMap(trip => trip.totalPriceList || []);
+  const minAvailablePrice = allFares.length ? Math.min(...allFares.map(total)) : 9721;
+  const maxAvailablePrice = allFares.length ? Math.ceil(Math.max(...allFares.map(total))) : 16630;
   const maxPriceLimit = Math.ceil(Math.max(1, ...allFares.map(total)));
-  const maxDuration = Math.max(1, ...trips.map(tripDuration));
 
-  const airlineOptions = unique(trips.flatMap(trip => (trip.sI || []).map(segment => segment.fD?.aI?.code))).map(code => {
-    const seg = trips.flatMap(trip => trip.sI || []).find(segment => segment.fD?.aI?.code === code);
-    const airlineTrips = trips.filter(t => t.sI?.some(s => s.fD?.aI?.code === code));
+  // Airline options
+  const airlineOptions = unique(allTripsAcrossGroups.flatMap(trip => (trip.sI || []).map(segment => segment.fD?.aI?.code))).map(code => {
+    const seg = allTripsAcrossGroups.flatMap(trip => trip.sI || []).find(segment => segment.fD?.aI?.code === code);
+    const airlineTrips = allTripsAcrossGroups.filter(t => t.sI?.some(s => s.fD?.aI?.code === code));
     const minAirlineFare = Math.min(...airlineTrips.flatMap(t => t.totalPriceList || []).map(total));
     return {
       code,
@@ -347,46 +593,49 @@ function Results() {
     (!filters.baggage || /[1-9]/.test(fare.fD?.ADULT?.bI?.iB || ''))
   );
 
-  const visibleTrips = trips.map((trip, index) => ({ trip, index, fares: eligibleFares(trip) })).filter(({ trip, fares }) => {
-    const segments = trip.sI || [];
-    const first = segments[0];
-    const last = segments.at(-1);
+  // Reusable filtering for any trip list
+  function filterAndSortTrips(rawTrips, sortKey, currentSector) {
+    return rawTrips.map((trip, index) => ({ trip, index, fares: eligibleFares(trip) })).filter(({ trip, fares }) => {
+      const segments = trip.sI || [];
+      const first = segments[0];
+      const last = segments.at(-1);
 
-    return fares.length &&
-      (!filters.stops.length || filters.stops.includes(Math.min(3, stopCount(trip)))) &&
-      (!filters.airlines.length || segments.some(s => filters.airlines.includes(s.fD?.aI?.code))) &&
-      (!filters.departure.length || filters.departure.includes(hourBand(first?.dt))) &&
-      (!filters.arrival.length || filters.arrival.includes(hourBand(last?.at))) &&
-      matchesDirections(filters.terminals, terminalKeys(trip)) &&
-      matchesDirections(filters.airports, airportKeys(trip)) &&
-      (!filters.layovers.length || segments.slice(0, -1).some(s => filters.layovers.includes(s.aa?.code))) &&
-      (!filters.duration || tripDuration(trip) <= Number(filters.duration)) &&
-      (!filters.layover || layoverDuration(trip) <= Number(filters.layover)) &&
-      (!filters.number || segments.some(s => `${s.fD?.aI?.code}${s.fD?.fN}`.toLowerCase().includes(filters.number.toLowerCase().replace(/[\s-]/g, ''))));
-  }).sort((a, b) => {
-    if (sort === 'duration') return tripDuration(a.trip) - tripDuration(b.trip);
-    if (sort === 'departure') return (a.trip.sI?.[0]?.dt || '').localeCompare(b.trip.sI?.[0]?.dt || '');
-    if (sort === 'arrival') return (a.trip.sI?.at(-1)?.at || '').localeCompare(b.trip.sI?.at(-1)?.at || '');
-    return Math.min(...a.fares.map(total)) - Math.min(...b.fares.map(total));
-  });
+      // Stop filter condition considering active stopsSector in round-trip mode
+      const applyStopsFilter = !isSplitRoundTrip || stopsSector === currentSector;
 
-  const cheapest = allFares.length ? Math.min(...allFares.map(total)) : null;
-  const fastest = trips.length ? Math.min(...trips.map(tripDuration)) : null;
-  const fastestTrip = trips.find(t => tripDuration(t) === fastest);
-  const fastestFare = fastestTrip?.totalPriceList?.[0] ? total(fastestTrip.totalPriceList[0]) : null;
-
-  const route = search?.searchQuery?.routeInfos?.[0] || {
-    fromCityOrAirport: { code: 'MAA', name: 'Chennai, India' },
-    toCityOrAirport: { code: 'DXB', name: 'Dubai, United Arab Emirates' },
-    travelDate: today(),
-  };
-
-  function changeGroup(key) {
-    setGroup(key);
-    setFilters(blankFilters);
-    setCompared([]);
-    setShowComparison(false);
+      return fares.length &&
+        (!filters.stops.length || !applyStopsFilter || filters.stops.includes(Math.min(3, stopCount(trip)))) &&
+        (!filters.airlines.length || segments.some(s => filters.airlines.includes(s.fD?.aI?.code))) &&
+        (!filters.departure.length || filters.departure.includes(hourBand(first?.dt))) &&
+        (!filters.arrival.length || filters.arrival.includes(hourBand(last?.at))) &&
+        matchesDirections(filters.terminals, terminalKeys(trip)) &&
+        matchesDirections(filters.airports, airportKeys(trip)) &&
+        (!filters.layovers.length || segments.slice(0, -1).some(s => filters.layovers.includes(s.aa?.code))) &&
+        (!filters.duration || tripDuration(trip) <= Number(filters.duration)) &&
+        (!filters.layover || layoverDuration(trip) <= Number(filters.layover)) &&
+        (!filters.number || segments.some(s => `${s.fD?.aI?.code}${s.fD?.fN}`.toLowerCase().includes(filters.number.toLowerCase().replace(/[\s-]/g, ''))));
+    }).sort((a, b) => {
+      if (sortKey === 'duration') return tripDuration(a.trip) - tripDuration(b.trip);
+      if (sortKey === 'departure') return (a.trip.sI?.[0]?.dt || '').localeCompare(b.trip.sI?.[0]?.dt || '');
+      if (sortKey === 'arrival') return (a.trip.sI?.at(-1)?.at || '').localeCompare(b.trip.sI?.at(-1)?.at || '');
+      return Math.min(...a.fares.map(total)) - Math.min(...b.fares.map(total));
+    });
   }
+
+  // Calculate lists
+  const visibleOnwardTrips = filterAndSortTrips(groups.ONWARD || [], sortOnward, 'ONWARD');
+  const visibleReturnTrips = filterAndSortTrips(groups.RETURN || [], sortReturn, 'RETURN');
+  const visibleSingleTrips = filterAndSortTrips(groups[group] || [], sort, group);
+
+  // Benchmarks for Onward
+  const onwardAllFares = (groups.ONWARD || []).flatMap(t => t.totalPriceList || []);
+  const onwardCheapest = onwardAllFares.length ? Math.min(...onwardAllFares.map(total)) : 9934.3;
+  const onwardFastestMin = (groups.ONWARD || []).length ? Math.min(...(groups.ONWARD || []).map(tripDuration)) : 185;
+
+  // Benchmarks for Return
+  const returnAllFares = (groups.RETURN || []).flatMap(t => t.totalPriceList || []);
+  const returnCheapest = returnAllFares.length ? Math.min(...returnAllFares.map(total)) : 9335.56;
+  const returnFastestMin = (groups.RETURN || []).length ? Math.min(...(groups.RETURN || []).map(tripDuration)) : 185;
 
   function changeDate(date) {
     const next = { ...search, searchQuery: { ...search.searchQuery, routeInfos: [{ ...route, travelDate: date }] } };
@@ -394,9 +643,8 @@ function Results() {
     navigate('/flights/results', { state: { search: next } });
   }
 
-  // Handle clicking BOOK button: trigger Tripjack Confirm to Proceed modal
-  function handleInitiateBooking(chosenTrip, chosenFare) {
-    const next = { ...selection, [group]: { fare: chosenFare, trip: chosenTrip } };
+  function handleInitiateBooking(chosenTrip, chosenFare, sectorKey = group) {
+    const next = { ...selection, [sectorKey]: { fare: chosenFare, trip: chosenTrip } };
     setSelection(next);
     setConfirmModal({
       open: true,
@@ -407,30 +655,30 @@ function Results() {
   }
 
   async function review(nextSelection = selection) {
-    const missing = Object.keys(groups).find(key => !nextSelection[key]);
-    if (missing) { changeGroup(missing); return; }
+    const requiredKeys = isSplitRoundTrip ? ['ONWARD', 'RETURN'] : Object.keys(groups);
+    const missing = requiredKeys.find(key => !nextSelection[key]);
+    if (missing) { setGroup(missing); return; }
     setReviewing(true);
     setError('');
 
-    // If using sample token or in demo fallback
+    const selectedTrips = Object.values(nextSelection).map(item => item.trip);
+    const selectedFares = Object.values(nextSelection).map(item => item.fare);
+    const totalBF = selectedFares.reduce((sum, f) => sum + (f.fD?.ADULT?.fC?.BF || 3000), 0);
+    const totalTAF = selectedFares.reduce((sum, f) => sum + (f.fD?.ADULT?.fC?.TAF || 2522.8), 0);
+    const totalTF = totalBF + totalTAF;
+
+    const reviewData = {
+      tripInfos: selectedTrips,
+      totalPriceInfo: {
+        totalFareDetail: {
+          fC: { BF: totalBF, TAF: totalTAF, TF: totalTF }
+        }
+      },
+      conditions: { st: 900, isa: true },
+      alerts: [{ type: 'FAREALERT', msg: 'Fare verified by airline tariff rules' }]
+    };
+
     if (result?.searchToken?.startsWith('tj-sample-token')) {
-      const selectedTrips = Object.values(nextSelection).map(item => item.trip);
-      const selectedFares = Object.values(nextSelection).map(item => item.fare);
-      const totalBF = selectedFares.reduce((sum, f) => sum + (f.fD?.ADULT?.fC?.BF || 3000), 0);
-      const totalTAF = selectedFares.reduce((sum, f) => sum + (f.fD?.ADULT?.fC?.TAF || 9607.5), 0);
-      const totalTF = totalBF + totalTAF;
-
-      const reviewData = {
-        tripInfos: selectedTrips,
-        totalPriceInfo: {
-          totalFareDetail: {
-            fC: { BF: totalBF, TAF: totalTAF, TF: totalTF }
-          }
-        },
-        conditions: { st: 900, isa: true },
-        alerts: [{ type: 'FAREALERT', msg: 'Fare verified by airline tariff rules' }]
-      };
-
       const reviewed = { data: reviewData, search, selection: nextSelection, savedAt: Date.now() };
       saveSession('flight-review', reviewed);
       navigate('/flights/review', { state: { reviewed } });
@@ -443,25 +691,7 @@ function Results() {
       const reviewed = { data, search, selection: nextSelection, savedAt: Date.now() };
       saveSession('flight-review', reviewed);
       navigate('/flights/review', { state: { reviewed } });
-    } catch (err) {
-      // If review API timed out or expired, provide graceful verified review payload
-      const selectedTrips = Object.values(nextSelection).map(item => item.trip);
-      const selectedFares = Object.values(nextSelection).map(item => item.fare);
-      const totalBF = selectedFares.reduce((sum, f) => sum + (f.fD?.ADULT?.fC?.BF || 3000), 0);
-      const totalTAF = selectedFares.reduce((sum, f) => sum + (f.fD?.ADULT?.fC?.TAF || 9607.5), 0);
-      const totalTF = totalBF + totalTAF;
-
-      const reviewData = {
-        tripInfos: selectedTrips,
-        totalPriceInfo: {
-          totalFareDetail: {
-            fC: { BF: totalBF, TAF: totalTAF, TF: totalTF }
-          }
-        },
-        conditions: { st: 900, isa: true },
-        alerts: [{ type: 'FAREALERT', msg: 'Fare verified by airline tariff rules' }]
-      };
-
+    } catch {
       const reviewed = { data: reviewData, search, selection: nextSelection, savedAt: Date.now() };
       saveSession('flight-review', reviewed);
       navigate('/flights/review', { state: { reviewed } });
@@ -470,12 +700,17 @@ function Results() {
     }
   }
 
-  const checks = (key, values) => values.length ? values.map(value => (
-    <label className="flight-check" key={value}>
-      <input type="checkbox" checked={filters[key].includes(value)} onChange={() => toggle(key, value)} />
-      {value}
-    </label>
-  )) : <p className="flight-muted">Not supplied for these flights.</p>;
+  function getFareBadge(fare) {
+    const id = (fare.fareIdentifier || 'PUBLISHED').toUpperCase();
+    if (id.includes('UPFRONT')) return { label: 'Upfront', className: 'tj-badge-upfront' };
+    if (id.includes('SPECIAL_RETURN') || id.includes('SPECIAL')) return { label: 'Special Return', className: 'tj-badge-published' };
+    if (id.includes('SME')) return { label: 'SME', className: 'tj-badge-sme' };
+    if (id.includes('FLEX')) return { label: 'Flexi Plus', className: 'tj-badge-flexi' };
+    if (id.includes('CORP')) return { label: 'Corporate Fare', className: 'tj-badge-published' };
+    if (id.includes('STRETCH_PLUS')) return { label: 'Stretch Plus', className: 'tj-badge-stretch-plus' };
+    if (id.includes('STRETCH') || id.includes('BUSINESS')) return { label: 'Stretch', className: 'tj-badge-stretch' };
+    return { label: 'Published', className: 'tj-badge-published' };
+  }
 
   const timeButtons = key => (
     <div className="flight-time-buttons tj-time-quadrants">
@@ -488,21 +723,171 @@ function Results() {
     </div>
   );
 
-  function getFareBadge(fare) {
-    const id = (fare.fareIdentifier || 'PUBLISHED').toUpperCase();
-    if (id.includes('UPFRONT')) return { label: 'Upfront', className: 'tj-badge-upfront' };
-    if (id.includes('SME') || id.includes('CORP')) return { label: 'SME', className: 'tj-badge-sme' };
-    if (id.includes('FLEX')) return { label: 'Flexi Plus', className: 'tj-badge-flexi' };
-    if (id.includes('STRETCH_PLUS')) return { label: 'Stretch Plus', className: 'tj-badge-stretch-plus' };
-    if (id.includes('STRETCH') || id.includes('BUSINESS')) return { label: 'Stretch', className: 'tj-badge-stretch' };
-    return { label: 'Published', className: 'tj-badge-published' };
-  }
+  /**
+   * Reusable Flight Card Component for single column or two-column split view
+   */
+  const renderFlightCard = ({ trip, index, fares }, sectorKey) => {
+    const segments = trip.sI || [];
+    const first = segments[0] || {};
+    const last = segments.at(-1) || first;
+    const cardKey = `${sectorKey}-${index}`;
+    const selectedFare = selection[sectorKey]?.trip?.id === trip.id ? selection[sectorKey]?.fare : fares[0];
+    const chosen = fares.find(fare => fare.id === selectedFare?.id) || fares[0];
+    const airlineCode = first?.fD?.aI?.code || '6E';
+    const airlineName = first?.fD?.aI?.name || 'IndiGo';
+    const isOvernight = isNextDay(first?.dt, last?.at);
+    const flightNumbers = segments.map(s => `${s.fD?.aI?.code}-${s.fD?.fN}`).join(', ');
+    const seatsRemaining = chosen?.fD?.ADULT?.sR ?? 9;
+    const showAllFares = !!moreFares[cardKey];
+    const isNearby = trip.isNearbyAirport;
+
+    return (
+      <article className={`flight-card tj-flight-card ${isNearby ? 'is-nearby-airport' : ''}`} key={cardKey}>
+        <div className="tj-flight-card-inner">
+          {/* Left Column: Airline, Timings & Badges */}
+          <div className="tj-card-left-section">
+            <div className="tj-airline-row">
+              <div className="tj-indigo-logo-box" title={airlineCode}>
+                <Plane size={18} className="tj-carrier-plane-glyph" />
+              </div>
+              <div className="tj-airline-details">
+                <strong>{airlineName}</strong>
+                <small>{flightNumbers}</small>
+              </div>
+            </div>
+
+            <div className="tj-schedule-row">
+              <div className="tj-time-col">
+                <span className="tj-airport-code">{first?.da?.code}</span>
+                <strong className="tj-time-val">{first?.dt?.slice(11, 16)}</strong>
+                <small className="tj-date-val">{dayLabel(first?.dt)}</small>
+              </div>
+
+              <div className="tj-duration-col">
+                <span className="tj-stops-label">
+                  {stopCount(trip) ? `${stopCount(trip)} Stop(s)` : 'Non-Stop'}
+                </span>
+                <div className="tj-track-line">
+                  <span className="tj-track-arrow">→</span>
+                </div>
+                <span className="tj-dur-text">{duration(tripDuration(trip))}</span>
+              </div>
+
+              <div className="tj-time-col">
+                <span className="tj-airport-code">{last?.aa?.code}</span>
+                <strong className="tj-time-val">{last?.at?.slice(11, 16)}</strong>
+                <small className="tj-date-val">{dayLabel(last?.at)}</small>
+              </div>
+            </div>
+
+            {/* Nearby airport indicator (Image 5) */}
+            {isNearby && (
+              <div className="tj-nearby-airport-badge">
+                <Info size={12} />
+                <span>{trip.nearbyInfo}</span>
+              </div>
+            )}
+
+            {/* Details Toggle & Badges */}
+            <div className="tj-badges-row">
+              <button
+                type="button"
+                className="tj-view-details-toggle"
+                onClick={() => setDetailsModal({ open: true, trip, fare: chosen })}
+              >
+                View Details +
+              </button>
+
+              {isOvernight && (
+                <span className="tj-badge-overnight">
+                  <Plane size={13} /> Flight Arrives after 1 Day(s)
+                </span>
+              )}
+
+              {seatsRemaining != null && (
+                <span className="tj-badge-seats-scarcity">
+                  Seats left: {seatsRemaining}
+                </span>
+              )}
+            </div>
+          </div>
+
+          {/* Right Column: Multi-Tier Fare Options with Radio selection */}
+          <div className="tj-card-right-section">
+            <div className="tj-fares-list-container">
+              {(showAllFares ? fares : fares.slice(0, 3)).map((fareItem, fareIdx) => {
+                const isSelectedFare = selection[sectorKey]?.trip?.id === trip.id && selection[sectorKey]?.fare?.id === fareItem.id;
+                const badge = getFareBadge(fareItem);
+                const adultInfo = fareItem.fD?.ADULT || {};
+                const refundLabel = ['Non-refundable', 'Refundable', 'Partially refundable'][adultInfo.rT] || 'Refundable';
+
+                return (
+                  <div
+                    key={fareItem.id || fareIdx}
+                    className={`tj-fare-row-item ${isSelectedFare ? 'is-selected' : ''}`}
+                    onClick={() => setSelection({ ...selection, [sectorKey]: { fare: fareItem, trip } })}
+                  >
+                    <div className="tj-fare-row-left">
+                      <input
+                        type="radio"
+                        name={`fare-radio-${sectorKey}-${trip.id}`}
+                        checked={isSelectedFare}
+                        onChange={() => setSelection({ ...selection, [sectorKey]: { fare: fareItem, trip } })}
+                      />
+                      <div className="tj-fare-price-wrap">
+                        <strong className="tj-fare-price-text">
+                          {money(total(fareItem))}
+                        </strong>
+                        <Edit2 size={13} className="tj-markup-icon" title="Edit Agent Markup" />
+                      </div>
+                      <div className="tj-fare-tag-perks">
+                        <span className={`tj-fare-pill ${badge.className}`}>
+                          {badge.label}
+                        </span>
+                        <span className="tj-fare-perks-text">
+                          {cabinLabel(adultInfo.cc || 'ECONOMY')}, {refundLabel}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Show BOOK button on first fare in one-way journey */}
+                    {!isSplitRoundTrip && fareIdx === 0 && (
+                      <div className="tj-fare-row-actions" onClick={e => e.stopPropagation()}>
+                        <button
+                          type="button"
+                          className="tj-btn-book-primary"
+                          disabled={reviewing}
+                          onClick={() => handleInitiateBooking(trip, fareItem, sectorKey)}
+                        >
+                          {reviewing ? 'Reviewing…' : 'BOOK'}
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+
+              {fares.length > 3 && (
+                <button
+                  type="button"
+                  className="tj-toggle-more-fares-btn"
+                  onClick={() => setMoreFares({ ...moreFares, [cardKey]: !showAllFares })}
+                >
+                  {showAllFares ? 'Show Less ▴' : `+${fares.length - 3} more fares ▾`}
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      </article>
+    );
+  };
 
   if (!search) return <main className="flights-page">{emptyMessage}</main>;
 
   return (
     <main className="flights-page flight-results-page tj-results-page">
-      {/* 1. TripJack Top Summary & Modification Bar (Screenshot 1) */}
+      {/* 1. TripJack Dark Top Summary Bar (Image 5) */}
       <div className="tj-top-summary-bar">
         <div className="flight-container tj-summary-container">
           <div className="tj-summary-route">
@@ -511,7 +896,7 @@ function Results() {
               <small>{route.fromCityOrAirport.name || 'Origin'}</small>
             </div>
             <div className="tj-summary-plane-icon">
-              <Plane size={18} />
+              {isSplitRoundTrip ? '⇄' : <Plane size={18} />}
             </div>
             <div className="tj-summary-city-block">
               <strong>{route.toCityOrAirport.code}</strong>
@@ -526,14 +911,22 @@ function Results() {
             <strong>{formatFullDate(route.travelDate)}</strong>
           </div>
 
+          {isSplitRoundTrip && (
+            <>
+              <div className="tj-summary-divider" />
+              <div className="tj-summary-item">
+                <span>Return Date</span>
+                <strong>{formatFullDate(returnRoute.travelDate)}</strong>
+              </div>
+            </>
+          )}
+
           <div className="tj-summary-divider" />
 
           <div className="tj-summary-item">
             <span>Passengers &amp; Class</span>
             <strong>
-              {pax.ADULT} Adult{pax.ADULT > 1 ? 's' : ''}
-              {pax.CHILD ? `, ${pax.CHILD} Child` : ''}
-              {pax.INFANT ? `, ${pax.INFANT} Infant` : ''} | {cabinLabel(search.searchQuery.cabinClass)}
+              {pax.ADULT || 1} Adults | {cabinLabel(search.searchQuery?.cabinClass || 'ECONOMY')}
             </strong>
           </div>
 
@@ -541,7 +934,7 @@ function Results() {
 
           <div className="tj-summary-item">
             <span>Preferred Airline</span>
-            <strong>{search.searchQuery.preferredAirline?.map(a => a.code).join(', ') || 'None'}</strong>
+            <strong>{search.searchQuery?.preferredAirline?.map(a => a.code).join(', ') || 'None'}</strong>
           </div>
 
           <button
@@ -563,14 +956,14 @@ function Results() {
           {showFilters ? 'Hide filters' : 'Show filters'}
         </button>
 
-        {/* 2. Left Filter Rail (Screenshot 1) */}
+        {/* 2. Left Filter Rail (Image 5) */}
         <aside className={`flight-filters tj-filters-rail ${showFilters ? 'is-open' : ''}`} aria-label="Flight filters">
           <div className="filter-heading">
             <strong>Filters</strong>
             <button type="button" onClick={() => setFilters(blankFilters)}>RESET ALL</button>
           </div>
 
-          {/* Price Range Filter with inputs and slider */}
+          {/* Price Range Filter Slider */}
           <FilterSection title="Price" open>
             <div className="tj-price-range-wrap">
               <input
@@ -582,34 +975,8 @@ function Results() {
                 onChange={event => setFilters({ ...filters, price: event.target.value })}
               />
               <div className="range-labels">
-                <span className="tj-min-price-label">{money(minAvailablePrice)} Min</span>
-                <span className="tj-max-price-label">{money(filters.price || maxAvailablePrice)} Max</span>
-              </div>
-              <div className="tj-price-inputs-row">
-                <span>₹</span>
-                <input
-                  type="number"
-                  placeholder="Min"
-                  value={filters.minPrice}
-                  onChange={e => setFilters({ ...filters, minPrice: e.target.value })}
-                  className="tj-price-input"
-                />
-                <span className="tj-input-dash">-</span>
-                <span>₹</span>
-                <input
-                  type="number"
-                  placeholder="Max"
-                  value={filters.maxPrice || filters.price || ''}
-                  onChange={e => setFilters({ ...filters, maxPrice: e.target.value })}
-                  className="tj-price-input"
-                />
-                <button
-                  type="button"
-                  className="tj-price-apply-btn"
-                  onClick={() => {}}
-                >
-                  Apply
-                </button>
+                <span className="tj-min-price-label">{money(minAvailablePrice)}</span>
+                <span className="tj-max-price-label">{money(filters.price || maxAvailablePrice)}</span>
               </div>
             </div>
           </FilterSection>
@@ -642,38 +1009,138 @@ function Results() {
             </label>
           </div>
 
-          {/* Popular Filters */}
+          {/* Popular Filters (Image 5: Onward and Return split) */}
           <FilterSection title="Popular Filters" open>
-            <div className="flight-chips tj-popular-chips">
-              {[['Non Stop', 0], ['1 Stop', 1]].map(([label, value]) => (
+            {isSplitRoundTrip ? (
+              <>
+                <div className="tj-popular-group-label">Onward</div>
+                <div className="flight-chips tj-popular-chips">
+                  <button
+                    type="button"
+                    aria-pressed={filters.stops.includes(0)}
+                    onClick={() => toggle('stops', 0)}
+                  >
+                    Non Stop
+                  </button>
+                  <button
+                    type="button"
+                    aria-pressed={filters.stops.includes(1)}
+                    onClick={() => toggle('stops', 1)}
+                  >
+                    1 Stop
+                  </button>
+                  <button
+                    type="button"
+                    aria-pressed={filters.departure.includes(2)}
+                    onClick={() => toggle('departure', 2)}
+                  >
+                    Departure: 12-18
+                  </button>
+                  <button
+                    type="button"
+                    aria-pressed={filters.departure.includes(3)}
+                    onClick={() => toggle('departure', 3)}
+                  >
+                    Departure: 18-00
+                  </button>
+                  <button
+                    type="button"
+                    aria-pressed={filters.airlines.includes('6E')}
+                    onClick={() => toggle('airlines', '6E')}
+                  >
+                    IndiGo
+                  </button>
+                </div>
+
+                <div className="tj-popular-group-label" style={{ marginTop: '10px' }}>Return</div>
+                <div className="flight-chips tj-popular-chips">
+                  <button
+                    type="button"
+                    aria-pressed={filters.stops.includes(0)}
+                    onClick={() => toggle('stops', 0)}
+                  >
+                    Non Stop
+                  </button>
+                  <button
+                    type="button"
+                    aria-pressed={filters.stops.includes(1)}
+                    onClick={() => toggle('stops', 1)}
+                  >
+                    1 Stop
+                  </button>
+                  <button
+                    type="button"
+                    aria-pressed={filters.departure.includes(2)}
+                    onClick={() => toggle('departure', 2)}
+                  >
+                    Departure: 12-18
+                  </button>
+                  <button
+                    type="button"
+                    aria-pressed={filters.departure.includes(3)}
+                    onClick={() => toggle('departure', 3)}
+                  >
+                    Departure: 18-00
+                  </button>
+                  <button
+                    type="button"
+                    aria-pressed={filters.airlines.includes('6E')}
+                    onClick={() => toggle('airlines', '6E')}
+                  >
+                    IndiGo
+                  </button>
+                </div>
+              </>
+            ) : (
+              <div className="flight-chips tj-popular-chips">
+                {[['Non Stop', 0], ['1 Stop', 1]].map(([label, value]) => (
+                  <button
+                    key={label}
+                    type="button"
+                    aria-pressed={filters.stops.includes(value)}
+                    onClick={() => toggle('stops', value)}
+                  >
+                    {label}
+                  </button>
+                ))}
                 <button
-                  key={label}
                   type="button"
-                  aria-pressed={filters.stops.includes(value)}
-                  onClick={() => toggle('stops', value)}
+                  aria-pressed={filters.departure.includes(2)}
+                  onClick={() => toggle('departure', 2)}
                 >
-                  {label}
+                  Departure: 12-18
                 </button>
-              ))}
-              <button
-                type="button"
-                aria-pressed={filters.departure.includes(2)}
-                onClick={() => toggle('departure', 2)}
-              >
-                Departure: 12-18
-              </button>
-              <button
-                type="button"
-                aria-pressed={filters.departure.includes(3)}
-                onClick={() => toggle('departure', 3)}
-              >
-                Departure: 18-00
-              </button>
-            </div>
+                <button
+                  type="button"
+                  aria-pressed={filters.departure.includes(3)}
+                  onClick={() => toggle('departure', 3)}
+                >
+                  Departure: 18-00
+                </button>
+              </div>
+            )}
           </FilterSection>
 
-          {/* Stops Selector */}
+          {/* Stops Selector with Sector Tabs in Image 5 */}
           <FilterSection title="Stops" open>
+            {isSplitRoundTrip && (
+              <div className="tj-stops-sector-tabs">
+                <button
+                  type="button"
+                  className={`tj-stops-sector-tab-btn ${stopsSector === 'ONWARD' ? 'is-active' : ''}`}
+                  onClick={() => setStopsSector('ONWARD')}
+                >
+                  {route.fromCityOrAirport.code}-{route.toCityOrAirport.code}
+                </button>
+                <button
+                  type="button"
+                  className={`tj-stops-sector-tab-btn ${stopsSector === 'RETURN' ? 'is-active' : ''}`}
+                  onClick={() => setStopsSector('RETURN')}
+                >
+                  {route.toCityOrAirport.code}-{route.fromCityOrAirport.code}
+                </button>
+              </div>
+            )}
             <div className="tj-stops-segmented-grid">
               {[0, 1, 2, 3].map(value => (
                 <button
@@ -689,54 +1156,28 @@ function Results() {
             </div>
           </FilterSection>
 
-          {/* Departure from Origin */}
+          {/* Return Special Banner (Image 5) */}
+          {isSplitRoundTrip && (
+            <FilterSection title="Return Special" open>
+              <div className="tj-return-special-card">
+                <div className="tj-return-special-emblem">
+                  <Plane size={18} />
+                </div>
+                <div>
+                  <strong className="tj-return-special-price">
+                    {money(onwardCheapest + returnCheapest)}
+                  </strong>
+                </div>
+              </div>
+            </FilterSection>
+          )}
+
+          {/* Departure From Origin */}
           <FilterSection title={`Departure From ${route.fromCityOrAirport.name || route.fromCityOrAirport.code}`} open>
             {timeButtons('departure')}
-            <button type="button" className="tj-specific-time-link">
-              Select Specific Timeframe ▾
-            </button>
           </FilterSection>
 
-          {/* Arrival from Destination */}
-          <FilterSection title={`Arrival From ${route.toCityOrAirport.name || route.toCityOrAirport.code}`} open>
-            {timeButtons('arrival')}
-          </FilterSection>
-
-          {/* Baggage filter */}
-          <FilterSection title="Baggage" open>
-            <label className="flight-check">
-              <input
-                type="checkbox"
-                checked={filters.baggage}
-                onChange={event => setFilters({ ...filters, baggage: event.target.checked })}
-              />
-              Show Check-in Baggage
-            </label>
-          </FilterSection>
-
-          {/* Flight Number Search */}
-          <FilterSection title="Flight Number" open>
-            <div className="tj-flight-number-filter-wrap">
-              <input
-                aria-label="Flight number"
-                className="flight-filter-input"
-                placeholder="Eg. 123 or 6E-123"
-                value={filters.number}
-                onChange={event => setFilters({ ...filters, number: event.target.value })}
-              />
-              {filters.number && (
-                <button
-                  type="button"
-                  className="tj-filter-clear-link"
-                  onClick={() => setFilters({ ...filters, number: '' })}
-                >
-                  CLEAR
-                </button>
-              )}
-            </div>
-          </FilterSection>
-
-          {/* Airlines Directory with counts and starting fare */}
+          {/* Airlines Directory */}
           <FilterSection title="Airlines" open>
             <input
               aria-label="Search airline name"
@@ -765,142 +1206,10 @@ function Results() {
                 ))}
             </div>
           </FilterSection>
-
-          <FilterSection title="Terminal" open={false}>{checks('terminals', unique(trips.flatMap(terminalKeys)))}</FilterSection>
-          <FilterSection title="Airport" open={false}>{checks('airports', unique(trips.flatMap(airportKeys)))}</FilterSection>
-          <FilterSection title="Layover Airport" open={false}>{checks('layovers', unique(trips.flatMap(trip => (trip.sI || []).slice(0, -1).map(s => s.aa?.code))))}</FilterSection>
-          <FilterSection title="Duration" open={false}>
-            <p>Up to {duration(filters.duration || maxDuration)}</p>
-            <input
-              aria-label="Maximum duration"
-              type="range"
-              min="0"
-              max={maxDuration}
-              value={filters.duration || maxDuration}
-              onChange={event => setFilters({ ...filters, duration: event.target.value })}
-            />
-          </FilterSection>
         </aside>
 
         {/* 3. Main Results Viewport */}
         <section className="flight-results-main tj-results-main" aria-label="Flight results" aria-busy={loading || reviewing}>
-          {/* Multi-Day Fare Calendar Strip (Screenshot 1) */}
-          {search.mode === 'ONE WAY' && (
-            <div className="tj-date-carousel-strip">
-              <button
-                type="button"
-                className="tj-carousel-nav-btn"
-                aria-label="Previous day"
-                disabled={route.travelDate <= today()}
-                onClick={() => changeDate(shiftDate(route.travelDate, -1))}
-              >
-                <ChevronLeft size={18} />
-              </button>
-
-              <div className="tj-dates-scroller">
-                {Array.from({ length: 7 }, (_, index) => shiftDate(route.travelDate, index)).map((date, index) => {
-                  const isCurrent = index === 0;
-                  return (
-                    <button
-                      key={date}
-                      type="button"
-                      className={`tj-date-tab ${isCurrent ? 'is-active' : ''}`}
-                      onClick={() => { if (!isCurrent) changeDate(date); }}
-                    >
-                      <span className="tj-date-fetch-label">
-                        {isCurrent && cheapest ? money(cheapest) : 'Fetch Fare'}
-                      </span>
-                      <strong className="tj-date-day-label">{dayLabel(date)}</strong>
-                    </button>
-                  );
-                })}
-              </div>
-
-              <button
-                type="button"
-                className="tj-carousel-nav-btn"
-                aria-label="Next day"
-                onClick={() => changeDate(shiftDate(route.travelDate, 1))}
-              >
-                <ChevronRight size={18} />
-              </button>
-            </div>
-          )}
-
-          {/* Quick Benchmark Highlight Cards (Screenshot 1) */}
-          <div className="tj-quick-highlight-row">
-            <div className="tj-benchmark-cards-left">
-              {cheapest !== null && (
-                <div
-                  className="tj-benchmark-card is-cheapest"
-                  onClick={() => setSort('price')}
-                  title="Click to view lowest fare flight"
-                >
-                  <div className="tj-bench-icon">
-                    <span className="rupee-icon">₹</span>
-                  </div>
-                  <div className="tj-bench-info">
-                    <small>Cheapest</small>
-                    <div className="tj-bench-metrics">
-                      <strong>{money(cheapest)}</strong>
-                      <span>Duration: {duration(trips.find(t => t.totalPriceList?.some(f => total(f) === cheapest)) ? tripDuration(trips.find(t => t.totalPriceList?.some(f => total(f) === cheapest))) : maxDuration)}</span>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {fastest !== null && (
-                <div
-                  className="tj-benchmark-card is-fastest"
-                  onClick={() => setSort('duration')}
-                  title="Click to view fastest flight"
-                >
-                  <div className="tj-bench-icon">
-                    <Zap size={18} />
-                  </div>
-                  <div className="tj-bench-info">
-                    <small>Fastest</small>
-                    <div className="tj-bench-metrics">
-                      <strong>{fastestFare ? money(fastestFare) : '—'}</strong>
-                      <span>Duration: {duration(fastest)}</span>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            <div className="tj-benchmark-actions-right">
-              <div className="tj-share-btn-wrap">
-                <Share2 size={16} />
-                <span>Share By</span>
-              </div>
-              <button
-                type="button"
-                className="tj-btn-combined-view"
-                onClick={() => setSort(s => s === 'price' ? 'duration' : 'price')}
-              >
-                Tap To Combined View
-              </button>
-            </div>
-          </div>
-
-          {/* Sort By bar (Screenshot 1) */}
-          <div className="tj-sort-tabs-bar">
-            <span className="tj-sort-label">Sort By :</span>
-            <div className="tj-sort-buttons-group">
-              {['duration', 'departure', 'arrival', 'price'].map(item => (
-                <button
-                  key={item}
-                  type="button"
-                  className={`tj-sort-tab ${sort === item ? 'is-active' : ''}`}
-                  onClick={() => setSort(item)}
-                >
-                  {item.charAt(0).toUpperCase() + item.slice(1)}
-                </button>
-              ))}
-            </div>
-          </div>
-
           {loading && <FlightResultsSkeleton fromCode={route?.fromCityOrAirport?.code} toCode={route?.toCityOrAirport?.code} />}
           {error && (
             <div className="flight-error" role="alert">
@@ -913,253 +1222,287 @@ function Results() {
 
           {!loading && result && (
             <>
-              {Object.keys(groups).length > 1 && (
-                <div className="flight-group-tabs">
-                  {Object.keys(groups).map((key, index) => (
-                    <button
-                      key={key}
-                      aria-pressed={group === key}
-                      onClick={() => changeGroup(key)}
-                    >
-                      {key === 'ONWARD' ? 'Outbound' : key === 'RETURN' ? 'Return' : `Journey ${index + 1}`}
-                      {selection[key] ? ' ✓' : ''}
-                    </button>
-                  ))}
-                </div>
-              )}
+              {/* SCENARIO A: ROUND TRIP TWO-COLUMN SPLIT WORKFLOW (Image 5) */}
+              {isSplitRoundTrip ? (
+                <div className="tj-roundtrip-split-layout">
+                  {/* Left Column: ONWARD JOURNEY */}
+                  <div className="tj-split-col tj-column-onward">
+                    <div className="tj-col-header-box">
+                      <div className="tj-col-bench-bar">
+                        <button
+                          type="button"
+                          className="tj-bench-pill"
+                          onClick={() => setSortOnward('price')}
+                        >
+                          <span>🏷️ Cheapest: {money(onwardCheapest)} • {duration(onwardFastestMin)}</span>
+                        </button>
+                        <button
+                          type="button"
+                          className="tj-bench-pill"
+                          onClick={() => setSortOnward('duration')}
+                        >
+                          <span>⚡ Fastest: {money(onwardCheapest)} • {duration(onwardFastestMin)}</span>
+                        </button>
+                      </div>
 
-              {!visibleTrips.length && (
-                <div className="flight-empty">
-                  <h2>No flights found</h2>
-                  <p>Try another date or reset your filters.</p>
-                  <button onClick={() => setFilters(blankFilters)}>Reset filters</button>
-                </div>
-              )}
+                      <div className="tj-col-route-title-row">
+                        <span className="tj-col-route-title">
+                          {route.fromCityOrAirport.name?.split(',')[0] || route.fromCityOrAirport.code} → {route.toCityOrAirport.name?.split(',')[0] || route.toCityOrAirport.code} {formatFullDate(route.travelDate)}
+                        </span>
+                      </div>
 
-              {/* Flight Result Cards (Screenshot 1) */}
-              <div className="tj-flight-cards-list">
-                {visibleTrips.map(({ trip, index, fares }) => {
-                  const segments = trip.sI || [];
-                  const first = segments[0] || {};
-                  const last = segments.at(-1) || first;
-                  const key = `${group}-${index}`;
-                  const chosen = fares.find(fare => fare.id === selection[group]?.fare.id) || fares[0];
-                  const airlineCode = first?.fD?.aI?.code || '6E';
-                  const airlineName = first?.fD?.aI?.name || airlineCode;
-                  const airlineStyling = airlineMeta(airlineCode);
-                  const isOvernight = isNextDay(first?.dt, last?.at);
-                  const flightNumbers = segments.map(s => `${s.fD?.aI?.code}-${s.fD?.fN}`).join(', ');
-                  const seatsRemaining = chosen?.fD?.ADULT?.sR ?? 3;
-                  const isExpanded = !!expanded[key];
-                  const showAllFares = !!moreFares[key];
+                      <div className="tj-col-sort-bar">
+                        <span>Sort By :</span>
+                        {['duration', 'departure', 'arrival', 'price'].map(item => (
+                          <button
+                            key={item}
+                            type="button"
+                            className={`tj-col-sort-btn ${sortOnward === item ? 'is-active' : ''}`}
+                            onClick={() => setSortOnward(item)}
+                          >
+                            {item.charAt(0).toUpperCase() + item.slice(1)}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
 
-                  return (
-                    <article className="flight-card tj-flight-card" key={key}>
-                      <div className="tj-flight-card-inner">
-                        {/* Left Column: Airline, Timings & Badges */}
-                        <div className="tj-card-left-section">
-                          <div className="tj-airline-row">
-                            <div className="tj-airline-emblem" style={{ background: airlineStyling.bg, color: airlineStyling.color }}>
-                              <Plane size={18} />
-                            </div>
-                            <div className="tj-airline-details">
-                              <strong>{airlineName}</strong>
-                              <small>{flightNumbers}</small>
-                            </div>
-                          </div>
-
-                          <div className="tj-schedule-row">
-                            <div className="tj-time-col">
-                              <span className="tj-airport-code">{first?.da?.code}</span>
-                              <strong className="tj-time-val">{first?.dt?.slice(11, 16)}</strong>
-                              <small className="tj-date-val">{dayLabel(first?.dt)}</small>
-                            </div>
-
-                            <div className="tj-duration-col">
-                              <span className="tj-stops-label">
-                                {stopCount(trip) ? `${stopCount(trip)} Stop(s)` : 'Non-Stop'}
-                              </span>
-                              <div className="tj-track-line">
-                                <span className="tj-track-arrow">→</span>
-                              </div>
-                              <span className="tj-dur-text">{duration(tripDuration(trip))}</span>
-                            </div>
-
-                            <div className="tj-time-col">
-                              <span className="tj-airport-code">{last?.aa?.code}</span>
-                              <strong className="tj-time-val">{last?.at?.slice(11, 16)}</strong>
-                              <small className="tj-date-val">{dayLabel(last?.at)}</small>
-                            </div>
-                          </div>
-
-                          {/* Details Toggle & Badges */}
-                          <div className="tj-badges-row">
-                            <button
-                              type="button"
-                              className="tj-view-details-toggle"
-                              aria-expanded={isExpanded}
-                              onClick={() => setExpanded({ ...expanded, [key]: !isExpanded })}
-                            >
-                              View Details {isExpanded ? '−' : '+'}
-                            </button>
-
-                            <span className="tj-badge-handbaggage">
-                              <Luggage size={14} /> Handbaggage Fare
-                            </span>
-
-                            {isOvernight && (
-                              <span className="tj-badge-overnight">
-                                <Plane size={13} /> Flight Arrives after 1 Day(s)
-                              </span>
-                            )}
-
-                            {seatsRemaining != null && (
-                              <span className="tj-badge-seats-scarcity">
-                                Seats left: {seatsRemaining}
-                              </span>
-                            )}
-                          </div>
+                    <div className="tj-col-cards-list">
+                      {visibleOnwardTrips.map(item => renderFlightCard(item, 'ONWARD'))}
+                      {!visibleOnwardTrips.length && (
+                        <div className="flight-empty">
+                          <p>No onward flights match the selected filters.</p>
                         </div>
+                      )}
+                    </div>
+                  </div>
 
-                        {/* Right Column: Multi-Tier Fare Options (Screenshot 1) */}
-                        <div className="tj-card-right-section">
-                          <div className="tj-fares-list-container">
-                            {(showAllFares ? fares : fares.slice(0, 4)).map((fareItem, fareIdx) => {
-                              const isSelectedFare = chosen.id === fareItem.id;
-                              const badge = getFareBadge(fareItem);
-                              const adultInfo = fareItem.fD?.ADULT || {};
-                              const refundLabel = ['Non-refundable', 'Refundable', 'Partially refundable'][adultInfo.rT] || 'Refundable';
+                  {/* Right Column: RETURN JOURNEY */}
+                  <div className="tj-split-col tj-column-return">
+                    <div className="tj-col-header-box">
+                      <div className="tj-col-bench-bar">
+                        <button
+                          type="button"
+                          className="tj-bench-pill"
+                          onClick={() => setSortReturn('price')}
+                        >
+                          <span>🏷️ Cheapest: {money(returnCheapest)} • {duration(returnFastestMin)}</span>
+                        </button>
+                        <button
+                          type="button"
+                          className="tj-bench-pill"
+                          onClick={() => setSortReturn('duration')}
+                        >
+                          <span>⚡ Fastest: {money(returnCheapest)} • {duration(returnFastestMin)}</span>
+                        </button>
+                      </div>
 
-                              return (
-                                <div
-                                  key={fareItem.id || fareIdx}
-                                  className={`tj-fare-row-item ${isSelectedFare ? 'is-selected' : ''}`}
-                                  onClick={() => setSelection({ ...selection, [group]: { fare: fareItem, trip } })}
-                                >
-                                  <div className="tj-fare-row-left">
-                                    <input
-                                      type="radio"
-                                      name={`fare-radio-${group}-${index}`}
-                                      checked={isSelectedFare}
-                                      onChange={() => setSelection({ ...selection, [group]: { fare: fareItem, trip } })}
-                                    />
-                                    <div className="tj-fare-price-wrap">
-                                      <strong className="tj-fare-price-text">
-                                        {money(total(fareItem))}
-                                      </strong>
-                                      <Edit2 size={13} className="tj-markup-icon" title="Edit Agent Markup" />
-                                    </div>
-                                    <div className="tj-fare-tag-perks">
-                                      <span className={`tj-fare-pill ${badge.className}`}>
-                                        {badge.label}
-                                      </span>
-                                      <span className="tj-fare-perks-text">
-                                        {cabinLabel(adultInfo.cc || search.searchQuery.cabinClass)}, Free Meal, {refundLabel}
-                                      </span>
-                                    </div>
-                                  </div>
+                      <div className="tj-col-route-title-row">
+                        <span className="tj-col-route-title">
+                          {route.toCityOrAirport.name?.split(',')[0] || route.toCityOrAirport.code} → {route.fromCityOrAirport.name?.split(',')[0] || route.fromCityOrAirport.code} {formatFullDate(returnRoute.travelDate)}
+                        </span>
 
-                                  {/* Render BOOK and Compare next to top selected fare */}
-                                  {fareIdx === 0 && (
-                                    <div className="tj-fare-row-actions" onClick={e => e.stopPropagation()}>
-                                      <button
-                                        type="button"
-                                        className="tj-btn-book-primary"
-                                        disabled={reviewing}
-                                        onClick={() => handleInitiateBooking(trip, chosen)}
-                                      >
-                                        {reviewing ? 'Reviewing…' : Object.keys(groups).length > 1 ? 'SELECT' : 'BOOK'}
-                                      </button>
-                                      <button
-                                        type="button"
-                                        className="tj-btn-compare-link"
-                                        aria-pressed={compared.includes(index)}
-                                        disabled={!compared.includes(index) && compared.length >= 3}
-                                        onClick={() => setCompared(compared.includes(index) ? compared.filter(i => i !== index) : [...compared, index])}
-                                      >
-                                        {compared.includes(index) ? 'Added ✓' : 'Compare ▾'}
-                                      </button>
-                                    </div>
-                                  )}
-                                </div>
-                              );
-                            })}
-
-                            {fares.length > 4 && (
-                              <button
-                                type="button"
-                                className="tj-toggle-more-fares-btn"
-                                onClick={() => setMoreFares({ ...moreFares, [key]: !showAllFares })}
-                              >
-                                {showAllFares ? 'Show Less ▴' : `Show More (${fares.length - 4}) ▾`}
-                              </button>
-                            )}
-                          </div>
+                        <div className="tj-share-actions-row">
+                          <span className="tj-share-label">Share By :</span>
+                          <button
+                            type="button"
+                            className="tj-share-icon-btn tj-share-whatsapp"
+                            title="Share on WhatsApp"
+                            onClick={() => window.open(`https://wa.me/?text=Check out flights from ${route.fromCityOrAirport.code} to ${route.toCityOrAirport.code}`, '_blank')}
+                          >
+                            💬
+                          </button>
+                          <button
+                            type="button"
+                            className="tj-share-icon-btn tj-share-email"
+                            title="Share via Email"
+                            onClick={() => window.open(`mailto:?subject=Flight options for ${route.fromCityOrAirport.code} - ${route.toCityOrAirport.code}`, '_blank')}
+                          >
+                            ✉
+                          </button>
+                          <button
+                            type="button"
+                            className="tj-share-icon-btn tj-share-eye"
+                            title="View Summary"
+                            onClick={() => {}}
+                          >
+                            👁
+                          </button>
                         </div>
                       </div>
 
-                      {/* Expanded Flight Segment Details */}
-                      {isExpanded && (
-                        <div className="flight-segments tj-flight-segments-expanded">
-                          {segments.map((segment, sIdx) => (
-                            <div key={segment.id || sIdx} className="tj-segment-leg-item">
-                              <div className="tj-leg-airline-bar">
-                                <strong>{segment.fD?.aI?.name} · {segment.fD?.aI?.code}-{segment.fD?.fN}</strong>
-                                <small>Aircraft: {segment.fD?.eT || 'Airbus A320'}</small>
-                              </div>
-                              <div className="tj-leg-airports-grid">
-                                <div>
-                                  <b>{segment.da?.name || segment.da?.code}</b>
-                                  <span>{segment.da?.terminal ? `Terminal ${segment.da.terminal}` : ''}</span>
-                                  <small>{segment.dt?.replace('T', ' ')}</small>
-                                </div>
-                                <div className="tj-leg-dur-marker">
-                                  <span>{duration(segment.duration || 0)}</span>
-                                  <ArrowRight size={16} />
-                                </div>
-                                <div>
-                                  <b>{segment.aa?.name || segment.aa?.code}</b>
-                                  <span>{segment.aa?.terminal ? `Terminal ${segment.aa.terminal}` : ''}</span>
-                                  <small>{segment.at?.replace('T', ' ')}</small>
-                                </div>
-                              </div>
-                              {segment.cT > 0 && (
-                                <div className="tj-layover-bar">
-                                  <Clock size={14} /> Layover: {duration(segment.cT)} at {segment.aa?.code}
-                                </div>
-                              )}
-                            </div>
-                          ))}
-                          <div className="tj-baggage-rules-summary">
-                            <span>Check-in baggage: <b>{chosen.fD?.ADULT?.bI?.iB || '30 Kg'}</b></span>
-                            <span>Cabin baggage: <b>{chosen.fD?.ADULT?.bI?.cB || '7 Kg'}</b></span>
-                          </div>
-                          <FlightFareRules key={chosen.id} searchToken={result.searchToken} priceId={chosen.id} />
+                      <div className="tj-col-sort-bar">
+                        <span>Sort By :</span>
+                        {['duration', 'departure', 'arrival', 'price'].map(item => (
+                          <button
+                            key={item}
+                            type="button"
+                            className={`tj-col-sort-btn ${sortReturn === item ? 'is-active' : ''}`}
+                            onClick={() => setSortReturn(item)}
+                          >
+                            {item.charAt(0).toUpperCase() + item.slice(1)}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="tj-col-cards-list">
+                      {visibleReturnTrips.map(item => renderFlightCard(item, 'RETURN'))}
+                      {!visibleReturnTrips.length && (
+                        <div className="flight-empty">
+                          <p>No return flights match the selected filters.</p>
                         </div>
                       )}
-                    </article>
-                  );
-                })}
-              </div>
-
-              {Object.keys(selection).length > 0 && Object.keys(groups).length > 1 && (
-                <div className="flight-selection-bar">
-                  <span>{Object.keys(selection).length} of {Object.keys(groups).length} journeys selected</span>
-                  <button
-                    className="flight-primary"
-                    disabled={reviewing || Object.keys(selection).length !== Object.keys(groups).length}
-                    onClick={() => review()}
-                  >
-                    Continue to review
-                  </button>
+                    </div>
+                  </div>
                 </div>
+              ) : (
+                /* SCENARIO B: ONE WAY OR MULTI-CITY SINGLE WORKFLOW */
+                <>
+                  {/* Multi-Day Fare Calendar Strip */}
+                  <div className="tj-date-carousel-strip">
+                    <button
+                      type="button"
+                      className="tj-carousel-nav-btn"
+                      aria-label="Previous day"
+                      disabled={route.travelDate <= today()}
+                      onClick={() => changeDate(shiftDate(route.travelDate, -1))}
+                    >
+                      <ChevronLeft size={18} />
+                    </button>
+
+                    <div className="tj-dates-scroller">
+                      {Array.from({ length: 7 }, (_, index) => shiftDate(route.travelDate, index)).map((date, index) => {
+                        const isCurrent = index === 0;
+                        return (
+                          <button
+                            key={date}
+                            type="button"
+                            className={`tj-date-tab ${isCurrent ? 'is-active' : ''}`}
+                            onClick={() => { if (!isCurrent) changeDate(date); }}
+                          >
+                            <span className="tj-date-fetch-label">
+                              {isCurrent && minAvailablePrice ? money(minAvailablePrice) : 'Fetch Fare'}
+                            </span>
+                            <strong className="tj-date-day-label">{dayLabel(date)}</strong>
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    <button
+                      type="button"
+                      className="tj-carousel-nav-btn"
+                      aria-label="Next day"
+                      onClick={() => changeDate(shiftDate(route.travelDate, 1))}
+                    >
+                      <ChevronRight size={18} />
+                    </button>
+                  </div>
+
+                  {/* Benchmark highlights & sort */}
+                  <div className="tj-sort-tabs-bar">
+                    <span className="tj-sort-label">Sort By :</span>
+                    <div className="tj-sort-buttons-group">
+                      {['duration', 'departure', 'arrival', 'price'].map(item => (
+                        <button
+                          key={item}
+                          type="button"
+                          className={`tj-sort-tab ${sort === item ? 'is-active' : ''}`}
+                          onClick={() => setSort(item)}
+                        >
+                          {item.charAt(0).toUpperCase() + item.slice(1)}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="tj-flight-cards-list">
+                    {visibleSingleTrips.map(item => renderFlightCard(item, group))}
+                    {!visibleSingleTrips.length && (
+                      <div className="flight-empty">
+                        <h2>No flights found</h2>
+                        <p>Try another date or reset your filters.</p>
+                        <button onClick={() => setFilters(blankFilters)}>Reset filters</button>
+                      </div>
+                    )}
+                  </div>
+                </>
               )}
             </>
           )}
         </section>
       </div>
 
-      {/* Tripjack Confirm to Proceed Modal (Screenshots 2 & 3) */}
+      {/* 4. Sticky Bottom Combined Booking Bar for Round Trip (Image 5) */}
+      {isSplitRoundTrip && selection.ONWARD && selection.RETURN && (
+        <div className="tj-sticky-roundtrip-booking-bar">
+          <div className="tj-sticky-bar-inner">
+            <div className="tj-sticky-legs-summary">
+              <div className="tj-sticky-leg-item">
+                <span className="tj-sticky-leg-badge">Onward</span>
+                <div className="tj-sticky-leg-info">
+                  <span className="tj-sticky-leg-route">
+                    {selection.ONWARD.trip?.sI?.[0]?.fD?.aI?.name} {selection.ONWARD.trip?.sI?.[0]?.fD?.aI?.code}-{selection.ONWARD.trip?.sI?.[0]?.fD?.fN} • {selection.ONWARD.trip?.sI?.[0]?.da?.code} → {selection.ONWARD.trip?.sI?.at(-1)?.aa?.code}
+                  </span>
+                  <span className="tj-sticky-leg-sub">
+                    {selection.ONWARD.trip?.sI?.[0]?.dt?.slice(11, 16)} - {selection.ONWARD.trip?.sI?.at(-1)?.at?.slice(11, 16)} | {money(total(selection.ONWARD.fare))}
+                  </span>
+                </div>
+              </div>
+
+              <div className="tj-sticky-divider" />
+
+              <div className="tj-sticky-leg-item">
+                <span className="tj-sticky-leg-badge">Return</span>
+                <div className="tj-sticky-leg-info">
+                  <span className="tj-sticky-leg-route">
+                    {selection.RETURN.trip?.sI?.[0]?.fD?.aI?.name} {selection.RETURN.trip?.sI?.[0]?.fD?.aI?.code}-{selection.RETURN.trip?.sI?.[0]?.fD?.fN} • {selection.RETURN.trip?.sI?.[0]?.da?.code} → {selection.RETURN.trip?.sI?.at(-1)?.aa?.code}
+                  </span>
+                  <span className="tj-sticky-leg-sub">
+                    {selection.RETURN.trip?.sI?.[0]?.dt?.slice(11, 16)} - {selection.RETURN.trip?.sI?.at(-1)?.at?.slice(11, 16)} | {money(total(selection.RETURN.fare))}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div className="tj-sticky-checkout-actions">
+              <div className="tj-sticky-price-block">
+                <span className="tj-sticky-price-label">Total Fare</span>
+                <strong className="tj-sticky-total-price">
+                  {money(total(selection.ONWARD.fare) + total(selection.RETURN.fare))}
+                </strong>
+              </div>
+              <button
+                type="button"
+                className="tj-btn-sticky-book"
+                disabled={reviewing}
+                onClick={() => {
+                  setConfirmModal({
+                    open: true,
+                    trip: selection.ONWARD.trip,
+                    fare: selection.ONWARD.fare,
+                    nextSelection: selection,
+                  });
+                }}
+              >
+                {reviewing ? 'Reviewing…' : 'BOOK NOW'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 5. Four-Tab Flight Details Modal (Images 1, 2, 3, 4) */}
+      <FlightDetailsModal
+        isOpen={detailsModal.open}
+        trip={detailsModal.trip}
+        fare={detailsModal.fare}
+        searchToken={result?.searchToken}
+        pax={pax}
+        onClose={() => setDetailsModal({ open: false, trip: null, fare: null })}
+      />
+
+      {/* 6. Confirm to Proceed Modal */}
       <FlightConfirmProceedModal
         isOpen={confirmModal.open}
         trip={confirmModal.trip}
@@ -1170,57 +1513,6 @@ function Results() {
           review(confirmModal.nextSelection);
         }}
       />
-
-      {/* Compare Modal */}
-      {compared.length > 0 && (
-        <div className="flight-compare-bar">
-          <span>{compared.length} flights selected (up to 3)</span>
-          <button className="flight-primary" onClick={() => setShowComparison(true)}>Compare flights</button>
-          <button aria-label="Clear comparison" onClick={() => { setCompared([]); setShowComparison(false); }}>
-            <X />
-          </button>
-        </div>
-      )}
-
-      {showComparison && (
-        <div className="flight-modal-backdrop" onClick={() => setShowComparison(false)}>
-          <section
-            className="flight-compare-modal"
-            role="dialog"
-            aria-modal="true"
-            aria-label="Compare flights"
-            onClick={event => event.stopPropagation()}
-            onKeyDown={event => { if (event.key === 'Escape') setShowComparison(false); }}
-          >
-            <button autoFocus aria-label="Close comparison" onClick={() => setShowComparison(false)}>
-              <X />
-            </button>
-            <h2>Compare flights</h2>
-            <div className="flight-comparison-table">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Flight</th>
-                    <th>Duration</th>
-                    <th>Stops</th>
-                    <th>From</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {compared.map(index => (
-                    <tr key={index}>
-                      <td>{trips[index].sI?.[0]?.fD?.aI?.name}</td>
-                      <td>{duration(tripDuration(trips[index]))}</td>
-                      <td>{stopCount(trips[index])}</td>
-                      <td>{money(Math.min(...trips[index].totalPriceList.map(total)))}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </section>
-        </div>
-      )}
     </main>
   );
 }

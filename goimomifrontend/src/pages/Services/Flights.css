@@ -2084,12 +2084,12 @@
    ========================================================================== */
 
 :root {
-  --tj-orange: #006633;
-  --tj-orange-hover: #005229;
-  --tj-navy: #10182b;
-  --tj-navy-light: #1e293b;
-  --tj-blue-accent: #0284c7;
-  --tj-green: #006633;
+  --tj-orange: #ea580c;
+  --tj-orange-hover: #c2410c;
+  --tj-navy: #1f2937;
+  --tj-navy-light: #374151;
+  --tj-blue-accent: #001b94;
+  --tj-green: #15803d;
   --tj-border: #e2e8f0;
   --tj-card-bg: #ffffff;
   --tj-muted: #64748b;
@@ -5421,3 +5421,1830 @@
   color: #0284c7;
   flex-shrink: 0;
 }
+
+/* ==========================================================================
+   TripJack 4-Tab Flight Details Modal (Images 1, 2, 3, 4)
+   ========================================================================== */
+
+.tj-flight-details-modal {
+  background: #ffffff;
+  border-radius: 8px;
+  width: 900px;
+  max-width: 95vw;
+  max-height: 90vh;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  margin: auto;
+}
+
+.tj-modal-tabs-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  border-bottom: 2px solid #e2e8f0;
+  background: #f8fafc;
+}
+
+.tj-modal-tabs-list {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+}
+
+.tj-modal-tab {
+  background: transparent;
+  border: none;
+  font-size: 14px;
+  font-weight: 600;
+  color: #64748b;
+  padding: 16px 0;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.tj-modal-tab:hover {
+  color: #ea580c;
+}
+
+.tj-modal-tab.is-active {
+  color: #ea580c;
+  font-weight: 700;
+}
+
+.tj-modal-tab.is-active::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: #ea580c;
+  border-radius: 2px 2px 0 0;
+}
+
+.tj-modal-close-icon {
+  background: transparent;
+  border: none;
+  color: #64748b;
+  padding: 6px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.tj-modal-close-icon:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+.tj-modal-tab-content {
+  padding: 24px;
+  overflow-y: auto;
+  max-height: calc(85vh - 70px);
+}
+
+/* Tab 1: Flight Details (Image 2) */
+.tj-flight-details-pane {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.tj-pane-route-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  color: #475569;
+}
+
+.tj-pane-route-header strong {
+  color: #1e293b;
+  font-size: 16px;
+}
+
+.tj-flight-leg-card {
+  display: grid;
+  grid-template-columns: 160px 180px 110px 180px;
+  align-items: center;
+  gap: 16px;
+  padding: 18px 20px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  background: #ffffff;
+}
+
+.tj-leg-carrier-info {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.tj-indigo-logo-box {
+  width: 36px;
+  height: 36px;
+  border-radius: 4px;
+  background: #001b94;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.tj-carrier-plane-glyph {
+  transform: rotate(45deg);
+}
+
+.tj-carrier-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.tj-carrier-text strong {
+  font-size: 14px;
+  color: #0f172a;
+}
+
+.tj-plane-code {
+  font-size: 11px;
+  font-weight: 500;
+  color: #64748b;
+}
+
+.tj-cabin-class {
+  font-size: 12px;
+  color: #475569;
+}
+
+.tj-seats-badge {
+  font-size: 11px;
+  color: #64748b;
+}
+
+.tj-seats-red {
+  color: #dc2626;
+  font-weight: 700;
+}
+
+.tj-leg-endpoint {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.tj-endpoint-arr {
+  text-align: left;
+}
+
+.tj-datetime-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.tj-city-country {
+  font-size: 12px;
+  color: #475569;
+}
+
+.tj-airport-sub {
+  font-size: 11px;
+  color: #64748b;
+}
+
+.tj-terminal-label {
+  font-size: 11px;
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+.tj-leg-mid-track {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+
+.tj-stop-type {
+  font-size: 11px;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.tj-mid-arrow-line {
+  width: 100%;
+  height: 1px;
+  background: #cbd5e1;
+  position: relative;
+  margin: 4px 0;
+}
+
+.tj-track-arrow-head {
+  position: absolute;
+  right: -5px;
+  top: -8px;
+  color: #94a3b8;
+  font-size: 14px;
+}
+
+.tj-mid-duration {
+  font-size: 12px;
+  font-weight: 600;
+  color: #334155;
+}
+
+.tj-connecting-layover-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  background: #fffbeb;
+  border: 1px dashed #fde68a;
+  border-radius: 4px;
+  font-size: 12px;
+  color: #b45309;
+  font-weight: 600;
+}
+
+/* Tab 2: Fare Details (Image 1) */
+.tj-fare-details-pane {
+  background: #ffffff;
+}
+
+.tj-fare-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.tj-fare-table thead th {
+  padding: 10px 14px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #1e293b;
+  text-align: left;
+  border-bottom: 1px solid #cbd5e1;
+}
+
+.tj-fare-table thead th.col-total {
+  text-align: right;
+}
+
+.tj-fare-group-header-row td {
+  padding: 14px 14px 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748b;
+  background: #f8fafc;
+}
+
+.tj-fare-data-row td {
+  padding: 10px 14px;
+  font-size: 13px;
+  color: #1e293b;
+}
+
+.tj-fare-data-row td:last-child {
+  text-align: right;
+}
+
+.tj-inline-flex-info {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.tj-info-glyph {
+  color: #ea580c;
+  cursor: pointer;
+}
+
+.tj-fare-summary-row td {
+  padding: 16px 14px;
+  border-top: 1px solid #cbd5e1;
+  font-size: 16px;
+  color: #0f172a;
+}
+
+.tj-fare-summary-row td:last-child {
+  text-align: right;
+}
+
+.tj-grand-total-val {
+  font-size: 18px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+/* Tab 3: Fare Rules (Image 4) */
+.tj-fare-rules-pane {
+  display: flex;
+  flex-direction: column;
+}
+
+.tj-fare-rules-top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.tj-sector-pills-row {
+  display: flex;
+  gap: 8px;
+}
+
+.tj-sector-pill-btn {
+  padding: 6px 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  background: #ffffff;
+  font-size: 12px;
+  font-weight: 700;
+  color: #334155;
+  cursor: pointer;
+}
+
+.tj-sector-pill-btn.is-active {
+  border-color: #ea580c;
+  color: #ea580c;
+  background: #fff7ed;
+}
+
+.tj-detailed-rules-trigger {
+  padding: 6px 14px;
+  border: 1px solid #fed7aa;
+  border-radius: 4px;
+  background: #ffffff;
+  color: #ea580c;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.tj-detailed-rules-trigger:hover {
+  background: #fff7ed;
+  border-color: #ea580c;
+}
+
+.tj-rules-red-notice {
+  font-size: 12px;
+  color: #dc2626;
+  margin: 0 0 12px 0;
+  font-weight: 500;
+}
+
+.tj-fee-category-table-wrap {
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+
+.tj-fee-policy-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.tj-fee-policy-table th {
+  background: #f8fafc;
+  padding: 12px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #475569;
+  border-bottom: 1px solid #e2e8f0;
+  border-right: 1px solid #e2e8f0;
+  cursor: pointer;
+  position: relative;
+  text-align: center;
+}
+
+.tj-fee-policy-table th:last-child {
+  border-right: none;
+}
+
+.tj-fee-policy-table th.col-timeframe {
+  cursor: default;
+  text-align: left;
+  padding-left: 14px;
+  width: 30%;
+}
+
+.tj-fee-policy-table th.col-fee-tab.is-selected {
+  background: #ffffff;
+  color: #ea580c;
+  font-weight: 700;
+  box-shadow: inset 0 -2px 0 #ea580c;
+}
+
+.tj-active-caret {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-bottom: 5px solid #ea580c;
+}
+
+.tj-fee-policy-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 13px;
+  color: #1e293b;
+}
+
+.tj-fee-amount-cell {
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.tj-rules-disclaimer-notes {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 10px;
+}
+
+.tj-rules-disclaimer-notes p {
+  margin: 0;
+  font-size: 12px;
+  color: #dc2626;
+  line-height: 1.5;
+}
+
+.tj-detailed-rules-container {
+  margin-top: 16px;
+  padding: 16px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+}
+
+.tj-detailed-rules-container h4 {
+  margin: 0 0 10px 0;
+  font-size: 14px;
+  color: #0f172a;
+}
+
+.tj-rules-prose p {
+  font-size: 12px;
+  color: #475569;
+  line-height: 1.6;
+  margin: 0 0 8px 0;
+}
+
+/* Tab 4: Baggage Information (Image 3) */
+.tj-baggage-info-pane {
+  background: #ffffff;
+}
+
+.tj-baggage-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.tj-baggage-table thead th {
+  background: #f8fafc;
+  padding: 12px 16px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #475569;
+  text-align: left;
+  border-bottom: 1px solid #cbd5e1;
+}
+
+.tj-baggage-table tbody td {
+  padding: 14px 16px;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 13px;
+  color: #334155;
+}
+
+.tj-sector-name strong {
+  color: #0f172a;
+}
+
+/* ==========================================================================
+   Two-Column Split Workflow for Round Trip Search Results (Image 5)
+   ========================================================================== */
+
+.tj-roundtrip-split-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  align-items: start;
+}
+
+.tj-split-col {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.tj-col-header-box {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: #ffffff;
+  padding: 12px 14px;
+  border: 1px solid var(--tj-border);
+  border-radius: 6px;
+}
+
+.tj-col-bench-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.tj-bench-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  border: 1px solid #fed7aa;
+  background: #fff7ed;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #9a3412;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.tj-bench-pill:hover {
+  background: #ffedd5;
+  border-color: #ea580c;
+}
+
+.tj-col-route-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+  font-weight: 700;
+  color: #1e293b;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tj-col-route-title {
+  color: #0f172a;
+}
+
+.tj-share-actions-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tj-share-label {
+  font-size: 11px;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.tj-share-icon-btn {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+
+.tj-share-icon-btn:hover {
+  transform: scale(1.1);
+}
+
+.tj-share-whatsapp {
+  background: #25d366;
+  color: #ffffff;
+}
+
+.tj-share-email {
+  background: #ea4335;
+  color: #ffffff;
+}
+
+.tj-share-eye {
+  background: #64748b;
+  color: #ffffff;
+}
+
+.tj-col-sort-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: #64748b;
+  padding: 0 4px;
+}
+
+.tj-col-sort-bar span {
+  font-weight: 600;
+}
+
+.tj-col-sort-btn {
+  background: transparent;
+  border: none;
+  font-size: 12px;
+  color: #475569;
+  cursor: pointer;
+  padding: 2px 4px;
+  position: relative;
+}
+
+.tj-col-sort-btn.is-active {
+  color: #ea580c;
+  font-weight: 700;
+}
+
+.tj-col-sort-btn.is-active::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: #ea580c;
+}
+
+.tj-col-cards-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Nearby Airport Card (Yellow Highlight in Image 5) */
+.tj-flight-card.is-nearby-airport {
+  background: #fffdf5;
+  border-color: #fde68a;
+  box-shadow: 0 2px 8px rgba(234, 88, 12, 0.05);
+}
+
+.tj-nearby-airport-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  background: #e0f2fe;
+  color: #0369a1;
+  font-size: 11px;
+  font-weight: 600;
+  width: fit-content;
+  margin-top: 4px;
+}
+
+/* Stops filter with Sector Tabs in Image 5 */
+.tj-stops-sector-tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.tj-stops-sector-tab-btn {
+  flex: 1;
+  padding: 5px 8px;
+  font-size: 11px;
+  font-weight: 700;
+  border: 1px solid #cbd5e1;
+  background: #f8fafc;
+  border-radius: 4px;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.tj-stops-sector-tab-btn.is-active {
+  background: #ea580c;
+  color: #ffffff;
+  border-color: #ea580c;
+}
+
+/* Popular filter group labels in Image 5 */
+.tj-popular-group-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 6px 0 4px 0;
+}
+
+/* Return Special Sidebar Banner in Image 5 */
+.tj-return-special-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background: #ffffff;
+  border: 1.5px solid #fed7aa;
+  border-radius: 6px;
+  margin-top: 6px;
+}
+
+.tj-return-special-emblem {
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
+  background: #001b94;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tj-return-special-price {
+  font-size: 14px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+/* Fixed Bottom Combined Booking Bar for Round Trip (Image 5) */
+.tj-sticky-roundtrip-booking-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #ffffff;
+  border-top: 2px solid #ea580c;
+  box-shadow: 0 -6px 20px rgba(0, 0, 0, 0.12);
+  padding: 12px 24px;
+  z-index: 990;
+}
+
+.tj-sticky-bar-inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.tj-sticky-legs-summary {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.tj-sticky-leg-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.tj-sticky-leg-badge {
+  font-size: 10px;
+  font-weight: 800;
+  background: #fff7ed;
+  color: #ea580c;
+  border: 1px solid #fed7aa;
+  padding: 2px 6px;
+  border-radius: 3px;
+  text-transform: uppercase;
+}
+
+.tj-sticky-leg-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.tj-sticky-leg-route {
+  font-size: 13px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.tj-sticky-leg-sub {
+  font-size: 11px;
+  color: #64748b;
+}
+
+.tj-sticky-divider {
+  width: 1px;
+  height: 28px;
+  background: #e2e8f0;
+}
+
+.tj-sticky-checkout-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.tj-sticky-price-block {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.tj-sticky-price-label {
+  font-size: 11px;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.tj-sticky-total-price {
+  font-size: 20px;
+  font-weight: 800;
+  color: #ea580c;
+}
+
+.tj-btn-sticky-book {
+  background: #ea580c;
+  color: #ffffff;
+  border: none;
+  border-radius: 4px;
+  padding: 10px 28px;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 4px 12px rgba(234, 88, 12, 0.3);
+}
+
+.tj-btn-sticky-book:hover:not(:disabled) {
+  background: #c2410c;
+}
+
+@media(max-width: 1024px) {
+  .tj-roundtrip-split-layout {
+    grid-template-columns: 1fr;
+  }
+  .tj-flight-leg-card {
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+}
+
+/* ==========================================================================
+   TripJack B2B Top Header & Navigation Sub-bar (Image 5)
+   ========================================================================== */
+
+.tj-b2b-header-bar {
+  background: #2b2d42;
+  color: #ffffff;
+  padding: 8px 24px;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.tj-b2b-agent-name {
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.tj-b2b-header-right {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.tj-b2b-balance-text {
+  color: #94a3b8;
+}
+
+.tj-b2b-balance-text strong {
+  color: #4ade80;
+  margin-left: 4px;
+}
+
+.tj-b2b-action-link {
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: opacity 0.15s;
+}
+
+.tj-b2b-action-link:hover {
+  opacity: 0.85;
+}
+
+.tj-b2b-nav-subbar {
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  overflow-x: auto;
+}
+
+.tj-b2b-nav-item {
+  font-size: 12px;
+  font-weight: 700;
+  color: #64748b;
+  padding: 10px 0;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+  position: relative;
+  text-transform: uppercase;
+  transition: color 0.15s;
+}
+
+.tj-b2b-nav-item:hover,
+.tj-b2b-nav-item.is-active {
+  color: #ea580c;
+}
+
+.tj-b2b-nav-item.is-active::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 2.5px;
+  background: #ea580c;
+}
+
+/* ==========================================================================
+   TripJack Multi-Leg Flight Details Cards (Image 5)
+   ========================================================================== */
+
+.tj-flight-details-step {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.tj-leg-card-wrapper {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 16px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
+}
+
+.tj-leg-card-header-bar {
+  background: #f8fafc;
+  padding: 10px 16px;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+  color: #475569;
+}
+
+.tj-leg-card-header-bar strong {
+  font-size: 14px;
+  color: #0f172a;
+}
+
+.tj-leg-card-body {
+  padding: 18px 20px;
+}
+
+.tj-leg-carrier-row {
+  display: grid;
+  grid-template-columns: 180px 1fr 140px 1fr 140px;
+  align-items: center;
+  gap: 16px;
+}
+
+.tj-baggage-allowance-bar {
+  margin-top: 14px;
+  padding-top: 10px;
+  border-top: 1px solid #f1f5f9;
+  font-size: 12px;
+  color: #475569;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ==========================================================================
+   Mask Fare Information Banner (Image 4)
+   ========================================================================== */
+
+.tj-mask-fare-container {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  padding: 12px 16px;
+  margin: 16px 0;
+}
+
+.tj-mask-fare-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #1e293b;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.tj-new-pill {
+  background: #0284c7;
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 3px;
+  letter-spacing: 0.5px;
+}
+
+/* Bottom Navigation Actions Row (Images 4 & 5) */
+.tj-bottom-actions-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.tj-btn-back-orange {
+  background: #ea580c;
+  color: #ffffff;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 20px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.15s;
+}
+
+.tj-btn-back-orange:hover {
+  background: #c2410c;
+}
+
+.tj-bottom-right-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.tj-btn-save-later {
+  background: #ffffff;
+  color: #ea580c;
+  border: 1px solid #ea580c;
+  border-radius: 4px;
+  padding: 7px 18px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.tj-btn-save-later:hover {
+  background: #fff7ed;
+}
+
+.tj-btn-orange-proceed {
+  background: #ea580c;
+  color: #ffffff;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 24px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.tj-btn-orange-proceed:hover:not(:disabled) {
+  background: #c2410c;
+}
+
+/* ==========================================================================
+   TripJack Split Payments Box (Images 1, 2, 3)
+   ========================================================================== */
+
+.tj-payments-layout-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+}
+
+.tj-payments-split-box {
+  display: grid;
+  grid-template-columns: 210px 1fr;
+  min-height: 420px;
+}
+
+.tj-payments-left-menu {
+  background: #f8fafc;
+  border-right: 1px solid #e2e8f0;
+  display: flex;
+  flex-direction: column;
+}
+
+.tj-payments-tab-btn {
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 16px 20px;
+  text-align: left;
+  font-size: 14px;
+  font-weight: 600;
+  color: #334155;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.15s;
+}
+
+.tj-payments-tab-btn:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+/* Authentic left orange indicator bar from Images 1, 2, 3 */
+.tj-payments-tab-btn.is-active {
+  background: #ffffff;
+  color: #0f172a;
+  font-weight: 700;
+  border-left: 4px solid #ea580c;
+  border-right: 1px solid #ffffff;
+  margin-right: -1px;
+  z-index: 2;
+}
+
+.tj-payments-right-area {
+  padding: 24px;
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.tj-payments-area-title {
+  color: #ea580c;
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+
+.tj-pay-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.tj-pay-card-box {
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 14px 18px;
+  background: #ffffff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: all 0.15s;
+}
+
+.tj-pay-card-box:hover {
+  border-color: #94a3b8;
+  background: #f8fafc;
+}
+
+.tj-pay-card-box.is-selected {
+  border-color: #94a3b8;
+  background: #ffffff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.tj-pay-card-details {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.tj-pay-card-details strong {
+  font-size: 13px;
+  color: #0f172a;
+}
+
+/* Selected Option Info Box (Images 1, 2, 3: Soft yellow background) */
+.tj-selected-info-box {
+  background: #fffdf5;
+  border: 1px solid #fef08a;
+  border-radius: 4px;
+  padding: 10px 14px;
+  font-size: 13px;
+  color: #334155;
+  margin-bottom: 14px;
+}
+
+/* Bank Redirection Disclaimer Box (Images 1, 2, 3) */
+.tj-bank-redirect-box {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  padding: 10px 14px;
+  font-size: 12px;
+  color: #475569;
+  line-height: 1.5;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.tj-payment-fee-line {
+  font-size: 13px;
+  color: #334155;
+  font-weight: 500;
+  margin-bottom: 14px;
+}
+
+.tj-btn-pay-now-large {
+  background: #ea580c;
+  color: #ffffff;
+  border: none;
+  border-radius: 4px;
+  padding: 10px 24px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tj-btn-pay-now-large:hover:not(:disabled) {
+  background: #c2410c;
+}
+
+/* Card Logos styling */
+.tj-network-logos-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tj-logo-badge {
+  font-size: 11px;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 3px;
+  border: 1px solid #cbd5e1;
+}
+
+.tj-logo-visa {
+  color: #1a1f71;
+  background: #ffffff;
+  border-color: #1a1f71;
+  font-family: serif;
+}
+
+.tj-logo-mc {
+  color: #eb001b;
+  background: #ffffff;
+  border-color: #ff5f00;
+}
+
+.tj-logo-rupay {
+  color: #003366;
+  background: #ffffff;
+  font-style: italic;
+  border-color: #2e7d32;
+}
+
+.tj-logo-diners {
+  color: #004a99;
+  background: #ffffff;
+  border-color: #004a99;
+}
+
+.tj-logo-amex {
+  color: #ffffff;
+  background: #006fcf;
+  border-color: #006fcf;
+}
+
+.tj-ccavenue-logo-wrap {
+  display: inline-flex;
+  align-items: center;
+  font-size: 13px;
+  font-weight: 800;
+  color: #006699;
+}
+
+.tj-ccavenue-slash {
+  color: #dc2626;
+  font-weight: 900;
+  margin: 0 1px;
+}
+
+/* TJ Cash box in Fare Summary (Image 5) */
+.tj-wallet-box {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  padding: 12px 14px;
+  margin-top: 14px;
+}
+
+.tj-wallet-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+  font-size: 12px;
+}
+
+.tj-wallet-header strong {
+  font-size: 13px;
+  color: #0f172a;
+}
+
+.tj-wallet-sub {
+  font-size: 11px;
+  color: #64748b;
+  margin-bottom: 8px;
+}
+
+.tj-wallet-input-row {
+  display: flex;
+  gap: 6px;
+}
+
+.tj-wallet-input {
+  flex: 1;
+  padding: 6px 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.tj-redeem-btn {
+  background: #ea580c;
+  color: #ffffff;
+  border: none;
+  border-radius: 4px;
+  padding: 6px 14px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+}
+
+.tj-redeem-btn:hover {
+  background: #c2410c;
+}
+
+.tj-tax-edit-icon {
+  color: #94a3b8;
+  cursor: pointer;
+  margin-left: 4px;
+}
+
+/* ==========================================================================
+   Tripjack B2B Top Header & Sub-Nav Bar (Image 5)
+   ========================================================================== */
+.tj-portal-top-bar {
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 8px 0;
+  font-size: 13px;
+  color: #334155;
+}
+
+.tj-portal-top-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.tj-portal-greeting {
+  font-weight: 700;
+  color: #0f172a;
+  letter-spacing: 0.3px;
+  font-size: 13px;
+}
+
+.tj-portal-top-right {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.tj-portal-balance-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  padding: 4px 10px;
+  border-radius: 4px;
+}
+
+.tj-portal-balance-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #64748b;
+}
+
+.tj-portal-balance-val {
+  font-size: 13px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.tj-portal-refresh-btn {
+  background: transparent;
+  border: none;
+  color: #ea580c;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+}
+
+.tj-portal-action-btn {
+  background: transparent;
+  border: none;
+  color: #334155;
+  font-size: 12px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  padding: 4px 6px;
+}
+
+.tj-portal-action-btn:hover {
+  color: #ea580c;
+}
+
+.tj-subnav-bar {
+  background: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 0;
+}
+
+.tj-subnav-inner {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  overflow-x: auto;
+}
+
+.tj-subnav-item {
+  font-size: 13px;
+  font-weight: 600;
+  color: #475569;
+  text-decoration: none;
+  padding: 12px 2px;
+  border-bottom: 2px solid transparent;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.tj-subnav-item:hover {
+  color: #ea580c;
+}
+
+.tj-subnav-item.is-active {
+  color: #ea580c;
+  font-weight: 700;
+  border-bottom-color: #ea580c;
+}
+
+.tj-subnav-badge-new {
+  background: #0284c7;
+  color: #ffffff;
+  font-size: 9px;
+  font-weight: 800;
+  padding: 1px 4px;
+  border-radius: 3px;
+  line-height: 1;
+}
+
+/* ==========================================================================
+   Step 1 Multi-Leg Round Trip Cards (Image 5)
+   ========================================================================== */
+.tj-itinerary-leg-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  padding: 16px 20px;
+  margin-bottom: 14px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+}
+
+.tj-leg-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 14px;
+  color: #0f172a;
+}
+
+.tj-leg-duration {
+  font-size: 13px;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.tj-leg-card-body {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 16px 0;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.tj-leg-airline-col {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 140px;
+}
+
+.tj-airline-navy-box {
+  width: 32px;
+  height: 32px;
+  background: #1e1b4b;
+  color: #ffffff;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.tj-leg-airline-col strong {
+  display: block;
+  font-size: 13px;
+  color: #0f172a;
+}
+
+.tj-leg-airline-col small {
+  display: block;
+  font-size: 11px;
+  color: #64748b;
+}
+
+.tj-leg-sector-flow {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.tj-leg-time-box strong {
+  display: block;
+  font-size: 14px;
+  color: #0f172a;
+}
+
+.tj-leg-time-box p {
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: #475569;
+}
+
+.tj-leg-time-box small {
+  display: block;
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+.tj-leg-track-col {
+  text-align: center;
+  width: 110px;
+}
+
+.tj-leg-track-badge {
+  font-size: 11px;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.tj-leg-track-arrow-line {
+  position: relative;
+  border-top: 1.5px solid #cbd5e1;
+  margin-top: 4px;
+}
+
+.tj-arrow-symbol {
+  position: absolute;
+  right: -4px;
+  top: -9px;
+  color: #94a3b8;
+  font-size: 14px;
+}
+
+.tj-leg-faretype-col {
+  text-align: right;
+  min-width: 120px;
+}
+
+.tj-leg-faretype-col strong {
+  display: block;
+  font-size: 13px;
+  color: #0f172a;
+}
+
+.tj-refundable-tag {
+  display: block;
+  font-size: 12px;
+  color: #16a34a;
+  font-weight: 600;
+}
+
+.tj-leg-footer-info {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 12px;
+  font-size: 12px;
+}
+
+.tj-badge-published {
+  background: #fef08a;
+  color: #854d0e;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 3px;
+  border: 1px solid #fde047;
+}
+
+.tj-baggage-text {
+  color: #475569;
+}
+
+.tj-fare-rules-btn {
+  background: transparent;
+  border: 1px solid #fed7aa;
+  color: #ea580c;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.tj-fare-rules-btn:hover {
+  background: #ffedd5;
+}
+
+/* ==========================================================================
+   Action Buttons Bar (Images 4 & 5)
+   ========================================================================== */
+.tj-step1-action-bar,
+.tj-step-actions-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.tj-btn-orange-solid {
+  background: #ea580c;
+  color: #ffffff;
+  border: none;
+  border-radius: 4px;
+  padding: 9px 22px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  cursor: pointer;
+  transition: background 0.15s;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  text-decoration: none;
+}
+
+.tj-btn-orange-solid:hover {
+  background: #c2410c;
+  color: #ffffff;
+}
+
+.tj-btn-orange-outline {
+  background: #ffffff;
+  color: #ea580c;
+  border: 1px solid #ea580c;
+  border-radius: 4px;
+  padding: 8px 18px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tj-btn-orange-outline:hover {
+  background: #fff7ed;
+}
+
+/* ==========================================================================
+   Mask Fare Checkbox Banner (Image 4)
+   ========================================================================== */
+.tj-mask-fare-banner {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  padding: 12px 16px;
+  margin-top: 20px;
+  margin-bottom: 14px;
+}
+
+.tj-mask-fare-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #0f172a;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.tj-mask-fare-label input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: #ea580c;
+  cursor: pointer;
+}
+
+.tj-badge-new {
+  background: #0284c7;
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 3px;
+  letter-spacing: 0.5px;
+}
+
+.tj-save-later-alert {
+  margin-top: 12px;
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  color: #065f46;
+  padding: 10px 14px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.tj-wallet-balance-val {
+  font-size: 12px;
+  color: #475569;
+  font-weight: 600;
+}
+
+
+

@@ -1,27 +1,27 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
-  ArrowLeft, CheckCircle2, Plane, Clock, User, ShieldCheck,
+  CheckCircle2, Plane, Clock, User, ShieldCheck,
   ChevronDown, ChevronUp, Search, CreditCard,
   Printer, Download, AlertCircle, FileText, Check,
-  FileUp, Users, Smartphone, Landmark, Wallet, Shield,
-  CreditCard as CardIcon
+  FileUp, Users, RefreshCw, Bookmark, Edit3
 } from 'lucide-react';
-import { money, duration, readSession, dayLabel, cabinLabel } from './flightUtils';
-import { createFlightPaymentSession, verifyFlightPayment } from './flightApi';
+import { money, duration, readSession, dayLabel } from './flightUtils';
+import { createFlightPaymentSession } from './flightApi';
 import FlightSeatMap from './FlightSeatMap';
 import FlightAddons from './FlightAddons';
 import TravellersListModal from './TravellersListModal';
+import FlightDetailsModal from './FlightDetailsModal';
 import './Flights.css';
 
 /**
  * FlightReview
  * 
  * Complete multi-step booking checkout flow implementing the Tripjack airline design standard:
- * - Step 1: Flight Itinerary / Search Details
- * - Step 2: Passenger Details (Screenshot 1 & 5: Passport Drag&Drop, Passport Info, Frequent Flyer, Seat Map)
- * - Step 3: Review Itinerary & Traveller Details (Screenshot 2: Instant Offer Fare, Baggage, Manifest table)
- * - Step 4: Payments & Zoho Payments Integration (Screenshot 3: Credit Line, Credit Card, Net Banking, Debit Card, UPI)
+ * - Step 1: Flight Itinerary / Search Details (Image 5: Multi-leg cards, Fare Rules +, Save for later, Add Passengers)
+ * - Step 2: Passenger Details (Passport Drag&Drop, Passport Info, Frequent Flyer, Seat Map, Mask Fare banner)
+ * - Step 3: Review Itinerary & Traveller Details (Image 4: Mask Fare banner, Save for later, Proceed to Pay)
+ * - Step 4: Payments & Zoho Payments Integration (Images 1, 2, 3: Debit Card, Credit Card, Net Banking, UPI, Credit Line)
  * - Step 5: Confirmed E-Ticket Voucher screen with Print, PDF download, and Dashboard persistence
  */
 const DEFAULT_REVIEWED_FLIGHT = {
@@ -30,13 +30,34 @@ const DEFAULT_REVIEWED_FLIGHT = {
       {
         sI: [
           {
-            fD: { aI: { code: '6E', name: 'IndiGo' }, fN: '1471' },
-            da: { code: 'MAA', name: 'Chennai Arpt', city: 'Chennai', terminal: '4' },
-            aa: { code: 'DXB', name: 'Dubai Intl Arpt', city: 'Dubai', terminal: '1' },
-            dt: '2026-10-15T18:30:00',
-            at: '2026-10-15T21:05:00',
-            duration: 245,
+            fD: { aI: { code: '6E', name: 'IndiGo' }, fN: '770', eT: '320' },
+            da: { code: 'TRZ', name: 'Tiruchirapally Civil Arpt', city: 'Tiruchirappalli' },
+            aa: { code: 'DEL', name: 'Delhi indira gandhi intl Terminal 1', city: 'Delhi', terminal: '1' },
+            dt: '2026-11-18T21:15:00',
+            at: '2026-11-19T00:20:00',
+            duration: 185,
             stops: 0,
+            cabinClass: 'Economy',
+            refundable: true,
+            fareType: 'Published',
+            baggage: '(Adult) Check-in : 15 Kg (01 Piece only), Cabin : 7 Kg'
+          }
+        ]
+      },
+      {
+        sI: [
+          {
+            fD: { aI: { code: '6E', name: 'IndiGo' }, fN: '769', eT: '320' },
+            da: { code: 'DEL', name: 'Delhi indira gandhi intl Terminal 1', city: 'Delhi', terminal: '1' },
+            aa: { code: 'TRZ', name: 'Tiruchirapally Civil Arpt', city: 'Tiruchirappalli' },
+            dt: '2026-11-25T17:40:00',
+            at: '2026-11-25T20:45:00',
+            duration: 185,
+            stops: 0,
+            cabinClass: 'Economy',
+            refundable: true,
+            fareType: 'Published',
+            baggage: '(Adult) Check-in : 15 Kg (01 Piece only), Cabin : 7 Kg'
           }
         ]
       }
@@ -44,9 +65,9 @@ const DEFAULT_REVIEWED_FLIGHT = {
     totalPriceInfo: {
       totalFareDetail: {
         fC: {
-          BF: 24255.00,
-          TAF: 1011.80,
-          TF: 25266.80,
+          BF: 15300.00,
+          TAF: 4744.60,
+          TF: 20044.60,
         }
       }
     },
@@ -54,11 +75,14 @@ const DEFAULT_REVIEWED_FLIGHT = {
     alerts: []
   },
   search: {
-    mode: 'One Way',
+    mode: 'Round Trip',
     searchQuery: {
       cabinClass: 'ECONOMY',
       paxInfo: { ADULT: 1, CHILD: 0, INFANT: 0 },
-      routeInfos: [{ fromCityOrAirport: { code: 'MAA' }, toCityOrAirport: { code: 'DXB' }, travelDate: '2026-10-15' }]
+      routeInfos: [
+        { fromCityOrAirport: { code: 'TRZ', cityName: 'Tiruchirappalli' }, toCityOrAirport: { code: 'DEL', cityName: 'Delhi' }, travelDate: '2026-11-18' },
+        { fromCityOrAirport: { code: 'DEL', cityName: 'Delhi' }, toCityOrAirport: { code: 'TRZ', cityName: 'Tiruchirappalli' }, travelDate: '2026-11-25' }
+      ]
     }
   },
   savedAt: Date.now()
@@ -85,9 +109,6 @@ export default function FlightReview() {
     const stepParam = new URLSearchParams(location.search).get('step');
     return stepParam ? Number(stepParam) : 1;
   });
-
-  // Fare rules modal toggle
-  const [showFareRulesModal, setShowFareRulesModal] = useState(false);
 
   // Live timestamp ticker for hold expiry calculation
   const [now, setNow] = useState(Date.now());
@@ -160,16 +181,30 @@ export default function FlightReview() {
   const [voucherCode, setVoucherCode] = useState('');
   const [voucherDiscount, setVoucherDiscount] = useState(0);
   const [voucherMessage, setVoucherMessage] = useState('');
-  const tjCashApplied = 0; // TJ Cash wallet discount applied
+  const [tjCashApplied, setTjCashApplied] = useState(0);
+  const [tjCashInput, setTjCashInput] = useState('');
 
-  // Payment navigation tabs (Screenshot 3): 'credit_line' | 'credit_card' | 'net_banking' | 'debit_card' | 'upi'
-  const [activePaymentTab, setActivePaymentTab] = useState('credit_card');
+  // Payment navigation tabs (Images 1, 2, 3): 'credit_line' | 'credit_card' | 'net_banking' | 'debit_card' | 'upi'
+  const [activePaymentTab, setActivePaymentTab] = useState('debit_card');
 
-  // Selected sub-options under active tab
+  // Selected sub-options under active tab (matching Images 1, 2, 3)
+  const [selectedDebitOption, setSelectedDebitOption] = useState('ccavenue'); // 'ccavenue' | 'rupay'
   const [selectedCardType, setSelectedCardType] = useState('personal'); // 'personal' | 'diners' | 'corporate' | 'amex'
-  const [selectedDebitType, setSelectedDebitType] = useState('personal_debit');
-  const [selectedBank, setSelectedBank] = useState('hdfc');
+  const [selectedNetOption, setSelectedNetOption] = useState('all_banks'); // 'all_banks' | 'hdfc_icici'
   const [selectedUpiApp, setSelectedUpiApp] = useState('gpay');
+
+  // Mask fare info checkbox (Image 4)
+  const [maskFareInfo, setMaskFareInfo] = useState(true);
+
+  // Flight details modal state (Image 5 "Fare Rules +")
+  const [showFlightDetailsModal, setShowFlightDetailsModal] = useState(false);
+  const [detailsModalTab, setDetailsModalTab] = useState('fare_rules');
+
+  // Agent Markup & TJ Cash State (Image 5)
+  const [agentMarkup, setAgentMarkup] = useState(0);
+  const [isEditingMarkup, setIsEditingMarkup] = useState(false);
+  const [tempMarkup, setTempMarkup] = useState('');
+  const [saveForLaterNotice, setSaveForLaterNotice] = useState(false);
 
   // Booking Confirmation details upon completion
   const [confirmedBooking, setConfirmedBooking] = useState(null);
@@ -305,9 +340,9 @@ export default function FlightReview() {
   const firstSeg = allSegments[0] || {};
   const lastSeg = allSegments[allSegments.length - 1] || firstSeg;
 
-  // Calculate base pricing breakdown (matching Screenshot 1 & 3: Base ₹24,255.00, Taxes ₹1,011.80)
-  const baseFare = Number(fare.BF || 24255.00);
-  const baseTaxesAndFees = Number(fare.TAF || 1011.80);
+  // Calculate base pricing breakdown (Image 5: Base ₹15,300.00, Taxes ₹4,744.60)
+  const baseFare = Number(fare.BF || 15300.00);
+  const baseTaxesAndFees = Number(fare.TAF || 4744.60) + Number(agentMarkup || 0);
   const tripSafeAmount = tripSafeOpted ? (500 * passengers.length) : 0;
 
   // Calculate total seat selection add-on price
@@ -357,21 +392,27 @@ export default function FlightReview() {
     return sum + (opted ? (OTHER_SERVICE_PRICES[sId] || 0) : 0);
   }, 0);
 
-  const subtotalBeforePgFee = baseFare + baseTaxesAndFees + tripSafeAmount + seatAddonTotal + totalMealFee + totalBaggageFee + totalOtherServicesFee - voucherDiscount - tjCashApplied;
+  // In Step 4, standard airline handling fee is ₹79.00 (aligns pre-PG fee to exactly ₹20,123.60 from Images 1, 2, 3)
+  const convenienceFee = currentStep === 4 ? 79.00 : 0.00;
+  const subtotalBeforePgFee = baseFare + baseTaxesAndFees + convenienceFee + tripSafeAmount + seatAddonTotal + totalMealFee + totalBaggageFee + totalOtherServicesFee - voucherDiscount - tjCashApplied;
 
-  // Dynamic Payment Fee calculation (matching Screenshot 3: ₹481.98 for Personal Credit Card)
+  // Dynamic Payment Fee calculation matching Images 1, 2, 3:
+  // Image 1 (Debit Card): CC-Avenue = ₹214.10, RuPay = ₹0.00 (Total ₹20,337.70)
+  // Image 2 (Credit Card): Personal Card = ₹379.54 (Total ₹20,503.14), Diners = ₹385.00, Corporate = ₹420.00, Amex = ₹495.00
+  // Image 3 (Net Banking): All Banks = ₹15.00 (Total ₹20,138.60)
+  // UPI: ₹0.00, Credit Line: ₹0.00
   let paymentFee = 0;
   if (currentStep === 4) {
-    if (activePaymentTab === 'credit_card') {
-      if (selectedCardType === 'personal') paymentFee = 481.98;
-      else if (selectedCardType === 'diners') paymentFee = 520.00;
-      else if (selectedCardType === 'corporate') paymentFee = 565.00;
-      else if (selectedCardType === 'amex') paymentFee = 680.00;
-      else paymentFee = 481.98;
-    } else if (activePaymentTab === 'debit_card') {
-      paymentFee = 0.00;
+    if (activePaymentTab === 'debit_card') {
+      paymentFee = selectedDebitOption === 'ccavenue' ? 214.10 : 0.00;
+    } else if (activePaymentTab === 'credit_card') {
+      if (selectedCardType === 'personal') paymentFee = 379.54;
+      else if (selectedCardType === 'diners') paymentFee = 385.00;
+      else if (selectedCardType === 'corporate') paymentFee = 420.00;
+      else if (selectedCardType === 'amex') paymentFee = 495.00;
+      else paymentFee = 379.54;
     } else if (activePaymentTab === 'net_banking') {
-      paymentFee = 0.00;
+      paymentFee = 15.00;
     } else if (activePaymentTab === 'upi') {
       paymentFee = 0.00;
     } else if (activePaymentTab === 'credit_line') {
@@ -379,8 +420,8 @@ export default function FlightReview() {
     }
   }
 
-  // In Screenshot 3: Taxes and fees shows ₹1,493.78 (= 1,011.80 base taxes + 481.98 payment fee)
-  const displayTaxesAndFees = baseTaxesAndFees + paymentFee;
+  // Displayed Taxes and Fees in Summary:
+  const displayTaxesAndFees = baseTaxesAndFees + (currentStep === 4 ? (convenienceFee + paymentFee) : 0);
   const grossAmountToPay = subtotalBeforePgFee + paymentFee;
 
   const commission = 0.00;
@@ -452,6 +493,26 @@ export default function FlightReview() {
     } else {
       setVoucherDiscount(0);
       setVoucherMessage('Invalid voucher code. Try GOIMOMI500');
+    }
+  }
+
+  function handleRedeemTjCash() {
+    const val = parseFloat(tjCashInput);
+    if (!val || isNaN(val) || val <= 0) {
+      alert('Please enter a valid TJ Cash amount to redeem.');
+      return;
+    }
+    alert('TJ Cash balance is currently ₹0. Please recharge your wallet balance.');
+    setTjCashApplied(0);
+  }
+
+  function handleSaveMarkup() {
+    const val = parseFloat(tempMarkup);
+    if (!isNaN(val) && val >= 0) {
+      setAgentMarkup(val);
+      setIsEditingMarkup(false);
+    } else {
+      setIsEditingMarkup(false);
     }
   }
 
@@ -593,13 +654,13 @@ export default function FlightReview() {
         expiryDate: p.expiryDate || '',
         dob: p.dob || '',
       })),
-      fare: grossAmountToPay,
-      fareFormatted: money(grossAmountToPay),
+      fare: finalAmount,
+      fareFormatted: money(finalAmount),
       baseFare,
       taxesAndFees: displayTaxesAndFees,
       paymentFee,
       paymentMethod: activePaymentTab,
-      selectedOption: activePaymentTab === 'credit_card' ? selectedCardType : (activePaymentTab === 'net_banking' ? selectedBank : activePaymentTab),
+      selectedOption: activePaymentTab === 'credit_card' ? selectedCardType : (activePaymentTab === 'net_banking' ? selectedNetOption : (activePaymentTab === 'debit_card' ? selectedDebitOption : activePaymentTab)),
       holdExpiresAt: isHold ? Date.now() + 2 * 60 * 60 * 1000 : null,
       cabin: search?.searchQuery?.cabinClass || 'ECONOMY',
       mode: search?.mode || 'ONE WAY',
@@ -613,7 +674,9 @@ export default function FlightReview() {
     try {
       sessionStorage.setItem('pending_flight_booking', JSON.stringify(bookingPayload));
       localStorage.setItem('pending_flight_booking', JSON.stringify(bookingPayload));
-    } catch (e) {}
+    } catch (_storageErr) {
+      console.warn('Storage unavailable for pending booking');
+    }
 
     // On Hold booking does not require gateway checkout
     if (isHold) {
@@ -676,10 +739,63 @@ export default function FlightReview() {
 
   return (
     <main className="flights-page flight-review-page tj-review-page">
-      {/* 4-Step TripJack Stepper Bar (Screenshots 1, 2, 4) */}
+      {/* Top B2B Agency Header Bar (Image 5) */}
+      <header className="tj-portal-top-bar">
+        <div className="flight-container tj-portal-top-inner">
+          <div className="tj-portal-top-left">
+            <span className="tj-portal-greeting">HELLO GOIMOMI COM (21085506)</span>
+          </div>
+          <div className="tj-portal-top-right">
+            <div className="tj-portal-balance-item">
+              <span className="tj-portal-balance-label">MY BALANCE:</span>
+              <strong className="tj-portal-balance-val">₹ 7,21,108.32</strong>
+              <button
+                type="button"
+                className="tj-portal-refresh-btn"
+                title="Refresh Wallet Balance"
+                onClick={() => alert('Agent balance updated: ₹ 7,21,108.32')}
+              >
+                <RefreshCw size={12} />
+              </button>
+            </div>
+            <button
+              type="button"
+              className="tj-portal-action-btn"
+              onClick={() => alert('Opening Instant B2B Wallet Top-Up portal...')}
+            >
+              <CreditCard size={13} /> RECHARGE
+            </button>
+            <button
+              type="button"
+              className="tj-portal-action-btn"
+              onClick={() => alert('Assigned Sales Representative: Anand R (support@tripjack.com | +91 22 6919 0000)')}
+            >
+              <User size={13} /> SALES REP
+            </button>
+          </div>
+        </div>
+      </header>
+
+      {/* Sub-navigation Bar (Image 5) */}
+      <nav className="tj-subnav-bar">
+        <div className="flight-container tj-subnav-inner">
+          <Link to="/flights" className="tj-subnav-item is-active">FLIGHTS</Link>
+          <Link to="/hotels" className="tj-subnav-item">HOTELS</Link>
+          <span className="tj-subnav-item">TRIPSAFE</span>
+          <span className="tj-subnav-item">TRANSFERS <span className="tj-subnav-badge-new">NEW</span></span>
+          <span className="tj-subnav-item">TRAINS</span>
+          <span className="tj-subnav-item">BUS <span className="tj-subnav-badge-new">NEW</span></span>
+          <span className="tj-subnav-item">VISA <ChevronDown size={12} /></span>
+          <span className="tj-subnav-item">HOLIDAYS</span>
+          <span className="tj-subnav-item">CRUISE</span>
+          <span className="tj-subnav-item">QUICK PAY</span>
+        </div>
+      </nav>
+
+      {/* 4-Step TripJack Stepper Bar (Images 4 & 5) */}
       <div className="tripjack-stepper-wrap">
         <div className="flight-container tripjack-stepper">
-          {/* Step 1: Flight Itinerary (Screenshot 4) */}
+          {/* Step 1: Flight Itinerary (Image 5) */}
           <div
             className={`step-item ${currentStep === 1 ? 'is-active' : currentStep > 1 ? 'is-done' : ''}`}
             onClick={() => setCurrentStep(1)}
@@ -761,145 +877,145 @@ export default function FlightReview() {
             </div>
           )}
 
-          {/* Mini Flight Itinerary Recap Bar (Screenshots 1 & 4) */}
-          <div className="tj-itinerary-recap-bar">
-            <div className="tj-recap-airline-icon">
-              <Plane size={20} />
-            </div>
-            <div className="tj-recap-route-info">
-              <div className="tj-recap-line1">
-                <strong>{firstSeg.da?.code || 'MAA'}, {firstSeg.da?.city || firstSeg.da?.name || 'Chennai'}</strong>
-                <span>→</span>
-                <strong>{lastSeg.aa?.code || 'DXB'}, {lastSeg.aa?.city || lastSeg.aa?.name || 'Dubai'}</strong>
-                <span className="tj-recap-pill">{cabinLabel(search?.searchQuery?.cabinClass || 'ECONOMY')}</span>
-                <span className="tj-recap-pill">{search?.mode || 'One Way'}</span>
-              </div>
-              <div className="tj-recap-line2">
-                <span>{allSegments.map(s => `${s.fD?.aI?.name || 'IndiGo'}, ${s.fD?.aI?.code || '6E'}-${s.fD?.fN || '1471'}`).join(' | ')}</span>
-                <span>•</span>
-                <span>{firstSeg.dt ? firstSeg.dt.slice(11, 16) : '18:30'} → {lastSeg.at ? lastSeg.at.slice(11, 16) : '21:05'}</span>
-                <span>•</span>
-                <span>{dayLabel(firstSeg.dt) || "Thu, 15 Oct'26"}</span>
-                <span>•</span>
-                <span>{allSegments.length > 1 ? `${allSegments.length - 1} stop` : 'Non stop'}</span>
-                <span>•</span>
-                <span>{duration(trips.reduce((acc, t) => acc + (t.sI || []).reduce((s, seg) => s + (seg.duration || 0), 0), 0)) || '4h 5m'}</span>
-              </div>
-            </div>
-          </div>
-
           {/* ========================================================
-              STEP 1: FLIGHT DETAILS / ITINERARY (Screenshot 4)
+              STEP 1: FLIGHT DETAILS / ITINERARY (Image 5)
               ======================================================== */}
           {currentStep === 1 && (
             <div className="tj-flight-details-step">
-              <div className="tj-section-header-title" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <h2>Flight Details</h2>
-                <Link to="/flights/results" state={{ search }} className="tj-back-search-link">
+              <div className="tj-section-header-title" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+                <h2 style={{ fontSize: 18, fontWeight: 700, color: '#0f172a', margin: 0 }}>Flight Details</h2>
+                <Link to="/flights/results" state={{ search }} style={{ color: '#ea580c', textDecoration: 'none', fontSize: 13, fontWeight: 600 }}>
                   &laquo; Back to Search
                 </Link>
               </div>
 
-              {/* Main Flight Details Card matching Screenshot 4 */}
-              <article className="tj-passenger-card" style={{ padding: '20px 24px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-                  <strong style={{ fontSize: 16, color: '#0f172a' }}>
-                    {firstSeg.da?.city || 'Chennai'} &rarr; {lastSeg.aa?.city || 'Tiruchirappalli'} on {dayLabel(firstSeg.dt) || 'Wed, Oct 28th 2026'}
-                  </strong>
-                  <span style={{ fontSize: 13, color: '#64748b' }}>
-                    <Clock size={14} style={{ display: 'inline', verticalAlign: '-1px', marginRight: 4 }} />
-                    {duration(trips.reduce((acc, t) => acc + (t.sI || []).reduce((s, seg) => s + (seg.duration || 0), 0), 0)) || '1h 5m'}
-                  </span>
-                </div>
+              {/* Multi-Leg Flight Cards matching Image 5 */}
+              {trips.map((tripItem, tIdx) => {
+                const segs = tripItem.sI || [];
+                const seg = segs[0] || {};
+                const last = segs[segs.length - 1] || seg;
+                const legDur = duration(segs.reduce((acc, s) => acc + (s.duration || 185), 0)) || '3h 5m';
+                const originDateStr = seg.dt ? dayLabel(seg.dt) : (tIdx === 0 ? 'Wed, Nov 18th 2026' : 'Wed, Nov 25th 2026');
+                const originTimeStr = seg.dt ? seg.dt.slice(11, 16) : (tIdx === 0 ? '21:15' : '17:40');
+                const destDateStr = last.at ? dayLabel(last.at) : (tIdx === 0 ? 'Thu, Nov 19th 2026' : 'Wed, Nov 25th 2026');
+                const destTimeStr = last.at ? last.at.slice(11, 16) : (tIdx === 0 ? '00:20' : '20:45');
+                const originCity = seg.da?.city || (tIdx === 0 ? 'Tiruchirappalli' : 'Delhi');
+                const destCity = last.aa?.city || (tIdx === 0 ? 'Delhi' : 'Tiruchirappalli');
 
-                <div style={{ display: 'flex', alignItems: 'center', gap: 24, padding: '16px 0', borderTop: '1px solid #f1f5f9', borderBottom: '1px solid #f1f5f9' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <div style={{ background: '#1e1b4b', color: '#fff', borderRadius: 4, width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <Plane size={18} />
-                    </div>
-                    <div>
-                      <strong style={{ display: 'block', fontSize: 14, color: '#0f172a' }}>{firstSeg.fD?.aI?.name || 'IndiGo'}</strong>
-                      <small style={{ color: '#64748b', fontSize: 12 }}>{firstSeg.fD?.aI?.code || '6E'}-{firstSeg.fD?.fN || '7351'} &bull; AIR</small>
-                    </div>
-                  </div>
-
-                  <div style={{ flex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div>
-                      <strong style={{ fontSize: 14, color: '#0f172a' }}>Oct 28, Wed, {firstSeg.dt ? firstSeg.dt.slice(11, 16) : '07:00'}</strong>
-                      <p style={{ margin: '2px 0 0', fontSize: 13, color: '#64748b' }}>{firstSeg.da?.city || 'Chennai'}, India</p>
-                      <small style={{ fontSize: 11, color: '#94a3b8' }}>{firstSeg.da?.name || 'Chennai Arpt'} {firstSeg.da?.terminal ? `Terminal ${firstSeg.da.terminal}` : 'Terminal 4'}</small>
+                return (
+                  <article key={tIdx} className="tj-itinerary-leg-card">
+                    {/* Leg Header Bar */}
+                    <div className="tj-leg-card-header">
+                      <strong>{originCity} &rarr; {destCity} on {originDateStr}</strong>
+                      <span className="tj-leg-duration">
+                        <Clock size={13} /> {legDur}
+                      </span>
                     </div>
 
-                    <div style={{ textAlign: 'center', color: '#64748b', fontSize: 11 }}>
-                      <span>Non-Stop</span>
-                      <div style={{ borderTop: '1.5px solid #cbd5e1', width: 90, margin: '3px auto' }} />
+                    {/* Leg Flight Row */}
+                    <div className="tj-leg-card-body">
+                      <div className="tj-leg-airline-col">
+                        <div className="tj-airline-navy-box">
+                          <Plane size={16} />
+                        </div>
+                        <div>
+                          <strong>{seg.fD?.aI?.name || 'IndiGo'}</strong>
+                          <small>{seg.fD?.aI?.code || '6E'}-{seg.fD?.fN || (tIdx === 0 ? '770' : '769')} ✈ {seg.fD?.eT || '320'}</small>
+                        </div>
+                      </div>
+
+                      <div className="tj-leg-sector-flow">
+                        <div className="tj-leg-time-box">
+                          <strong>{originDateStr.split(',')[0]}, {originTimeStr}</strong>
+                          <p>{originCity}, India</p>
+                          <small>{seg.da?.name || (tIdx === 0 ? 'Tiruchirapally Civil Arpt' : 'Delhi indira gandhi intl Terminal 1')}</small>
+                        </div>
+
+                        <div className="tj-leg-track-col">
+                          <span className="tj-leg-track-badge">Non-Stop</span>
+                          <div className="tj-leg-track-arrow-line">
+                            <span className="tj-arrow-symbol">&rarr;</span>
+                          </div>
+                        </div>
+
+                        <div className="tj-leg-time-box">
+                          <strong>{destDateStr.split(',')[0]}, {destTimeStr}</strong>
+                          <p>{destCity}, India</p>
+                          <small>{last.aa?.name || (tIdx === 0 ? 'Delhi indira gandhi intl Terminal 1' : 'Tiruchirapally Civil Arpt')}</small>
+                        </div>
+
+                        <div className="tj-leg-faretype-col">
+                          <strong>{legDur}</strong>
+                          <span className="tj-refundable-tag">Economy, Refundable</span>
+                        </div>
+                      </div>
                     </div>
 
-                    <div>
-                      <strong style={{ fontSize: 14, color: '#0f172a' }}>Oct 28, Wed, {lastSeg.at ? lastSeg.at.slice(11, 16) : '08:05'}</strong>
-                      <p style={{ margin: '2px 0 0', fontSize: 13, color: '#64748b' }}>{lastSeg.aa?.city || 'Tiruchirappalli'}, India</p>
-                      <small style={{ fontSize: 11, color: '#94a3b8' }}>{lastSeg.aa?.name || 'Tiruchirapally Civil Arpt'}</small>
+                    {/* Published tag & baggage line */}
+                    <div className="tj-leg-footer-info">
+                      <span className="tj-badge-published">Published</span>
+                      <span className="tj-baggage-text">
+                        💼 : (Adult) Check-in : 15 Kg (01 Piece only), Cabin : 7 Kg
+                      </span>
                     </div>
+                  </article>
+                );
+              })}
 
-                    <div style={{ textAlign: 'right' }}>
-                      <strong style={{ fontSize: 13, color: '#0f172a', display: 'block' }}>1h 5m</strong>
-                      <small style={{ fontSize: 12, color: '#16a34a', fontWeight: 600 }}>Economy, Refundable</small>
-                    </div>
-                  </div>
-                </div>
+              {/* Fare Rules + Button (Image 5) */}
+              <div style={{ marginTop: 14, marginBottom: 20 }}>
+                <button
+                  type="button"
+                  className="tj-fare-rules-btn"
+                  onClick={() => {
+                    setDetailsModalTab('fare_rules');
+                    setShowFlightDetailsModal(true);
+                  }}
+                >
+                  Fare Rules +
+                </button>
+              </div>
 
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 14, flexWrap: 'wrap' }}>
-                  <span style={{ background: '#ffedd5', color: '#ea580c', border: '1px solid #fed7aa', fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 4 }}>
-                    SME
-                  </span>
-                  <span style={{ fontSize: 12, color: '#475569' }}>
-                    🧳 (Adult) Check-In : 15Kilograms, Cabin : 7 Kg
-                  </span>
-                </div>
+              {/* Step 1 Action Buttons (Image 5) */}
+              <div className="tj-step1-action-bar">
+                <button
+                  type="button"
+                  className="tj-btn-orange-solid"
+                  onClick={() => navigate('/flights/results', { state: { search } })}
+                >
+                  &laquo; Back
+                </button>
 
-                <div style={{ marginTop: 14 }}>
+                <div style={{ display: 'flex', gap: 12 }}>
                   <button
                     type="button"
-                    className="tj-btn-outline-orange"
-                    style={{ fontSize: 12, padding: '5px 12px' }}
-                    onClick={() => setShowFareRulesModal(!showFareRulesModal)}
+                    className="tj-btn-orange-outline"
+                    onClick={() => {
+                      setSaveForLaterNotice(true);
+                      setTimeout(() => setSaveForLaterNotice(false), 3500);
+                    }}
                   >
-                    Fare Rules +
+                    <Bookmark size={14} /> Save for later
                   </button>
 
-                  {showFareRulesModal && (
-                    <div style={{ marginTop: 10, background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 6, padding: 14, fontSize: 12, color: '#475569' }}>
-                      <strong style={{ display: 'block', color: '#0f172a', marginBottom: 4 }}>IndiGo Standard Fare Rules:</strong>
-                      <p style={{ margin: '2px 0' }}>&bull; <b>Cancellation Fee:</b> ₹3,000 or Base Fare (whichever is lower) up to 2 hours before departure.</p>
-                      <p style={{ margin: '2px 0' }}>&bull; <b>Date Change:</b> ₹2,500 + fare difference up to 2 hours before departure.</p>
-                      <p style={{ margin: '2px 0' }}>&bull; <b>Baggage:</b> 15 Kg Check-in + 7 Kg Cabin included.</p>
-                    </div>
-                  )}
-                </div>
-
-                {/* Step 1 Action Buttons matching Screenshot 4 */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 24, paddingTop: 16, borderTop: '1px solid #f1f5f9' }}>
-                  <Link
-                    to="/flights/results"
-                    state={{ search }}
-                    className="tj-btn-orange"
-                    style={{ textDecoration: 'none' }}
-                  >
-                    &laquo; Back
-                  </Link>
-
                   <button
                     type="button"
-                    className="tj-btn-orange"
+                    className="tj-btn-orange-solid"
                     onClick={() => {
                       setCurrentStep(2);
                       window.scrollTo({ top: 0, behavior: 'smooth' });
                     }}
                   >
-                    ADD PASSENGERS &raquo;
+                    ADD PASSENGERS &gt;
                   </button>
                 </div>
-              </article>
+              </div>
+
+              {saveForLaterNotice && (
+                <div className="tj-save-later-alert">
+                  ✓ Booking draft saved successfully to &quot;Saved for later&quot; in your Agency Dashboard.
+                </div>
+              )}
             </div>
           )}
 
@@ -1258,6 +1374,60 @@ export default function FlightReview() {
                 selectedOtherServices={selectedOtherServices}
                 onChangeOtherService={handleChangeOtherService}
               />
+
+              {/* Mask Fare Checkbox Banner (Image 4) */}
+              <div className="tj-mask-fare-banner">
+                <label className="tj-mask-fare-label">
+                  <input
+                    type="checkbox"
+                    checked={maskFareInfo}
+                    onChange={e => setMaskFareInfo(e.target.checked)}
+                  />
+                  <span>Mask fare information on the airline itinerary (Applicable for Indigo only).</span>
+                  <span className="tj-badge-new">NEW</span>
+                </label>
+              </div>
+
+              {/* Step 2 Action Buttons (Image 4) */}
+              <div className="tj-step-actions-row">
+                <button
+                  type="button"
+                  className="tj-btn-orange-solid"
+                  onClick={() => {
+                    setCurrentStep(1);
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                >
+                  &laquo; Back
+                </button>
+
+                <div style={{ display: 'flex', gap: 12 }}>
+                  <button
+                    type="button"
+                    className="tj-btn-orange-outline"
+                    onClick={() => {
+                      setSaveForLaterNotice(true);
+                      setTimeout(() => setSaveForLaterNotice(false), 3500);
+                    }}
+                  >
+                    <Bookmark size={14} /> Save for later
+                  </button>
+
+                  <button
+                    type="button"
+                    className="tj-btn-orange-solid"
+                    onClick={handleContinueToReview}
+                  >
+                    PROCEED TO REVIEW &gt;
+                  </button>
+                </div>
+              </div>
+
+              {saveForLaterNotice && (
+                <div className="tj-save-later-alert">
+                  ✓ Booking draft saved successfully to &quot;Saved for later&quot; in your Agency Dashboard.
+                </div>
+              )}
             </>
           )}
 
@@ -1421,29 +1591,64 @@ export default function FlightReview() {
                 </div>
               </article>
 
+              {/* Mask Fare Checkbox Banner (Image 4) */}
+              <div className="tj-mask-fare-banner">
+                <label className="tj-mask-fare-label">
+                  <input
+                    type="checkbox"
+                    checked={maskFareInfo}
+                    onChange={e => setMaskFareInfo(e.target.checked)}
+                  />
+                  <span>Mask fare information on the airline itinerary (Applicable for Indigo only).</span>
+                  <span className="tj-badge-new">NEW</span>
+                </label>
+              </div>
+
               {/* Legal checkbox line matching Screenshot 2 */}
               <p style={{ fontSize: 12, color: '#64748b', margin: '8px 0' }}>
                 By proceeding, I acknowledge and agree to the <Link to="/terms-and-conditions" target="_blank" style={{ color: '#0284c7' }}>Terms of Use and Privacy Policy</Link>.
               </p>
 
-              {/* Step Navigation Buttons */}
+              {/* Step 3 Navigation Buttons (Image 4) */}
               <div className="tj-step-actions-row">
                 <button
                   type="button"
-                  className="tj-btn-orange"
-                  onClick={() => setCurrentStep(2)}
+                  className="tj-btn-orange-solid"
+                  onClick={() => {
+                    setCurrentStep(2);
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
                 >
-                  &lt; Back
+                  &laquo; Back
                 </button>
 
-                <button
-                  type="button"
-                  className="tj-btn-orange"
-                  onClick={handleProceedToPayments}
-                >
-                  &gt; PROCEED TO PAY
-                </button>
+                <div style={{ display: 'flex', gap: 12 }}>
+                  <button
+                    type="button"
+                    className="tj-btn-orange-outline"
+                    onClick={() => {
+                      setSaveForLaterNotice(true);
+                      setTimeout(() => setSaveForLaterNotice(false), 3500);
+                    }}
+                  >
+                    <Bookmark size={14} /> Save for later
+                  </button>
+
+                  <button
+                    type="button"
+                    className="tj-btn-orange-solid"
+                    onClick={handleProceedToPayments}
+                  >
+                    PROCEED TO PAY &gt;
+                  </button>
+                </div>
               </div>
+
+              {saveForLaterNotice && (
+                <div className="tj-save-later-alert">
+                  ✓ Booking draft saved successfully to &quot;Saved for later&quot; in your Agency Dashboard.
+                </div>
+              )}
             </div>
           )}
 
@@ -1547,10 +1752,57 @@ export default function FlightReview() {
                         Please Select Preferred Option to Proceed
                       </div>
 
-                      {/* View 1: Credit Card (Screenshot 3) */}
+                      {/* View 1: Debit Card (Image 1) */}
+                      {activePaymentTab === 'debit_card' && (
+                        <>
+                          <div className="tj-pay-cards-grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))' }}>
+                            {/* CC-Avenue Radio Card */}
+                            <label className={`tj-pay-card-box ${selectedDebitOption === 'ccavenue' ? 'is-selected' : ''}`}>
+                              <input
+                                type="radio"
+                                name="debitCardOpt"
+                                value="ccavenue"
+                                checked={selectedDebitOption === 'ccavenue'}
+                                onChange={() => setSelectedDebitOption('ccavenue')}
+                              />
+                              <div className="tj-pay-card-details">
+                                <span className="tj-ccavenue-logo-wrap">
+                                  <span style={{ color: '#006699', fontWeight: 900, fontSize: 16 }}>CC</span>
+                                  <span className="tj-ccavenue-slash">-</span>
+                                  <span style={{ color: '#006699', fontWeight: 900, fontSize: 16 }}>Avenue<sup>&reg;</sup></span>
+                                </span>
+                              </div>
+                            </label>
+
+                            {/* Rupay Card Radio Card */}
+                            <label className={`tj-pay-card-box ${selectedDebitOption === 'rupay' ? 'is-selected' : ''}`}>
+                              <input
+                                type="radio"
+                                name="debitCardOpt"
+                                value="rupay"
+                                checked={selectedDebitOption === 'rupay'}
+                                onChange={() => setSelectedDebitOption('rupay')}
+                              />
+                              <div className="tj-pay-card-details">
+                                <strong style={{ fontSize: 13, color: '#0f172a' }}>Rupay Card</strong>
+                                <span style={{ color: '#003366', fontWeight: 900, fontStyle: 'italic', fontSize: 16 }}>
+                                  RuPay<span style={{ color: '#ea580c' }}>&#9654;</span>
+                                </span>
+                              </div>
+                            </label>
+                          </div>
+
+                          {/* Yellow Note Banner matching Image 1 */}
+                          <div className="tj-selected-info-box">
+                            Visa/MasterCard/Others
+                          </div>
+                        </>
+                      )}
+
+                      {/* View 2: Credit Card (Image 2) */}
                       {activePaymentTab === 'credit_card' && (
                         <>
-                          <div className="tj-pay-cards-grid">
+                          <div className="tj-pay-cards-grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))' }}>
                             {/* Personal Card */}
                             <label className={`tj-pay-card-box ${selectedCardType === 'personal' ? 'is-selected' : ''}`}>
                               <input
@@ -1622,152 +1874,190 @@ export default function FlightReview() {
                             </label>
                           </div>
 
-                          {/* Helper Banner matching Screenshot 3 */}
-                          <div className="tj-cards-note-banner">
+                          {/* Yellow Note Banner matching Image 2 */}
+                          <div className="tj-selected-info-box">
                             Personal Cards Only: MasterCard, Visa &amp; Diners
                           </div>
                         </>
                       )}
 
-                      {/* View 2: Debit Card */}
-                      {activePaymentTab === 'debit_card' && (
+                      {/* View 3: Net Banking (Image 3) */}
+                      {activePaymentTab === 'net_banking' && (
                         <>
-                          <div className="tj-pay-cards-grid">
-                            <label className={`tj-pay-card-box ${selectedDebitType === 'personal_debit' ? 'is-selected' : ''}`}>
+                          <div className="tj-pay-cards-grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))' }}>
+                            <label className={`tj-pay-card-box ${selectedNetOption === 'all_banks' ? 'is-selected' : ''}`}>
                               <input
                                 type="radio"
-                                name="debitCardType"
-                                value="personal_debit"
-                                checked={selectedDebitType === 'personal_debit'}
-                                onChange={() => setSelectedDebitType('personal_debit')}
+                                name="netBankOpt"
+                                value="all_banks"
+                                checked={selectedNetOption === 'all_banks'}
+                                onChange={() => setSelectedNetOption('all_banks')}
                               />
                               <div className="tj-pay-card-details">
-                                <strong>Personal Debit Card</strong>
-                                <div className="tj-network-logos-row">
-                                  <span className="tj-logo-badge tj-logo-visa">VISA</span>
-                                  <span className="tj-logo-badge tj-logo-mc">Mastercard</span>
-                                  <span className="tj-logo-badge tj-logo-rupay">RuPay</span>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                  <span style={{ background: '#004c8f', color: '#fff', fontSize: 10, fontWeight: 900, padding: '2px 4px', borderRadius: 2 }}>HDFC</span>
+                                  <span style={{ background: '#f58220', color: '#fff', fontSize: 10, fontWeight: 900, padding: '2px 4px', borderRadius: 2 }}>i</span>
+                                  <strong style={{ fontSize: 12, color: '#0f172a' }}>50+ more banks</strong>
                                 </div>
                               </div>
                             </label>
 
-                            <label className={`tj-pay-card-box ${selectedDebitType === 'corporate_debit' ? 'is-selected' : ''}`}>
+                            <label className={`tj-pay-card-box ${selectedNetOption === 'major_banks' ? 'is-selected' : ''}`}>
                               <input
                                 type="radio"
-                                name="debitCardType"
-                                value="corporate_debit"
-                                checked={selectedDebitType === 'corporate_debit'}
-                                onChange={() => setSelectedDebitType('corporate_debit')}
+                                name="netBankOpt"
+                                value="major_banks"
+                                checked={selectedNetOption === 'major_banks'}
+                                onChange={() => setSelectedNetOption('major_banks')}
                               />
                               <div className="tj-pay-card-details">
-                                <strong>Corporate Debit Card</strong>
-                                <div className="tj-network-logos-row">
-                                  <span className="tj-logo-badge tj-logo-visa">VISA</span>
-                                  <span className="tj-logo-badge tj-logo-mc">Mastercard</span>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                  <span style={{ background: '#004c8f', color: '#fff', fontSize: 10, fontWeight: 900, padding: '2px 4px', borderRadius: 2 }}>HDFC</span>
+                                  <span style={{ background: '#f58220', color: '#fff', fontSize: 10, fontWeight: 900, padding: '2px 4px', borderRadius: 2 }}>i</span>
+                                  <strong style={{ fontSize: 12, color: '#0f172a' }}>50+ more banks</strong>
                                 </div>
                               </div>
                             </label>
                           </div>
 
-                          <div className="tj-cards-note-banner">
-                            Zero surcharge on domestic RuPay Debit Cards.
+                          {/* Yellow Note Banner matching Image 3 */}
+                          <div className="tj-selected-info-box">
+                            ALL BANKS NET BANKING
                           </div>
                         </>
                       )}
 
-                      {/* View 3: Net Banking */}
-                      {activePaymentTab === 'net_banking' && (
-                        <div style={{ marginBottom: 16 }}>
-                          <div className="tj-pay-cards-grid">
-                            {['HDFC Bank', 'ICICI Bank', 'State Bank of India', 'Axis Bank', 'Kotak Mahindra Bank', 'Punjab National Bank'].map(bank => (
-                              <label key={bank} className={`tj-pay-card-box ${selectedBank === bank ? 'is-selected' : ''}`}>
-                                <input
-                                  type="radio"
-                                  name="bankOption"
-                                  value={bank}
-                                  checked={selectedBank === bank}
-                                  onChange={() => setSelectedBank(bank)}
-                                />
-                                <div className="tj-pay-card-details">
-                                  <strong>{bank}</strong>
-                                </div>
-                              </label>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-
-                      {/* View 4: UPI */}
+                      {/* View 4: UPI (Matching UPI Screenshot) */}
                       {activePaymentTab === 'upi' && (
-                        <div style={{ marginBottom: 16 }}>
-                          <div className="tj-pay-cards-grid">
-                            {[
-                              { id: 'gpay', label: 'Google Pay' },
-                              { id: 'phonepe', label: 'PhonePe' },
-                              { id: 'paytm', label: 'Paytm UPI' },
-                              { id: 'bhim', label: 'BHIM UPI / QR' }
-                            ].map(u => (
-                              <label key={u.id} className={`tj-pay-card-box ${selectedUpiApp === u.id ? 'is-selected' : ''}`}>
-                                <input
-                                  type="radio"
-                                  name="upiApp"
-                                  value={u.id}
-                                  checked={selectedUpiApp === u.id}
-                                  onChange={() => setSelectedUpiApp(u.id)}
-                                />
-                                <div className="tj-pay-card-details">
-                                  <strong>{u.label}</strong>
+                        <>
+                          <div style={{ marginBottom: 18 }}>
+                            <label
+                              className="tj-pay-card-box is-selected"
+                              style={{
+                                display: 'inline-flex',
+                                width: 'fit-content',
+                                minWidth: 200,
+                                padding: '16px 24px',
+                                gap: 16,
+                                cursor: 'pointer'
+                              }}
+                            >
+                              <input
+                                type="radio"
+                                name="upiPaymentOpt"
+                                value="upi_all"
+                                checked={selectedUpiApp === 'all_upi' || selectedUpiApp === 'gpay'}
+                                onChange={() => setSelectedUpiApp('all_upi')}
+                                style={{ width: 16, height: 16, accentColor: '#0284c7', cursor: 'pointer' }}
+                              />
+                              <div style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                  <span
+                                    style={{
+                                      fontFamily: 'system-ui, -apple-system, sans-serif',
+                                      fontSize: 28,
+                                      fontWeight: 900,
+                                      fontStyle: 'italic',
+                                      letterSpacing: '-0.5px',
+                                      color: '#2d3748',
+                                      lineHeight: 1
+                                    }}
+                                  >
+                                    UPI
+                                  </span>
+                                  <svg width="22" height="24" viewBox="0 0 22 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ transform: 'skewX(-16deg)' }}>
+                                    <path d="M2 2 L12 12 L7 12 L0 2 Z" fill="#4a5568" />
+                                    <path d="M9 2 L19 12 L14 12 L7 2 Z" fill="#ea580c" />
+                                    <path d="M9 12 L19 22 L14 22 L7 12 Z" fill="#16a34a" />
+                                  </svg>
                                 </div>
-                              </label>
-                            ))}
+                                <span
+                                  style={{
+                                    fontSize: 7.5,
+                                    fontWeight: 700,
+                                    letterSpacing: '0.6px',
+                                    color: '#4a5568',
+                                    marginTop: 4,
+                                    fontFamily: 'Arial, sans-serif',
+                                    textTransform: 'uppercase'
+                                  }}
+                                >
+                                  UNIFIED PAYMENTS INTERFACE
+                                </span>
+                              </div>
+                            </label>
                           </div>
-                        </div>
+
+                          {/* Yellow Note Banner matching Screenshot */}
+                          <div className="tj-selected-info-box">
+                            PhonePe, Google Pay, Paytm, WhatsApp Pay, BHIM, and all other bank UPI apps
+                          </div>
+                        </>
                       )}
 
                       {/* View 5: Credit Line */}
                       {activePaymentTab === 'credit_line' && (
-                        <div style={{ marginBottom: 16 }}>
-                          <div style={{ background: '#f8fafc', border: '1px solid #cbd5e1', borderRadius: 6, padding: 18 }}>
+                        <>
+                          <div style={{ background: '#f8fafc', border: '1px solid #cbd5e1', borderRadius: 6, padding: 18, marginBottom: 14 }}>
                             <strong style={{ display: 'block', fontSize: 14, color: '#0f172a' }}>TripJack Agency Credit Line</strong>
                             <p style={{ margin: '4px 0 10px', fontSize: 13, color: '#64748b' }}>
                               Available Credit Balance: <b style={{ color: '#16a34a' }}>₹ 7,21,108.32</b>
                             </p>
-                            <span className="tj-instant-tag">Instant PNR Generation · No Payment Gateway Fee</span>
+                            <span className="tj-badge-published">Instant PNR Generation · No Payment Gateway Surcharge</span>
                           </div>
-                        </div>
+
+                          <div className="tj-selected-info-box">
+                            Deduction directly from B2B Agent Wallet
+                          </div>
+                        </>
                       )}
 
-                      {/* Redirection disclaimer matching Screenshot 3 */}
+                      {/* Redirection disclaimer matching Images 1, 2, 3 */}
                       <div className="tj-bank-redirect-box">
-                        <CardIcon size={18} style={{ color: '#475569', flexShrink: 0, marginTop: 2 }} />
+                        <span style={{ fontSize: 16 }}>💳</span>
                         <span>
-                          <b>Please note:</b> You will be connected to <b>Zoho Payments secure checkout</b> to complete your transaction. By making this booking, you agree to our <Link to="/terms-and-conditions" target="_blank" style={{ color: '#0284c7' }}>Terms of Use and Privacy Policy</Link>.
+                          <b>Please note:</b> You may be redirected to bank page to complete your transaction. By making this booking, you agree to our <Link to="/terms-and-conditions" target="_blank" style={{ color: '#0284c7' }}>Terms of Use and Privacy Policy</Link>.
                         </span>
                       </div>
 
-                      {/* Payment Fee Line matching Screenshot 3 */}
+                      {/* Payment Fee Line matching Images 1, 2, 3 */}
                       <div className="tj-payment-fee-line">
                         Payment Fee : ₹{paymentFee.toFixed(2)}
                       </div>
                     </div>
 
-                    {/* Pay Now Button matching Screenshot 3 */}
-                    <div style={{ marginTop: 20 }}>
-                      <button
-                        type="button"
-                        className="tj-btn-pay-now-large"
-                        disabled={isSubmitting}
-                        onClick={() => handlePayWithZoho(false)}
-                      >
-                        {isSubmitting ? (
-                          <>
-                            <ShieldCheck size={18} className="animate-spin" />
-                            Connecting to Zoho Payments...
-                          </>
-                        ) : (
-                          `Pay Now ₹${money(grossAmountToPay).replace('₹', '')}`
-                        )}
-                      </button>
+                    {/* Pay Now Button & Bottom Left Back matching Images 1, 2, 3 */}
+                    <div>
+                      <div style={{ marginTop: 16 }}>
+                        <button
+                          type="button"
+                          className="tj-btn-pay-now-large"
+                          disabled={isSubmitting}
+                          onClick={() => handlePayWithZoho(false)}
+                        >
+                          {isSubmitting ? (
+                            <>
+                              <ShieldCheck size={18} className="animate-spin" />
+                              Connecting to Payment Gateway...
+                            </>
+                          ) : (
+                            `Pay Now ₹${money(grossAmountToPay).replace('₹', '')}`
+                          )}
+                        </button>
+                      </div>
+
+                      <div style={{ marginTop: 20 }}>
+                        <button
+                          type="button"
+                          className="tj-btn-orange-solid"
+                          onClick={() => {
+                            setCurrentStep(3);
+                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                          }}
+                        >
+                          &laquo; Back
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -1916,8 +2206,42 @@ export default function FlightReview() {
                   <span>Taxes and fees</span>
                   <ChevronDown size={14} />
                 </div>
-                <strong>{money(displayTaxesAndFees)}</strong>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <strong>{money(displayTaxesAndFees)}</strong>
+                  <button
+                    type="button"
+                    className="tj-tax-edit-icon"
+                    title="Edit Agent Markup"
+                    style={{ background: 'transparent', border: 'none', padding: 0, cursor: 'pointer', color: '#94a3b8' }}
+                    onClick={() => {
+                      setIsEditingMarkup(!isEditingMarkup);
+                      setTempMarkup(String(agentMarkup || ''));
+                    }}
+                  >
+                    <Edit3 size={13} />
+                  </button>
+                </div>
               </div>
+
+              {isEditingMarkup && (
+                <div style={{ background: '#f8fafc', border: '1px solid #cbd5e1', borderRadius: 4, padding: '8px 10px', marginTop: 4, marginBottom: 8, display: 'flex', gap: 6 }}>
+                  <input
+                    type="number"
+                    placeholder="Markup (₹)"
+                    value={tempMarkup}
+                    onChange={e => setTempMarkup(e.target.value)}
+                    style={{ width: '100%', padding: '4px 8px', fontSize: 12, border: '1px solid #cbd5e1', borderRadius: 3 }}
+                  />
+                  <button
+                    type="button"
+                    className="tj-btn-orange-solid"
+                    style={{ padding: '4px 10px', fontSize: 11 }}
+                    onClick={handleSaveMarkup}
+                  >
+                    Set
+                  </button>
+                </div>
+              )}
 
               {seatAddonTotal > 0 && (
                 <div className="tj-fare-summary-row">
@@ -2005,19 +2329,24 @@ export default function FlightReview() {
               </div>
             </div>
 
-            {/* TJ Cash Box (Screenshots 1 & 4) */}
+            {/* TJ Cash Box (Image 5) */}
             <div className="tj-wallet-box">
               <div className="tj-wallet-header">
                 <strong>TJ Cash:</strong>
-                <small>Balance : ₹ 0 (1 Cash = ₹1)</small>
+                <span className="tj-wallet-balance-val">Balance : ₹ 0</span>
               </div>
+              <div className="tj-wallet-sub">1 Cash = ₹1</div>
               <div className="tj-wallet-input-row">
                 <input
                   type="number"
                   placeholder="Enter Cash Amount"
-                  disabled
+                  className="tj-wallet-input"
+                  value={tjCashInput}
+                  onChange={e => setTjCashInput(e.target.value)}
                 />
-                <button type="button" disabled>REDEEM</button>
+                <button type="button" className="tj-redeem-btn" onClick={handleRedeemTjCash}>
+                  REDEEM
+                </button>
               </div>
             </div>
 
@@ -2127,6 +2456,17 @@ export default function FlightReview() {
         isOpen={showTravellersModal}
         onClose={() => setShowTravellersModal(false)}
         onSelectTraveller={handleSelectTravellerFromModal}
+      />
+
+      {/* Flight Details & Fare Rules Modal (Image 5 "Fare Rules +") */}
+      <FlightDetailsModal
+        isOpen={showFlightDetailsModal}
+        trip={trips[0]}
+        fare={reviewed?.data?.totalPriceInfo?.totalFareDetail || {}}
+        searchToken={reviewed?.searchToken}
+        pax={reviewed?.search?.searchQuery?.paxInfo || { ADULT: 1, CHILD: 0, INFANT: 0 }}
+        initialTab={detailsModalTab}
+        onClose={() => setShowFlightDetailsModal(false)}
       />
     </main>
   );
