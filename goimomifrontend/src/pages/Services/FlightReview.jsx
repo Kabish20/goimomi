@@ -126,14 +126,14 @@ export default function FlightReview() {
       type: 'ADULT',
       label: 'ADULT 1: (12 + yrs)',
       title: 'Mr',
-      firstName: 'VIJAY',
-      lastName: 'D',
+      firstName: '',
+      lastName: '',
       gender: 'MALE',
-      dob: '1993-12-09',
-      nationality: 'India',
-      passportNo: 'R657757',
-      issueDate: '2025-06-08',
-      expiryDate: '2035-06-07',
+      dob: '',
+      nationality: '',
+      passportNo: '',
+      issueDate: '',
+      expiryDate: '',
       ffAirline: '6E',
       ffNumber: '',
       addToTravellerList: true,
@@ -146,8 +146,8 @@ export default function FlightReview() {
   const [contact, setContact] = useState({
     countryCode: '+91',
     countryName: 'India',
-    phone: '9342905433',
-    email: 'crescenthajservice@gmail.com',
+    phone: '',
+    email: '',
   });
 
   // Special requests / airline notes
@@ -261,14 +261,14 @@ export default function FlightReview() {
           type: 'ADULT',
           label: `ADULT ${i + 1}: (12 + yrs)`,
           title: i === 0 ? 'Mr' : 'Mrs',
-          firstName: i === 0 ? 'VIJAY' : '',
-          lastName: i === 0 ? 'D' : '',
+          firstName: '',
+          lastName: '',
           gender: i === 0 ? 'MALE' : 'FEMALE',
-          dob: i === 0 ? '1993-12-09' : '',
-          nationality: 'India',
-          passportNo: i === 0 ? 'R657757' : '',
-          issueDate: i === 0 ? '2025-06-08' : '',
-          expiryDate: i === 0 ? '2035-06-07' : '',
+          dob: '',
+          nationality: '',
+          passportNo: '',
+          issueDate: '',
+          expiryDate: '',
           ffAirline: '6E',
           ffNumber: '',
           addToTravellerList: true,
@@ -523,7 +523,7 @@ export default function FlightReview() {
     updatePax(activeTravellerPaxIdx, 'lastName', traveller.lastName || '');
     if (traveller.gender) updatePax(activeTravellerPaxIdx, 'gender', traveller.gender);
     if (traveller.phone && !contact.phone) setContact({ ...contact, phone: traveller.phone });
-    if (traveller.email && (!contact.email || contact.email === 'crescenthajservice@gmail.com')) setContact({ ...contact, email: traveller.email });
+    if (traveller.email && !contact.email) setContact({ ...contact, email: traveller.email });
     if (traveller.ffNumber) {
       updatePax(activeTravellerPaxIdx, 'ffNumber', traveller.ffNumber);
       if (traveller.ffAirline) updatePax(activeTravellerPaxIdx, 'ffAirline', traveller.ffAirline);
@@ -539,13 +539,13 @@ export default function FlightReview() {
     setIsScanningPassport(true);
     setTimeout(() => {
       updatePax(pIdx, 'title', 'Mr');
-      updatePax(pIdx, 'firstName', 'VIJAY');
-      updatePax(pIdx, 'lastName', 'D');
-      updatePax(pIdx, 'dob', '1993-12-09');
-      updatePax(pIdx, 'nationality', 'India');
-      updatePax(pIdx, 'passportNo', 'R657757');
-      updatePax(pIdx, 'issueDate', '2025-06-08');
-      updatePax(pIdx, 'expiryDate', '2035-06-07');
+      updatePax(pIdx, 'firstName', '');
+      updatePax(pIdx, 'lastName', '');
+      updatePax(pIdx, 'dob', '');
+      updatePax(pIdx, 'nationality', '');
+      updatePax(pIdx, 'passportNo', '');
+      updatePax(pIdx, 'issueDate', '');
+      updatePax(pIdx, 'expiryDate', '');
       setIsScanningPassport(false);
     }, 600);
   }
@@ -735,62 +735,11 @@ export default function FlightReview() {
     }
   }
 
-  const primaryPaxName = `${passengers[0]?.firstName} ${passengers[0]?.lastName}`.trim() || 'VIJAY D';
+  const primaryPaxName = `${passengers[0]?.firstName || ''} ${passengers[0]?.lastName || ''}`.trim() || 'Guest';
+
 
   return (
     <main className="flights-page flight-review-page tj-review-page">
-      {/* Top B2B Agency Header Bar (Image 5) */}
-      <header className="tj-portal-top-bar">
-        <div className="flight-container tj-portal-top-inner">
-          <div className="tj-portal-top-left">
-            <span className="tj-portal-greeting">HELLO GOIMOMI COM (21085506)</span>
-          </div>
-          <div className="tj-portal-top-right">
-            <div className="tj-portal-balance-item">
-              <span className="tj-portal-balance-label">MY BALANCE:</span>
-              <strong className="tj-portal-balance-val">₹ 7,21,108.32</strong>
-              <button
-                type="button"
-                className="tj-portal-refresh-btn"
-                title="Refresh Wallet Balance"
-                onClick={() => alert('Agent balance updated: ₹ 7,21,108.32')}
-              >
-                <RefreshCw size={12} />
-              </button>
-            </div>
-            <button
-              type="button"
-              className="tj-portal-action-btn"
-              onClick={() => alert('Opening Instant B2B Wallet Top-Up portal...')}
-            >
-              <CreditCard size={13} /> RECHARGE
-            </button>
-            <button
-              type="button"
-              className="tj-portal-action-btn"
-              onClick={() => alert('Assigned Sales Representative: Anand R (support@tripjack.com | +91 22 6919 0000)')}
-            >
-              <User size={13} /> SALES REP
-            </button>
-          </div>
-        </div>
-      </header>
-
-      {/* Sub-navigation Bar (Image 5) */}
-      <nav className="tj-subnav-bar">
-        <div className="flight-container tj-subnav-inner">
-          <Link to="/flights" className="tj-subnav-item is-active">FLIGHTS</Link>
-          <Link to="/hotels" className="tj-subnav-item">HOTELS</Link>
-          <span className="tj-subnav-item">TRIPSAFE</span>
-          <span className="tj-subnav-item">TRANSFERS <span className="tj-subnav-badge-new">NEW</span></span>
-          <span className="tj-subnav-item">TRAINS</span>
-          <span className="tj-subnav-item">BUS <span className="tj-subnav-badge-new">NEW</span></span>
-          <span className="tj-subnav-item">VISA <ChevronDown size={12} /></span>
-          <span className="tj-subnav-item">HOLIDAYS</span>
-          <span className="tj-subnav-item">CRUISE</span>
-          <span className="tj-subnav-item">QUICK PAY</span>
-        </div>
-      </nav>
 
       {/* 4-Step TripJack Stepper Bar (Images 4 & 5) */}
       <div className="tripjack-stepper-wrap">
@@ -884,7 +833,7 @@ export default function FlightReview() {
             <div className="tj-flight-details-step">
               <div className="tj-section-header-title" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
                 <h2 style={{ fontSize: 18, fontWeight: 700, color: '#0f172a', margin: 0 }}>Flight Details</h2>
-                <Link to="/flights/results" state={{ search }} style={{ color: '#ea580c', textDecoration: 'none', fontSize: 13, fontWeight: 600 }}>
+                <Link to="/flights/results" state={{ search }} style={{ color: '#14532d', textDecoration: 'none', fontSize: 13, fontWeight: 600 }}>
                   &laquo; Back to Search
                 </Link>
               </div>
@@ -1270,7 +1219,7 @@ export default function FlightReview() {
                     <label>Mobile Number *</label>
                     <input
                       type="tel"
-                      placeholder="9342905433"
+                      placeholder="Mobile Number"
                       value={contact.phone}
                       onChange={e => setContact({ ...contact, phone: e.target.value })}
                       required
@@ -1281,7 +1230,7 @@ export default function FlightReview() {
                     <label>Email ID *</label>
                     <input
                       type="email"
-                      placeholder="crescenthajservice@gmail.com"
+                      placeholder="Email"
                       value={contact.email}
                       onChange={e => setContact({ ...contact, email: e.target.value })}
                       required
@@ -1571,7 +1520,7 @@ export default function FlightReview() {
                                 const parts = [];
                                 paxMeals.forEach(([mId, q]) => parts.push(`${mealLabels[mId] || mId} x${q}`));
                                 paxBags.forEach(([bId, q]) => parts.push(`${bagLabels[bId] || bId} x${q}`));
-                                return parts.length ? <span style={{ color: '#ea580c', fontWeight: 600 }}>{parts.join(', ')}</span> : 'NA';
+                                return parts.length ? <span style={{ color: '#14532d', fontWeight: 600 }}>{parts.join(', ')}</span> : 'NA';
                               })()}
                             </td>
                           </tr>
@@ -1786,7 +1735,7 @@ export default function FlightReview() {
                               <div className="tj-pay-card-details">
                                 <strong style={{ fontSize: 13, color: '#0f172a' }}>Rupay Card</strong>
                                 <span style={{ color: '#003366', fontWeight: 900, fontStyle: 'italic', fontSize: 16 }}>
-                                  RuPay<span style={{ color: '#ea580c' }}>&#9654;</span>
+                                  RuPay<span style={{ color: '#14532d' }}>&#9654;</span>
                                 </span>
                               </div>
                             </label>
@@ -1967,7 +1916,7 @@ export default function FlightReview() {
                                   </span>
                                   <svg width="22" height="24" viewBox="0 0 22 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ transform: 'skewX(-16deg)' }}>
                                     <path d="M2 2 L12 12 L7 12 L0 2 Z" fill="#4a5568" />
-                                    <path d="M9 2 L19 12 L14 12 L7 2 Z" fill="#ea580c" />
+                                    <path d="M9 2 L19 12 L14 12 L7 2 Z" fill="#14532d" />
                                     <path d="M9 12 L19 22 L14 22 L7 12 Z" fill="#16a34a" />
                                   </svg>
                                 </div>

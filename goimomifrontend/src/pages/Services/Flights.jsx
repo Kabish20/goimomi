@@ -354,6 +354,8 @@ export default function Flights() {
                     min={index ? routes[index - 1].travelDate : today()}
                     value={route.travelDate}
                     onChange={event => updateRoute(index, 'travelDate', event.target.value)}
+                    onClick={(e) => { try { e.target.showPicker(); } catch (err) {} }}
+                    style={{ cursor: 'pointer' }}
                   />
                   {mode === 'ROUND TRIP' ? (
                     <>
@@ -364,6 +366,8 @@ export default function Flights() {
                         min={routes[0].travelDate}
                         value={routes[1]?.travelDate || routes[0].travelDate}
                         onChange={event => updateRoute(1, 'travelDate', event.target.value)}
+                        onClick={(e) => { try { e.target.showPicker(); } catch (err) {} }}
+                        style={{ cursor: 'pointer' }}
                       />
                       <button
                         type="button"

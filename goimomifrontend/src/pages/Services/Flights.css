@@ -2084,8 +2084,8 @@
    ========================================================================== */
 
 :root {
-  --tj-orange: #ea580c;
-  --tj-orange-hover: #c2410c;
+  --tj-orange: #14532d;
+  --tj-orange-hover: #0f4a24;
   --tj-navy: #1f2937;
   --tj-navy-light: #374151;
   --tj-blue-accent: #001b94;
@@ -2748,8 +2748,8 @@
 }
 
 .tj-fare-row-item.is-selected {
-  background: #fff7ed;
-  border-color: #ffedd5;
+  background: #f0fdf4;
+  border-color: #dcfce7;
 }
 
 .tj-fare-row-left {
@@ -3076,7 +3076,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 16px;
+  padding: 8px 12px;
   background: #f8fafc;
   border-bottom: 1px solid #f1f5f9;
   cursor: pointer;
@@ -3096,10 +3096,10 @@
 }
 
 .tj-pax-card-body {
-  padding: 16px;
+  padding: 10px;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 10px;
 }
 
 .tj-traveller-list-trigger-row {
@@ -3131,7 +3131,7 @@
 .tj-pax-name-inputs-grid {
   display: grid;
   grid-template-columns: 110px 1fr 1fr;
-  gap: 12px;
+  gap: 8px;
 }
 
 .tj-input-box {
@@ -3149,7 +3149,7 @@
 
 .tj-input-box input,
 .tj-input-box select {
-  padding: 9px 10px;
+  padding: 6px 8px;
   border: 1px solid #cbd5e1;
   border-radius: 4px;
   font-size: 13px;
@@ -3552,7 +3552,7 @@
 }
 
 .tj-seat-btn.is-exit {
-  background: #fff7ed;
+  background: #f0fdf4;
   border-color: #fdba74;
 }
 
@@ -4338,7 +4338,7 @@
 }
 
 .tj-passport-dropzone:hover {
-  border-color: #f97316;
+  border-color: #14532d;
   background: #fffaf5;
 }
 
@@ -4394,7 +4394,7 @@
   gap: 6px;
   font-size: 13px;
   font-weight: 600;
-  color: #ea580c;
+  color: #14532d;
   cursor: pointer;
   text-decoration: none;
   background: none;
@@ -4461,7 +4461,7 @@
 }
 
 .tj-btn-orange {
-  background: #ea580c;
+  background: #14532d;
   color: #ffffff;
   border: none;
   border-radius: 4px;
@@ -4476,7 +4476,7 @@
 }
 
 .tj-btn-orange:hover {
-  background: #c2410c;
+  background: #0f4a24;
 }
 
 /* ========================================================
@@ -4542,8 +4542,8 @@
 
 .tj-payments-tab-btn.is-active {
   background: #ffffff;
-  color: #ea580c;
-  border-left-color: #ea580c;
+  color: #14532d;
+  border-left-color: #14532d;
   font-weight: 700;
 }
 
@@ -4559,7 +4559,7 @@
 .tj-payments-area-title {
   font-size: 14px;
   font-weight: 700;
-  color: #ea580c;
+  color: #14532d;
   margin-bottom: 16px;
 }
 
@@ -4683,7 +4683,7 @@
 }
 
 .tj-btn-pay-now-large {
-  background: #ea580c;
+  background: #14532d;
   color: #ffffff;
   border: none;
   border-radius: 4px;
@@ -4701,7 +4701,7 @@
 }
 
 .tj-btn-pay-now-large:hover {
-  background: #c2410c;
+  background: #0f4a24;
 }
 
 .tj-btn-pay-now-large:disabled {
@@ -4770,9 +4770,9 @@
 }
 
 .tj-orientation-toggle-btn:hover {
-  border-color: #ea580c;
-  color: #ea580c;
-  background: #fff7ed;
+  border-color: #14532d;
+  color: #14532d;
+  background: #f0fdf4;
 }
 
 .tj-seatmap-route-pill {
@@ -4780,12 +4780,12 @@
   align-items: center;
   gap: 8px;
   padding: 6px 14px;
-  background: #fff7ed;
-  border: 1.5px solid #ea580c;
+  background: #f0fdf4;
+  border: 1.5px solid #14532d;
   border-radius: 6px;
   font-size: 13px;
   font-weight: 700;
-  color: #ea580c;
+  color: #14532d;
 }
 
 .tj-seatmap-plane {
@@ -5102,9 +5102,9 @@
 
 /* Selected by another passenger */
 .tj-seat-box.is-selected-other {
-  background: #ffedd5 !important;
-  border-color: #ea580c !important;
-  color: #ea580c !important;
+  background: #dcfce7 !important;
+  border-color: #14532d !important;
+  color: #14532d !important;
 }
 
 .tj-other-code {
@@ -5155,8 +5155,8 @@
 }
 
 .tj-pax-select-pill.is-active {
-  border-color: #ea580c;
-  background: #fff7ed;
+  border-color: #14532d;
+  background: #f0fdf4;
 }
 
 .tj-pax-select-pill span {
@@ -5167,7 +5167,7 @@
 
 .tj-pax-select-pill strong {
   font-size: 12px;
-  color: #ea580c;
+  color: #14532d;
 }
 
 .tj-seatmap-fee-display {
@@ -5176,7 +5176,7 @@
 }
 
 .tj-seatmap-fee-display strong {
-  color: #ea580c;
+  color: #14532d;
   font-size: 16px;
 }
 
@@ -5224,12 +5224,12 @@
   align-items: center;
   gap: 8px;
   padding: 6px 14px;
-  background: #fff7ed;
-  border: 1.5px solid #ea580c;
+  background: #f0fdf4;
+  border: 1.5px solid #14532d;
   border-radius: 6px;
   font-size: 13px;
   font-weight: 700;
-  color: #ea580c;
+  color: #14532d;
 }
 
 .tj-diet-filter-wrap {
@@ -5257,8 +5257,8 @@
 }
 
 .tj-diet-icon-btn.is-active {
-  border-color: #ea580c;
-  box-shadow: 0 0 0 1px #ea580c;
+  border-color: #14532d;
+  box-shadow: 0 0 0 1px #14532d;
 }
 
 .tj-diet-dot-veg {
@@ -5300,7 +5300,7 @@
 }
 
 .tj-addon-card-item.has-selected {
-  border-color: #ea580c;
+  border-color: #14532d;
   background: #fffaf5;
 }
 
@@ -5340,10 +5340,10 @@
 .tj-stepper-btn {
   width: 28px;
   height: 28px;
-  border: 1.5px solid #ea580c;
+  border: 1.5px solid #14532d;
   border-radius: 6px;
   background: #ffffff;
-  color: #ea580c;
+  color: #14532d;
   font-size: 16px;
   font-weight: 700;
   display: flex;
@@ -5355,7 +5355,7 @@
 }
 
 .tj-stepper-btn:hover:not(:disabled) {
-  background: #ea580c;
+  background: #14532d;
   color: #ffffff;
 }
 
@@ -5385,8 +5385,8 @@
 
 .tj-addon-pax-pill {
   padding: 8px 16px;
-  background: #fff7ed;
-  border: 1.5px solid #ea580c;
+  background: #f0fdf4;
+  border: 1.5px solid #14532d;
   border-radius: 6px;
   cursor: pointer;
   display: flex;
@@ -5404,7 +5404,7 @@
 
 .tj-addon-pax-pill strong {
   font-size: 12px;
-  color: #ea580c;
+  color: #14532d;
 }
 
 .tj-addon-fee-display {
@@ -5413,7 +5413,7 @@
 }
 
 .tj-addon-fee-display strong {
-  color: #ea580c;
+  color: #14532d;
   font-size: 16px;
 }
 
@@ -5467,11 +5467,11 @@
 }
 
 .tj-modal-tab:hover {
-  color: #ea580c;
+  color: #14532d;
 }
 
 .tj-modal-tab.is-active {
-  color: #ea580c;
+  color: #14532d;
   font-weight: 700;
 }
 
@@ -5482,7 +5482,7 @@
   left: 0;
   right: 0;
   height: 3px;
-  background: #ea580c;
+  background: #14532d;
   border-radius: 2px 2px 0 0;
 }
 
@@ -5723,7 +5723,7 @@
 }
 
 .tj-info-glyph {
-  color: #ea580c;
+  color: #14532d;
   cursor: pointer;
 }
 
@@ -5774,9 +5774,9 @@
 }
 
 .tj-sector-pill-btn.is-active {
-  border-color: #ea580c;
-  color: #ea580c;
-  background: #fff7ed;
+  border-color: #14532d;
+  color: #14532d;
+  background: #f0fdf4;
 }
 
 .tj-detailed-rules-trigger {
@@ -5784,7 +5784,7 @@
   border: 1px solid #fed7aa;
   border-radius: 4px;
   background: #ffffff;
-  color: #ea580c;
+  color: #14532d;
   font-size: 12px;
   font-weight: 700;
   cursor: pointer;
@@ -5792,8 +5792,8 @@
 }
 
 .tj-detailed-rules-trigger:hover {
-  background: #fff7ed;
-  border-color: #ea580c;
+  background: #f0fdf4;
+  border-color: #14532d;
 }
 
 .tj-rules-red-notice {
@@ -5841,9 +5841,9 @@
 
 .tj-fee-policy-table th.col-fee-tab.is-selected {
   background: #ffffff;
-  color: #ea580c;
+  color: #14532d;
   font-weight: 700;
-  box-shadow: inset 0 -2px 0 #ea580c;
+  box-shadow: inset 0 -2px 0 #14532d;
 }
 
 .tj-active-caret {
@@ -5855,7 +5855,7 @@
   height: 0;
   border-left: 5px solid transparent;
   border-right: 5px solid transparent;
-  border-bottom: 5px solid #ea580c;
+  border-bottom: 5px solid #14532d;
 }
 
 .tj-fee-policy-table td {
@@ -5976,7 +5976,7 @@
   gap: 5px;
   padding: 5px 10px;
   border: 1px solid #fed7aa;
-  background: #fff7ed;
+  background: #f0fdf4;
   border-radius: 4px;
   font-size: 11px;
   font-weight: 600;
@@ -5986,8 +5986,8 @@
 }
 
 .tj-bench-pill:hover {
-  background: #ffedd5;
-  border-color: #ea580c;
+  background: #dcfce7;
+  border-color: #14532d;
 }
 
 .tj-col-route-title-row {
@@ -6073,7 +6073,7 @@
 }
 
 .tj-col-sort-btn.is-active {
-  color: #ea580c;
+  color: #14532d;
   font-weight: 700;
 }
 
@@ -6084,7 +6084,7 @@
   left: 0;
   right: 0;
   height: 2px;
-  background: #ea580c;
+  background: #14532d;
 }
 
 .tj-col-cards-list {
@@ -6097,7 +6097,7 @@
 .tj-flight-card.is-nearby-airport {
   background: #fffdf5;
   border-color: #fde68a;
-  box-shadow: 0 2px 8px rgba(234, 88, 12, 0.05);
+  box-shadow: 0 2px 8px rgba(20, 83, 45, 0.05);
 }
 
 .tj-nearby-airport-badge {
@@ -6135,9 +6135,9 @@
 }
 
 .tj-stops-sector-tab-btn.is-active {
-  background: #ea580c;
+  background: #14532d;
   color: #ffffff;
-  border-color: #ea580c;
+  border-color: #14532d;
 }
 
 /* Popular filter group labels in Image 5 */
@@ -6186,7 +6186,7 @@
   left: 0;
   right: 0;
   background: #ffffff;
-  border-top: 2px solid #ea580c;
+  border-top: 2px solid #14532d;
   box-shadow: 0 -6px 20px rgba(0, 0, 0, 0.12);
   padding: 12px 24px;
   z-index: 990;
@@ -6218,8 +6218,8 @@
 .tj-sticky-leg-badge {
   font-size: 10px;
   font-weight: 800;
-  background: #fff7ed;
-  color: #ea580c;
+  background: #f0fdf4;
+  color: #14532d;
   border: 1px solid #fed7aa;
   padding: 2px 6px;
   border-radius: 3px;
@@ -6269,11 +6269,11 @@
 .tj-sticky-total-price {
   font-size: 20px;
   font-weight: 800;
-  color: #ea580c;
+  color: #14532d;
 }
 
 .tj-btn-sticky-book {
-  background: #ea580c;
+  background: #14532d;
   color: #ffffff;
   border: none;
   border-radius: 4px;
@@ -6283,11 +6283,11 @@
   letter-spacing: 0.5px;
   cursor: pointer;
   transition: all 0.2s;
-  box-shadow: 0 4px 12px rgba(234, 88, 12, 0.3);
+  box-shadow: 0 4px 12px rgba(20, 83, 45, 0.3);
 }
 
 .tj-btn-sticky-book:hover:not(:disabled) {
-  background: #c2410c;
+  background: #0f4a24;
 }
 
 @media(max-width: 1024px) {
@@ -6376,7 +6376,7 @@
 
 .tj-b2b-nav-item:hover,
 .tj-b2b-nav-item.is-active {
-  color: #ea580c;
+  color: #14532d;
 }
 
 .tj-b2b-nav-item.is-active::after {
@@ -6386,7 +6386,7 @@
   left: 0;
   right: 0;
   height: 2.5px;
-  background: #ea580c;
+  background: #14532d;
 }
 
 /* ==========================================================================
@@ -6489,7 +6489,7 @@
 }
 
 .tj-btn-back-orange {
-  background: #ea580c;
+  background: #14532d;
   color: #ffffff;
   border: none;
   border-radius: 4px;
@@ -6505,7 +6505,7 @@
 }
 
 .tj-btn-back-orange:hover {
-  background: #c2410c;
+  background: #0f4a24;
 }
 
 .tj-bottom-right-actions {
@@ -6516,8 +6516,8 @@
 
 .tj-btn-save-later {
   background: #ffffff;
-  color: #ea580c;
-  border: 1px solid #ea580c;
+  color: #14532d;
+  border: 1px solid #14532d;
   border-radius: 4px;
   padding: 7px 18px;
   font-size: 13px;
@@ -6527,11 +6527,11 @@
 }
 
 .tj-btn-save-later:hover {
-  background: #fff7ed;
+  background: #f0fdf4;
 }
 
 .tj-btn-orange-proceed {
-  background: #ea580c;
+  background: #14532d;
   color: #ffffff;
   border: none;
   border-radius: 4px;
@@ -6544,7 +6544,7 @@
 }
 
 .tj-btn-orange-proceed:hover:not(:disabled) {
-  background: #c2410c;
+  background: #0f4a24;
 }
 
 /* ==========================================================================
@@ -6596,7 +6596,7 @@
   background: #ffffff;
   color: #0f172a;
   font-weight: 700;
-  border-left: 4px solid #ea580c;
+  border-left: 4px solid #14532d;
   border-right: 1px solid #ffffff;
   margin-right: -1px;
   z-index: 2;
@@ -6611,7 +6611,7 @@
 }
 
 .tj-payments-area-title {
-  color: #ea580c;
+  color: #14532d;
   font-size: 14px;
   font-weight: 700;
   margin-bottom: 16px;
@@ -6692,7 +6692,7 @@
 }
 
 .tj-btn-pay-now-large {
-  background: #ea580c;
+  background: #14532d;
   color: #ffffff;
   border: none;
   border-radius: 4px;
@@ -6707,7 +6707,7 @@
 }
 
 .tj-btn-pay-now-large:hover:not(:disabled) {
-  background: #c2410c;
+  background: #0f4a24;
 }
 
 /* Card Logos styling */
@@ -6813,7 +6813,7 @@
 }
 
 .tj-redeem-btn {
-  background: #ea580c;
+  background: #14532d;
   color: #ffffff;
   border: none;
   border-radius: 4px;
@@ -6825,7 +6825,7 @@
 }
 
 .tj-redeem-btn:hover {
-  background: #c2410c;
+  background: #0f4a24;
 }
 
 .tj-tax-edit-icon {
@@ -6889,7 +6889,7 @@
 .tj-portal-refresh-btn {
   background: transparent;
   border: none;
-  color: #ea580c;
+  color: #14532d;
   cursor: pointer;
   padding: 0;
   display: flex;
@@ -6910,7 +6910,7 @@
 }
 
 .tj-portal-action-btn:hover {
-  color: #ea580c;
+  color: #14532d;
 }
 
 .tj-subnav-bar {
@@ -6941,13 +6941,13 @@
 }
 
 .tj-subnav-item:hover {
-  color: #ea580c;
+  color: #14532d;
 }
 
 .tj-subnav-item.is-active {
-  color: #ea580c;
+  color: #14532d;
   font-weight: 700;
-  border-bottom-color: #ea580c;
+  border-bottom-color: #14532d;
 }
 
 .tj-subnav-badge-new {
@@ -7123,7 +7123,7 @@
 .tj-fare-rules-btn {
   background: transparent;
   border: 1px solid #fed7aa;
-  color: #ea580c;
+  color: #14532d;
   font-size: 13px;
   font-weight: 600;
   padding: 6px 14px;
@@ -7133,7 +7133,7 @@
 }
 
 .tj-fare-rules-btn:hover {
-  background: #ffedd5;
+  background: #dcfce7;
 }
 
 /* ==========================================================================
@@ -7150,7 +7150,7 @@
 }
 
 .tj-btn-orange-solid {
-  background: #ea580c;
+  background: #14532d;
   color: #ffffff;
   border: none;
   border-radius: 4px;
@@ -7167,14 +7167,14 @@
 }
 
 .tj-btn-orange-solid:hover {
-  background: #c2410c;
+  background: #0f4a24;
   color: #ffffff;
 }
 
 .tj-btn-orange-outline {
   background: #ffffff;
-  color: #ea580c;
-  border: 1px solid #ea580c;
+  color: #14532d;
+  border: 1px solid #14532d;
   border-radius: 4px;
   padding: 8px 18px;
   font-size: 13px;
@@ -7187,7 +7187,7 @@
 }
 
 .tj-btn-orange-outline:hover {
-  background: #fff7ed;
+  background: #f0fdf4;
 }
 
 /* ==========================================================================
@@ -7215,7 +7215,7 @@
 .tj-mask-fare-label input[type="checkbox"] {
   width: 16px;
   height: 16px;
-  accent-color: #ea580c;
+  accent-color: #14532d;
   cursor: pointer;
 }
 

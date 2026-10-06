@@ -35,7 +35,7 @@
 }
 
 .tj-hotel-back-link {
-  color: #ea580c;
+  color: #14532d;
   font-size: 14px;
   font-weight: 600;
   text-decoration: none;
@@ -50,7 +50,7 @@
 }
 
 .tj-hotel-back-link:hover {
-  color: #c2410c;
+  color: #0f4a24;
   text-decoration: underline;
 }
 
@@ -164,7 +164,7 @@
 .tj-milestone-pill {
   background: #ffffff;
   border: 1px solid #fdba74;
-  color: #ea580c;
+  color: #14532d;
   padding: 3px 12px;
   border-radius: 12px;
   font-size: 12px;
@@ -234,7 +234,7 @@
   width: 16px;
   height: 16px;
   margin-top: 2px;
-  accent-color: #ea580c;
+  accent-color: #14532d;
   cursor: pointer;
 }
 
@@ -319,7 +319,7 @@
   content: "•";
   position: absolute;
   left: 4px;
-  color: #ea580c;
+  color: #14532d;
   font-weight: bold;
 }
 
@@ -467,8 +467,8 @@
 }
 
 .tj-input-control:focus {
-  border-color: #ea580c;
-  box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.15);
+  border-color: #14532d;
+  box-shadow: 0 0 0 3px rgba(20, 83, 45, 0.15);
 }
 
 .tj-guest-checkbox-opt {
@@ -483,14 +483,14 @@
 }
 
 .tj-guest-checkbox-opt input[type="checkbox"] {
-  accent-color: #ea580c;
+  accent-color: #14532d;
 }
 
 .tj-btn-orange-outline {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: #ea580c;
+  background: #14532d;
   color: #ffffff;
   border: none;
   border-radius: 6px;
@@ -502,7 +502,7 @@
 }
 
 .tj-btn-orange-outline:hover {
-  background: #c2410c;
+  background: #0f4a24;
 }
 
 /* --- PAN Information (Image 3 & 4) --- */
@@ -523,7 +523,7 @@
 }
 
 .tj-radio-label input[type="radio"] {
-  accent-color: #ea580c;
+  accent-color: #14532d;
 }
 
 .tj-guardian-checkbox {
@@ -531,14 +531,14 @@
   align-items: center;
   gap: 8px;
   font-size: 13px;
-  color: #ea580c;
+  color: #14532d;
   font-weight: 500;
   margin-bottom: 14px;
   cursor: pointer;
 }
 
 .tj-guardian-checkbox input[type="checkbox"] {
-  accent-color: #ea580c;
+  accent-color: #14532d;
 }
 
 .tj-pan-row-inputs {
@@ -557,7 +557,7 @@
 
 .tj-btn-verify-pan {
   height: 38px;
-  background: #ea580c;
+  background: #14532d;
   color: #ffffff;
   border: none;
   border-radius: 6px;
@@ -568,7 +568,7 @@
 }
 
 .tj-btn-verify-pan:hover {
-  background: #c2410c;
+  background: #0f4a24;
 }
 
 .tj-btn-verify-pan.verified {
@@ -617,7 +617,7 @@
 }
 
 .tj-special-req-textarea:focus {
-  border-color: #ea580c;
+  border-color: #14532d;
 }
 
 /* ==========================================================================
@@ -712,7 +712,7 @@
 }
 
 .tj-btn-redeem {
-  background: #ea580c;
+  background: #14532d;
   color: #ffffff;
   border: none;
   border-radius: 4px;
@@ -724,7 +724,7 @@
 }
 
 .tj-btn-redeem:hover {
-  background: #c2410c;
+  background: #0f4a24;
 }
 
 /* Terms Notice */
@@ -761,7 +761,7 @@
 
 .tj-btn-quick-pay {
   width: 100%;
-  background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+  background: linear-gradient(135deg, #166534 0%, #14532d 100%);
   color: #ffffff;
   border: none;
   border-radius: 6px;
@@ -773,13 +773,13 @@
   flex-direction: column;
   align-items: center;
   gap: 2px;
-  box-shadow: 0 2px 4px rgba(234, 88, 12, 0.2);
+  box-shadow: 0 2px 4px rgba(20, 83, 45, 0.2);
   transition: transform 0.1s ease, box-shadow 0.15s ease;
 }
 
 .tj-btn-quick-pay:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(234, 88, 12, 0.25);
+  box-shadow: 0 4px 8px rgba(20, 83, 45, 0.25);
 }
 
 .tj-btn-quick-pay small {
@@ -790,7 +790,7 @@
 
 .tj-btn-proceed-pay {
   width: 100%;
-  background: #ea580c;
+  background: #14532d;
   color: #ffffff;
   border: none;
   border-radius: 6px;
@@ -802,12 +802,12 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  box-shadow: 0 2px 6px rgba(234, 88, 12, 0.25);
+  box-shadow: 0 2px 6px rgba(20, 83, 45, 0.25);
   transition: background 0.15s ease, transform 0.1s ease;
 }
 
 .tj-btn-proceed-pay:hover {
-  background: #c2410c;
+  background: #0f4a24;
   transform: translateY(-1px);
 }
 

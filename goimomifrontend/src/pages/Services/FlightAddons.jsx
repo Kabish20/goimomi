@@ -330,7 +330,7 @@ export default function FlightAddons({
             return (
               <div key={svc.id} className={`tj-addon-card-item ${isOpted ? 'has-selected' : ''}`} style={{ cursor: 'pointer' }} onClick={() => onChangeOtherService && onChangeOtherService(svc.id, !isOpted)}>
                 <div className="tj-addon-card-top">
-                  <HeartHandshake size={20} style={{ color: '#ea580c', flexShrink: 0 }} />
+                  <HeartHandshake size={20} style={{ color: '#14532d', flexShrink: 0 }} />
                   <div>
                     <span className="tj-addon-card-title">{svc.title}</span>
                     <small style={{ display: 'block', fontSize: 11, color: '#64748b', marginTop: 2 }}>{svc.description}</small>
@@ -345,7 +345,7 @@ export default function FlightAddons({
                       checked={isOpted}
                       readOnly
                     />
-                    <span style={{ fontSize: 12, fontWeight: 700, color: isOpted ? '#ea580c' : '#64748b' }}>
+                    <span style={{ fontSize: 12, fontWeight: 700, color: isOpted ? '#14532d' : '#64748b' }}>
                       {isOpted ? 'Selected' : 'Add Service'}
                     </span>
                   </label>

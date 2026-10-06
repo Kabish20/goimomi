@@ -687,7 +687,7 @@ export default function HotelReview() {
                 >
                   <Search size={14} />
                   <span>Select from guest list</span>
-                  <Info size={14} style={{ color: '#ea580c' }} />
+                  <Info size={14} style={{ color: '#14532d' }} />
                 </button>
               </div>
 
