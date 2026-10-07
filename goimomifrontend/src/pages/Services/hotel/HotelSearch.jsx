@@ -829,9 +829,9 @@ export default function HotelSearch() {
       {stage === 'search' ? (
         <section className="hotel-hero">
           <div className="hotel-hero-inner">
-            <p className="hotel-eyebrow">GOIMOMI HOTEL SEARCH</p>
-            <h1>Global hotels. Better choices.<br />One beautiful stay.</h1>
-            <p className="hotel-hero-copy">Explore more places, compare rooms and find a stay that fits your trip.</p>
+            <p className="hotel-eyebrow">BUILT FOR TRAVEL AGENTS</p>
+            <h1>One platform to run your travel business. Built for <span style={{display: 'inline-flex', alignItems: 'center', gap: '8px'}}><img src="https://flagcdn.com/w40/in.png" alt="India" style={{width: '32px', height: 'auto', borderRadius: '4px'}} /> India.</span></h1>
+            <p className="hotel-hero-copy">Access multi-country inventory, seamless bookings, and dependable operations, built for travel agents.</p>
             {searchPanel}
           </div>
         </section>
