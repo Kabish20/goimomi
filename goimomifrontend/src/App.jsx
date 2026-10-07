@@ -63,7 +63,6 @@ const PackageEnquiryPage = lazyRetry(() => import("./pages/Holidays/PackageEnqui
 const BusinessHome = lazyRetry(() => import("./pages/Business/BusinessHome/BusinessHome.jsx"));
 const Blog = lazyRetry(() => import("./pages/General/Blog/Blog.jsx"));
 const GoimomiProduct = lazyRetry(() => import("./pages/General/GoimomiProduct/GoimomiProduct.jsx"));
-const TravelBot = lazyRetry(() => import("./pages/Services/TravelBot/TravelBot.jsx"));
 
 // Admin Pages
 const AdminDashboard = lazyRetry(() => import("./pages/admin/AdminDashboard/AdminDashboard.jsx"));
@@ -323,7 +322,6 @@ const App = () => {
             <Route path="/flights/results" element={<FlightResults />} />
             <Route path="/flights/review" element={<FlightReview />} />
             <Route path="/cruise" element={<Cruise />} />
-            <Route path="/travel-bot" element={<TravelBot />} />
 
             <Route path="/hotel" element={<Hotel />} />
             <Route path="/hotel/results" element={<Hotel />} />

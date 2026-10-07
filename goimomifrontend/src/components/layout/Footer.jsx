@@ -113,7 +113,6 @@ const Footer = () => {
             <li><Link to="/cruise" className="hover:text-white transition-colors">Cruise Bookings</Link></li>
             <li><Link to="/visa" className="hover:text-white transition-colors">Visa Services</Link></li>
             <li><Link to="/canton" className="hover:text-white transition-colors">Canton Fair</Link></li>
-            <li><Link to="/travel-bot" className="hover:text-[#e9b343] transition-colors flex items-center gap-2">Travel Bot <span className="px-1.5 py-0.5 rounded bg-[#e9b343] text-[#14532d] text-[9px] font-black tracking-widest uppercase">New</span></Link></li>
           </ul>
         </div>
 
