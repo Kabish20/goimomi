@@ -119,6 +119,9 @@ mkdir -p "$root"
 systemctl stop goimomi-agent.service 2>/dev/null || true
 systemctl disable goimomi-agent.service 2>/dev/null || true
 rm -f /etc/systemd/system/goimomi-agent.service
+rm -rf /var/www/goimomi/agent_goimomi 2>/dev/null || true
+rm -rf /var/www/goimomi-agent-venv 2>/dev/null || true
+
 
 echo "--> 1. Syncing Django backend codebase..."
 rm -rf /tmp/stage_backend && mkdir -p /tmp/stage_backend
@@ -321,8 +324,9 @@ server {{
     error_log /var/log/nginx/goimomi_error.log warn;
     access_log /var/log/nginx/goimomi_access.log;
 
-    listen [::]:443 ssl http2 ipv6only=on;
-    listen 443 ssl http2;
+    listen [::]:443 ssl ipv6only=on;
+    listen 443 ssl;
+    http2 on;
     ssl_certificate /etc/letsencrypt/live/goimomi.com/fullchain.pem;
     ssl_certificate_key /etc/letsencrypt/live/goimomi.com/privkey.pem;
     include /etc/letsencrypt/options-ssl-nginx.conf;
@@ -356,12 +360,12 @@ systemctl reload nginx
 redis-cli -n 1 flushdb
 
 echo "--> 9. Checking active service status..."
-systemctl is-active goimomi.service goimomi-enquiries.service nginx postgresql redis-server
+systemctl is-active goimomi.service goimomi-enquiries.service nginx postgresql redis-server goimomi-profile-exports.timer
 
 echo "--> 10. Verifying live endpoints..."
 sleep 5
-curl -s -k -o /dev/null -w "  Frontend SPA (https://127.0.0.1/): HTTP %{{http_code}}\n" https://127.0.0.1/ || true
-curl -s -k -o /dev/null -w "  Django API (https://127.0.0.1/api/packages/): HTTP %{{http_code}}\n" https://127.0.0.1/api/packages/ || true
+curl -s -k -H "Host: goimomi.com" -o /dev/null -w "  Frontend SPA (https://127.0.0.1/): HTTP %{{http_code}}\n" https://127.0.0.1/ || true
+curl -s -k -H "Host: goimomi.com" -o /dev/null -w "  Django API (https://127.0.0.1/api/packages/): HTTP %{{http_code}}\n" https://127.0.0.1/api/packages/ || true
 
 # Clean /tmp
 rm -rf /tmp/stage_backend /tmp/stage_dist /tmp/backend_release.tar.gz /tmp/dist_release_app.tar.gz
