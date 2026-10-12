@@ -426,6 +426,7 @@ const Navbar = () => {
               </NavLink>
             </div>
 
+
           </nav>
 
           {/* Mobile menu button */}
@@ -683,6 +684,7 @@ const Navbar = () => {
               </div>
               <span>Shop</span>
             </NavLink>
+
 
             <NavLink 
               to="/blog" 

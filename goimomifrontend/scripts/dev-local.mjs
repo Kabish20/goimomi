@@ -9,8 +9,8 @@ const python = process.env.GOIMOMI_PYTHON || (process.platform === 'win32' ? 'py
 let django;
 let vite;
 
-const listening = () => new Promise(done => {
-  const socket = connect(8000, '127.0.0.1');
+const listening = (port = 8000) => new Promise(done => {
+  const socket = connect(port, '127.0.0.1');
   socket.once('connect', () => { socket.destroy(); done(true); });
   socket.once('error', () => done(false));
   socket.setTimeout(1000, () => { socket.destroy(); done(false); });
@@ -26,18 +26,18 @@ function stop(code = 0) {
 process.on('SIGINT', () => stop());
 process.on('SIGTERM', () => stop());
 
-if (await listening()) {
+if (await listening(8000)) {
   process.stdout.write('Django is already listening on 127.0.0.1:8000.\n');
 } else {
   django = spawn(python, ['manage.py', 'runserver', '127.0.0.1:8000'], {
     cwd: backend, stdio: 'inherit', windowsHide: true,
   });
   django.on('error', error => { process.stderr.write(`Could not start Django: ${error.message}\n`); stop(1); });
-  for (let attempt = 0; attempt < 60 && !await listening(); attempt += 1) {
+  for (let attempt = 0; attempt < 60 && !await listening(8000); attempt += 1) {
     if (django.exitCode !== null) stop(django.exitCode || 1);
     await wait(500);
   }
-  if (!await listening()) {
+  if (!await listening(8000)) {
     process.stderr.write('Django did not open port 8000. Check the backend output above.\n');
     stop(1);
   }

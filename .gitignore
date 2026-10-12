@@ -36,6 +36,8 @@ __pycache__/
 goimomibackend/db.sqlite3
 goimomibackend/db.sqlite3-journal
 goimomibackend/mig_out.txt
+*.sqlite3
+*.db
 
 # ---- Node.js ----
 node_modules/
