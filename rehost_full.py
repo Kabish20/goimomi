@@ -176,7 +176,7 @@ tar -xzf /tmp/dist_release_app.tar.gz -C /tmp/stage_dist
 # Retain existing images
 if [ -d "$frontend/dist/images" ]; then
     mkdir -p /tmp/stage_dist/dist/images
-    cp -rn "$frontend/dist/images/"* /tmp/stage_dist/dist/images/ || true
+    cp -r --update=none "$frontend/dist/images/"* /tmp/stage_dist/dist/images/ || true
 fi
 
 # Backup old dist and swap
@@ -184,6 +184,10 @@ if [ -d "$frontend/dist" ]; then
     mv "$frontend/dist" "$frontend/dist-backup-{stamp}"
 fi
 mv /tmp/stage_dist/dist "$frontend/dist"
+
+# Prune old dist backups, keeping the 3 most recent
+ls -dt "$frontend"/dist-backup-* "$frontend"/dist-previous-* 2>/dev/null | tail -n +4 | xargs -r rm -rf || true
+
 
 echo "--> 5. Ensuring Gunicorn systemd unit (Django API)..."
 cat << 'EOF' > /etc/systemd/system/goimomi.service
@@ -326,7 +330,6 @@ server {{
 
     listen [::]:443 ssl ipv6only=on;
     listen 443 ssl;
-    http2 on;
     ssl_certificate /etc/letsencrypt/live/goimomi.com/fullchain.pem;
     ssl_certificate_key /etc/letsencrypt/live/goimomi.com/privkey.pem;
     include /etc/letsencrypt/options-ssl-nginx.conf;
