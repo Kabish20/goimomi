@@ -37,7 +37,7 @@ Backend tests use an isolated SQLite database. With the frontend development ser
 
 ## Flight integration
 
-See [TripJack setup and limitations](goimomibackend/TRIPJACK.md). The customer flow supports search, filtering and fare review, followed by a travel-team handoff. Live fares require TripJack credentials and server IP whitelisting. Payment and automatic customer ticketing are not implemented.
+The customer flow supports search, filtering and fare review, followed by a travel-team handoff. Live fares require TripJack credentials and server IP whitelisting. Payment and automatic customer ticketing are not implemented.
 
 ## Repository maintenance
 
