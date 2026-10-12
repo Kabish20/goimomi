@@ -1,4 +1,4 @@
-# 🌍 Goimomi Holidays — Complete Server Rehosting & Deployment Guide
+ # 🌍 Goimomi Holidays — Complete Server Rehosting & Deployment Guide
 
 This guide provides the complete manual step-by-step instructions as well as automated 1-click scripts to rehost the entire Goimomi full-stack application on Ubuntu Linux (`goimomi.com`).
 
