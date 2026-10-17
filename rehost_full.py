@@ -229,7 +229,7 @@ server {{
     add_header X-Content-Type-Options nosniff always;
     add_header Referrer-Policy strict-origin-when-cross-origin always;
 
-    client_max_body_size 50M;
+    client_max_body_size 100M;
 
     gzip on;
     gzip_vary on;

@@ -4,10 +4,13 @@ import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Package, CheckCircle, XCircle, Upload, X, Plus } from "lucide-react";
 import AdminSidebar from "../../../components/admin/AdminSidebar/AdminSidebar";
 import AdminTopbar from "../../../components/admin/AdminTopbar/AdminTopbar";
+import { formatApiError } from "../../../utils/errorHandler";
+import { compressImage, compressImages } from "../../../utils/imageUtils";
 
 const ProductAdd = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [compressing, setCompressing] = useState(false);
   const [success, setSuccess] = useState("");
   const [error, setError]     = useState("");
   const [imagePreview, setImagePreview] = useState(null);
@@ -75,6 +78,17 @@ const ProductAdd = () => {
   const handleImage = (e) => {
     const file = e.target.files[0];
     if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      setError("Please select a valid image file (JPG, PNG, WebP).");
+      return;
+    }
+    if (file.size > 25 * 1024 * 1024) {
+      setError("Selected image is too large (over 25MB). Please select an image under 25MB.");
+      return;
+    }
+
+    setError("");
     setForm((prev) => ({ ...prev, image: file }));
     const reader = new FileReader();
     reader.onload = (ev) => setImagePreview(ev.target.result);
@@ -82,14 +96,27 @@ const ProductAdd = () => {
   };
 
   const handleGalleryImages = (e) => {
-    const files = Array.from(e.target.files);
-    if (!files.length) return;
+    const rawFiles = Array.from(e.target.files);
+    if (!rawFiles.length) return;
+
+    const validFiles = rawFiles.filter((f) => f.type.startsWith("image/"));
+    if (validFiles.length < rawFiles.length) {
+      setError("Some selected files were skipped because they are not valid images.");
+    }
+
+    const oversized = validFiles.filter((f) => f.size > 25 * 1024 * 1024);
+    if (oversized.length > 0) {
+      setError("Some images were skipped because they exceed 25MB. Please choose smaller files.");
+    }
+
+    const acceptedFiles = validFiles.filter((f) => f.size <= 25 * 1024 * 1024);
+    if (!acceptedFiles.length) return;
 
     // Append new files
-    setGalleryImages((prev) => [...prev, ...files]);
+    setGalleryImages((prev) => [...prev, ...acceptedFiles]);
 
     // Create previews
-    files.forEach((file) => {
+    acceptedFiles.forEach((file) => {
       const reader = new FileReader();
       reader.onload = (ev) => {
         setGalleryPreviews((prev) => [...prev, ev.target.result]);
@@ -123,10 +150,26 @@ const ProductAdd = () => {
     }
 
     setLoading(true);
+    setCompressing(true);
+
     try {
+      // 1. Client-side image optimization (downsamples and compresses large camera photos)
+      let optimizedFeaturedImage = form.image;
+      if (optimizedFeaturedImage instanceof File) {
+        optimizedFeaturedImage = await compressImage(optimizedFeaturedImage);
+      }
+
+      const optimizedGalleryImages = await compressImages(galleryImages);
+      setCompressing(false);
+
+      // 2. Build FormData payload
       const fd = new FormData();
       Object.entries(form).forEach(([k, v]) => {
-        if (k === "sub_catalogues") {
+        if (k === "image") {
+          if (optimizedFeaturedImage instanceof File) {
+            fd.append("image", optimizedFeaturedImage);
+          }
+        } else if (k === "sub_catalogues") {
           if (Array.isArray(v)) {
             v.forEach((id) => fd.append("sub_catalogues", id));
             if (v.length > 0) fd.append("sub_catalogue", v[0]);
@@ -137,7 +180,7 @@ const ProductAdd = () => {
       });
 
       // Append multiple gallery images
-      galleryImages.forEach((file) => {
+      optimizedGalleryImages.forEach((file) => {
         fd.append("product_images", file);
       });
 
@@ -148,12 +191,10 @@ const ProductAdd = () => {
       setSuccess("Product added successfully!");
       setTimeout(() => navigate("/admin/products"), 1500);
     } catch (err) {
-      const msg = err.response?.data
-        ? Object.entries(err.response.data).map(([k, v]) => `${k}: ${Array.isArray(v) ? v.join(", ") : v}`).join(" | ")
-        : err.message;
-      setError(`Failed to add product: ${msg}`);
+      setError(`Failed to add product: ${formatApiError(err, "Please check the form and try again.")}`);
     } finally {
       setLoading(false);
+      setCompressing(false);
     }
   };
 
@@ -434,6 +475,7 @@ const ProductAdd = () => {
                         <div className="py-5 text-gray-400">
                           <Upload size={20} className="mx-auto mb-1" />
                           <p className="text-[10px] font-semibold">Upload Image</p>
+                          <p className="text-[9px] text-gray-400 mt-0.5">JPG, PNG, WebP (Auto-optimized)</p>
                         </div>
                       )}
                       <input id="pa-image" type="file" accept="image/*" className="hidden" onChange={handleImage} />
@@ -506,11 +548,16 @@ const ProductAdd = () => {
                     className="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-2 rounded-lg transition flex items-center justify-center gap-1.5 text-xs disabled:opacity-60"
                   >
                     {loading ? (
-                      <span className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      <>
+                        <span className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        <span>{compressing ? "Optimizing images..." : "Saving..."}</span>
+                      </>
                     ) : (
-                      <Package size={14} />
+                      <>
+                        <Package size={14} />
+                        <span>Save Product</span>
+                      </>
                     )}
-                    Save Product
                   </button>
                 </div>
 
