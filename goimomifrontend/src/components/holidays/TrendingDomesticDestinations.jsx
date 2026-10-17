@@ -66,6 +66,16 @@ const destinations = [
     description: 'Historic landmarks, iconic Mughal grandeur and the royal heritage of Jaipur in one classic India circuit.',
     path: '/golden-triangle',
   },
+  {
+    name: 'Tamil Nadu & Kerala',
+    region: 'The Divine Experience',
+    startingPrice: 12700,
+    highlights: ['4 nights / 5 days', 'Madurai → Rameshwaram → Kanyakumari → Trivandrum', 'Meenakshi Temple, Pamban Bridge & ocean sunsets'],
+    image: '/images/trending/tamilnadu-kerala-tour.jpg',
+    imageAlt: 'The Divine Tamil Nadu & Kerala Experience featuring sacred temple towers and ocean horizons',
+    description: 'Ancient temple architecture, sacred island bridges, tri-sea oceanic sunsets and peaceful Kerala shores.',
+    path: '/tamil-nadu-kerala',
+  },
 ];
 
 /* Duplicate for seamless infinite loop */

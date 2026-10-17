@@ -31,6 +31,7 @@ const Dubai = lazyRetry(() => import('./pages/Holidays/Dubai/Dubai.jsx'));
 const Azerbaijan = lazyRetry(() => import('./pages/Holidays/Azerbaijan/azerbaijan.jsx'));
 const Andaman = lazyRetry(() => import('./pages/Holidays/Andaman/andaman.jsx'));
 const GoldenTriangle = lazyRetry(() => import('./pages/Holidays/GoldenTriangle/GoldenTriangle.jsx'));
+const TamilNaduKerala = lazyRetry(() => import('./pages/Holidays/TamilNaduKerala/TamilNaduKerala.jsx'));
 const PlanTrip = lazyRetry(() => import('./pages/Holidays/Holidaysform/Holidaysform.jsx'));
 const Cab = lazyRetry(() => import('./pages/Services/Cab/Cab.jsx'));
 const Flights = lazyRetry(() => import('./pages/Services/Flights.jsx'));
@@ -156,7 +157,7 @@ const App = () => {
   const location = useLocation();
   const isAdminPath = location.pathname.startsWith('/admin');
   const isProfileFormPath = ['/globalhorizonssrilanka', '/global-horizons-srilanka'].includes(location.pathname.replace(/\/$/, ''));
-  const isDestinationLandingPath = /^\/(kashmir|manali|azerbaijan|sikkim|andaman|goa|kerala|bali|dubai|golden-triangle|goldentriangle|delhi-agra-jaipur|trendingdomesticdestination|trendinginternationaldestination)\/?$/i.test(location.pathname);
+  const isDestinationLandingPath = /^\/(kashmir|manali|azerbaijan|sikkim|andaman|goa|kerala|bali|dubai|golden-triangle|goldentriangle|delhi-agra-jaipur|tamil-nadu-kerala|tamilnadukerala|divine-tamil-nadu-kerala|trendingdomesticdestination|trendinginternationaldestination)\/?$/i.test(location.pathname);
   const [isEnquiryOpen, setIsEnquiryOpen] = useState(false);
 
   useEffect(() => {
@@ -304,6 +305,9 @@ const App = () => {
             <Route path="/golden-triangle" element={<GoldenTriangle />} />
             <Route path="/goldentriangle" element={<Navigate to="/golden-triangle" replace />} />
             <Route path="/delhi-agra-jaipur" element={<Navigate to="/golden-triangle" replace />} />
+            <Route path="/tamil-nadu-kerala" element={<TamilNaduKerala />} />
+            <Route path="/tamilnadukerala" element={<Navigate to="/tamil-nadu-kerala" replace />} />
+            <Route path="/divine-tamil-nadu-kerala" element={<Navigate to="/tamil-nadu-kerala" replace />} />
 
             <Route path="/customizedHolidays" element={<CustomizedHolidays />} />
             <Route
