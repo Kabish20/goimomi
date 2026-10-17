@@ -93,6 +93,38 @@ ls -lh {backup_dir}/
 stdin, stdout, stderr = ssh.exec_command(backup_cmds)
 print("  Backup output:\n" + stdout.read().decode('utf-8'))
 
+# Check for new or updated images to sync
+print("  Checking for new/modified images compared to remote...")
+local_img_dir = frontend_dist / 'images'
+patch_tar = tmp_dir / 'images_patch.tar.gz'
+has_images_patch = False
+
+if local_img_dir.exists():
+    _in, _out, _err = ssh.exec_command('find /var/www/goimomi/goimomifrontend/dist/images -type f 2>/dev/null || true')
+    remote_imgs = set()
+    for rline in _out.read().decode('utf-8').splitlines():
+        rline = rline.strip()
+        prefix = '/var/www/goimomi/goimomifrontend/dist/images/'
+        if rline.startswith(prefix):
+            remote_imgs.add(rline[len(prefix):])
+    
+    missing_images = []
+    for img_path in local_img_dir.glob('**/*'):
+        if img_path.is_file():
+            rel_p = img_path.relative_to(local_img_dir).as_posix()
+            if rel_p not in remote_imgs:
+                missing_images.append((img_path, rel_p))
+    
+    if missing_images:
+        print(f"  Found {len(missing_images)} new image(s) to sync. Creating patch...")
+        with tarfile.open(patch_tar, 'w:gz') as ptar:
+            for fpath, rel_p in missing_images:
+                ptar.add(str(fpath), arcname=rel_p)
+        print(f"  Images patch created: {patch_tar.stat().st_size / 1024 / 1024:.2f} MB")
+        has_images_patch = True
+    else:
+        print("  All local images already exist on remote.")
+
 # 4. Upload Archives via SFTP
 print("\n[Step 4/5] Uploading release archives via SFTP...")
 sftp = ssh.open_sftp()
@@ -101,6 +133,9 @@ print("  Uploading backend_release.tar.gz...")
 sftp.put(str(backend_tar), '/tmp/backend_release.tar.gz')
 print("  Uploading dist_release_app.tar.gz...")
 sftp.put(str(dist_tar), '/tmp/dist_release_app.tar.gz')
+if has_images_patch:
+    print("  Uploading images_patch.tar.gz...")
+    sftp.put(str(patch_tar), '/tmp/images_patch.tar.gz')
 sftp.close()
 print(f"  All uploads completed in {time.time() - t0:.2f}s")
 
@@ -170,6 +205,12 @@ $py manage.py migrate --noinput --settings=backend.server_settings
 $py manage.py collectstatic --noinput --settings=backend.server_settings --verbosity=0
 
 echo "--> 4. Syncing frontend dist..."
+if [ -f /tmp/images_patch.tar.gz ]; then
+    echo "  Applying new images patch..."
+    mkdir -p "$frontend/dist/images"
+    tar -xzf /tmp/images_patch.tar.gz -C "$frontend/dist/images"
+    rm -f /tmp/images_patch.tar.gz
+fi
 rm -rf /tmp/stage_dist && mkdir -p /tmp/stage_dist
 tar -xzf /tmp/dist_release_app.tar.gz -C /tmp/stage_dist
 
@@ -371,7 +412,7 @@ curl -s -k -H "Host: goimomi.com" -o /dev/null -w "  Frontend SPA (https://127.0
 curl -s -k -H "Host: goimomi.com" -o /dev/null -w "  Django API (https://127.0.0.1/api/packages/): HTTP %{{http_code}}\n" https://127.0.0.1/api/packages/ || true
 
 # Clean /tmp
-rm -rf /tmp/stage_backend /tmp/stage_dist /tmp/backend_release.tar.gz /tmp/dist_release_app.tar.gz
+rm -rf /tmp/stage_backend /tmp/stage_dist /tmp/backend_release.tar.gz /tmp/dist_release_app.tar.gz /tmp/images_patch.tar.gz
 echo "Rehosting deployment finished successfully!"
 """
 
