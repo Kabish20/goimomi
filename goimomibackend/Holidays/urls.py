@@ -146,6 +146,8 @@ urlpatterns = [
     path('zoho/webhook/', views.zoho_crm_webhook, name='zoho-webhook'),
     path('zoho-crm-webhook/', views.zoho_crm_webhook, name='zoho-crm-webhook-alt'),
     path('zoho-webhook/', views.zoho_crm_webhook, name='zoho-webhook-alt'),
+    path('zoho/lead-webhook/', views.zoho_lead_submission_webhook, name='zoho-lead-submission-webhook'),
+    path('leads/submit/', views.zoho_lead_submission_webhook, name='leads-submit-webhook'),
 
     path('share/<path:path>/', views.DynamicSEOView.as_view(), name='dynamic-seo-share'),
 ]

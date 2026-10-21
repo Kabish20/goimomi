@@ -759,9 +759,10 @@ def upsert_zoho_crm_contact(customer_data: dict) -> dict:
 
 def create_zoho_crm_lead(lead_data: dict) -> dict:
     """
-    Creates a new Lead in Zoho CRM using WebToLead gateway and Zoho CRM API.
-    Supports both WebToLead Form endpoint and REST API upsert.
+    Creates a new Lead in Zoho CRM using WebToLead gateway, Zoho CRM API, and optional Webhook.
+    Supports WebToLead Form endpoint, REST API upsert, and custom outgoing Webhook.
     """
+    import os
     import requests
 
     full_name = str(lead_data.get('name') or lead_data.get('full_name') or lead_data.get('customer_name') or '').strip()
@@ -772,14 +773,16 @@ def create_zoho_crm_lead(lead_data: dict) -> dict:
         if ' ' in full_name:
             first_name, last_name = full_name.split(' ', 1)
         else:
-            first_name = ''
+            first_name = full_name
             last_name = full_name
 
+    if not first_name:
+        first_name = last_name or 'Traveler'
     if not last_name:
         last_name = first_name or 'Customer'
 
     email = str(lead_data.get('email') or '').strip()
-    phone = str(lead_data.get('phone') or lead_data.get('mobile') or '').strip()
+    phone = str(lead_data.get('phone') or lead_data.get('mobile') or lead_data.get('whatsapp_number') or '').strip()
     street = str(lead_data.get('street') or lead_data.get('address') or '').strip()
     city = str(lead_data.get('city') or lead_data.get('destination') or '').strip()
     state = str(lead_data.get('state') or '').strip()
@@ -852,8 +855,64 @@ def create_zoho_crm_lead(lead_data: dict) -> dict:
                 result['rest_api'] = api_res.json()
                 result['success'] = True
                 print(f"[Zoho CRM] REST API upsert lead successful for {email}.")
-    except Exception as api_err:
+    except Exception:
         # Expected if OAuth token requires admin refresh
+        pass
+
+    # 3. Tertiary: Optional External Webhook URL (Zoho Flow, Zapier, Make, etc.)
+    webhook_url = (
+        getattr(settings, 'ZOHO_CRM_WEBHOOK_URL', '') or
+        getattr(settings, 'ZOHO_LEAD_WEBHOOK_URL', '') or
+        os.environ.get('ZOHO_CRM_WEBHOOK_URL', '') or
+        os.environ.get('ZOHO_LEAD_WEBHOOK_URL', '')
+    )
+    if webhook_url and str(webhook_url).strip():
+        webhook_url = str(webhook_url).strip()
+        try:
+            webhook_payload = {
+                'First_Name': first_name,
+                'Last_Name': last_name,
+                'Full_Name': full_name or f"{first_name} {last_name}".strip(),
+                'Email': email,
+                'Phone': phone,
+                'Mobile': phone,
+                'Street': street,
+                'City': city,
+                'State': state,
+                'Zip_Code': zip_code,
+                'Description': description,
+                'Lead_Source': lead_source,
+                'Company': company,
+                'raw_lead_data': lead_data
+            }
+            wh_res = requests.post(webhook_url, json=webhook_payload, timeout=12)
+            if wh_res.status_code in (200, 201, 202, 204):
+                result['webhook'] = 'success'
+                result['success'] = True
+                print(f"[Zoho CRM] Successfully posted lead to webhook {webhook_url}")
+            else:
+                print(f"[Zoho CRM] Webhook returned status {wh_res.status_code}")
+        except Exception as wh_err:
+            print(f"[Zoho CRM] Webhook error: {wh_err}")
+
+    # 4. Record audit entry in ZohoWebhookLog
+    try:
+        from Holidays.models import ZohoWebhookLog
+        ZohoWebhookLog.objects.create(
+            event_type='lead_submission',
+            module='CRM_LEAD',
+            payload={
+                'name': f"{first_name} {last_name}".strip(),
+                'email': email,
+                'phone': phone,
+                'lead_source': lead_source,
+                'city': city,
+                'description': description
+            },
+            status='success' if result.get('success') else 'partial',
+            response_message=f"WebToLead={result.get('web_to_lead', 'none')}, REST={bool(result.get('rest_api'))}, Webhook={result.get('webhook', 'none')}"
+        )
+    except Exception:
         pass
 
     return result

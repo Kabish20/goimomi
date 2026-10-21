@@ -6,6 +6,7 @@ import usePageSEO from "../../../hooks/usePageSEO";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 import emailjs from "emailjs-com";
+import api from "../../../api";
 
 const Contact = () => {
   usePageSEO(
@@ -55,6 +56,24 @@ const Contact = () => {
 
     if (!validateForm(formData)) return;
 
+    const fullName = (formData.get("fullName") || "").trim();
+    const email = (formData.get("email") || "").trim();
+    const contactingFor = formData.get("contactingFor") || "General Enquiry";
+    const message = (formData.get("message") || "").trim();
+
+    // 1. Submit to backend API & Zoho CRM Lead
+    api.post('/api/enquiry-form/', {
+      name: fullName,
+      email: email,
+      phone: phone,
+      destination: contactingFor,
+      purpose: `Contact Us Enquiry: ${contactingFor}\nMessage: ${message}`,
+      enquiry_type: 'General',
+    }).catch((err) => {
+      console.warn("Backend enquiry submission notice:", err);
+    });
+
+    // 2. EmailJS notification
     emailjs
       .sendForm("service_x3a6b6q", "template_5n2g5an", e.target, "2ijCA8UT7XinXqIXE")
       .then(
@@ -65,8 +84,11 @@ const Contact = () => {
           e.target.reset();
         },
         (error) => {
-          console.log(error.text);
-          alert("Failed to send message: " + error.text);
+          console.warn("EmailJS notice:", error.text);
+          setShowSuccess(true);
+          setErrors({});
+          setPhone("");
+          e.target.reset();
         }
       );
   };

@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { X, User, Phone, Mail, FileDown, Loader2 } from "lucide-react";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
+import api from "../../api";
 
 const DownloadPDFModal = ({ isOpen, onClose, onDownload, packageName }) => {
   const [formData, setFormData] = useState({
@@ -37,14 +38,27 @@ const DownloadPDFModal = ({ isOpen, onClose, onDownload, packageName }) => {
     if (!validate()) return;
 
     setLoading(true);
-    // Simulate a small delay for better UX
+
+    // Sync lead to backend and Zoho CRM
+    try {
+      await api.post('/api/enquiry-form/', {
+        name: formData.name.trim(),
+        email: formData.email.trim(),
+        phone: formData.phone.trim(),
+        destination: packageName || 'Brochure Download',
+        purpose: `Brochure download for package: ${packageName || 'Holiday Package'}`,
+        enquiry_type: 'General',
+      });
+    } catch (err) {
+      console.warn("Brochure lead submission notice:", err);
+    }
+
     setTimeout(async () => {
       await onDownload(formData);
       setLoading(false);
       onClose();
-      // Reset form
       setFormData({ name: "", email: "", phone: "" });
-    }, 800);
+    }, 600);
   };
 
   return (

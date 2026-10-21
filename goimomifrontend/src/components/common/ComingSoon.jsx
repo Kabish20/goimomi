@@ -1,6 +1,7 @@
 import React from "react";
 import { FaCalendarAlt, FaEnvelope } from "react-icons/fa";
 import usePageSEO from "../../hooks/usePageSEO";
+import api from "../../api";
 
 const ComingSoon = ({ title, description }) => {
   usePageSEO(
@@ -10,12 +11,24 @@ const ComingSoon = ({ title, description }) => {
   const [email, setEmail] = React.useState("");
   const [subscribed, setSubscribed] = React.useState(false);
 
-  const handleSubscribe = (e) => {
+  const handleSubscribe = async (e) => {
     e.preventDefault();
     if (email) {
+      try {
+        await api.post('/api/enquiry-form/', {
+          name: 'Newsletter Subscriber',
+          email: email.trim(),
+          phone: '9999999999',
+          destination: title || 'Feature Launch Subscription',
+          purpose: `Launch notification subscriber for: ${title || 'Coming Soon'}`,
+          enquiry_type: 'General',
+        });
+      } catch (err) {
+        console.warn("Subscriber lead sync notice:", err);
+      }
       setSubscribed(true);
       setEmail("");
-      setTimeout(() => setSubscribed(false), 3000);
+      setTimeout(() => setSubscribed(false), 4000);
     }
   };
 

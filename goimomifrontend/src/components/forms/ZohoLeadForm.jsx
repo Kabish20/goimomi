@@ -1,6 +1,7 @@
 import { loadSalesIQOnInteraction } from '../../utils/salesiq';
 import React, { useEffect, useRef } from "react";
 import { X } from "lucide-react";
+import api from "../../api";
 
 /**
  * ZohoLeadForm Component
@@ -98,6 +99,25 @@ const ZohoLeadForm = ({ isOpen, onClose }) => {
     if (!validateEmail(form)) {
       e.preventDefault();
       return false;
+    }
+
+    try {
+      const firstName = form['First Name']?.value || '';
+      const lastName = form['Last Name']?.value || '';
+      const fullName = `${firstName} ${lastName}`.trim() || 'Website Enquiry';
+      const emailVal = form['Email']?.value || '';
+      const mobileVal = form['Mobile']?.value || '';
+      const descVal = form['Description']?.value || '';
+      api.post('/api/enquiry-form/', {
+        name: fullName,
+        email: emailVal || null,
+        phone: mobileVal,
+        destination: 'General Enquiry Form',
+        purpose: descVal,
+        enquiry_type: 'General',
+      }).catch(err => console.warn('Backend enquiry sync notice:', err));
+    } catch (err) {
+      console.warn('Form parse notice:', err);
     }
 
     // Disable button to prevent double submit

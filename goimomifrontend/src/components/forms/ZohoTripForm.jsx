@@ -1,6 +1,7 @@
 import { loadSalesIQOnInteraction } from '../../utils/salesiq';
 import React, { useEffect, useRef } from "react";
 import { X } from "lucide-react";
+import api from "../../api";
 
 /**
  * ZohoTripForm Component
@@ -91,6 +92,23 @@ const ZohoTripForm = ({ isOpen, onClose, initialData = {} }) => {
     if (!validateEmail(form)) {
       e.preventDefault();
       return false;
+    }
+
+    try {
+      const name = form['Last Name']?.value || 'Traveler';
+      const emailVal = form['Email']?.value || '';
+      const mobileVal = form['Mobile']?.value || '';
+      const descVal = form['Description']?.value || '';
+      api.post('/api/enquiry-form/', {
+        name: name,
+        email: emailVal || null,
+        phone: mobileVal,
+        destination: cleanTitle || 'Trip Enquiry',
+        purpose: descVal,
+        enquiry_type: 'General',
+      }).catch(err => console.warn('Backend enquiry sync notice:', err));
+    } catch (err) {
+      console.warn('Form parse notice:', err);
     }
 
     // Disable button to prevent double submit

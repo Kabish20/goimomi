@@ -232,7 +232,23 @@ class GlobalHorizonsProfileViewSet(ModelViewSet):
 
     def perform_create(self, serializer):
         with transaction.atomic():
-            serializer.save()
+            profile = serializer.save()
+        try:
+            from Holidays.utils import create_zoho_crm_lead
+            import threading
+            lead_data = {
+                'name': getattr(profile, 'full_name', '') or 'Global Horizons Participant',
+                'email': getattr(profile, 'email', '') or '',
+                'phone': getattr(profile, 'phone', '') or '',
+                'city': getattr(profile, 'city', '') or '',
+                'state': getattr(profile, 'country', '') or '',
+                'description': f"Global Horizons Sri Lanka\nProfession: {getattr(profile, 'profession', '')}\nOrganization: {getattr(profile, 'organization', '')}\nTicket Status: {getattr(profile, 'ticket_status', '')}\nInterests: {getattr(profile, 'interests', '')}",
+                'lead_source': 'Website Global Horizons Sri Lanka',
+                'company': getattr(profile, 'organization', '') or 'Individual'
+            }
+            threading.Thread(target=create_zoho_crm_lead, args=(lead_data,)).start()
+        except Exception as e:
+            logger.exception("Error syncing GlobalHorizonsProfile to Zoho CRM: %s", e)
 
     def perform_update(self, serializer):
         with transaction.atomic():
@@ -4259,6 +4275,84 @@ def zoho_crm_webhook(request):
             "status": "error",
             "message": f"Failed to process webhook data: {str(e)}"
         }, status=status.HTTP_400_BAD_REQUEST)
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Public Form to Zoho Lead Webhook Endpoint
+# ─────────────────────────────────────────────────────────────────────────────
+
+@api_view(['POST', 'GET'])
+@authentication_classes([])
+@permission_classes([AllowAny])
+def zoho_lead_submission_webhook(request):
+    """
+    Public webhook endpoint that receives form submissions from any frontend or external webhook,
+    records the Enquiry in Goimomi DB, and immediately converts it into a Zoho CRM Lead.
+    """
+    if request.method == 'GET':
+        return Response({
+            "status": "ready",
+            "message": "Lead submission webhook endpoint is ready to receive POST requests."
+        }, status=status.HTTP_200_OK)
+
+    data = {}
+    if isinstance(request.data, dict):
+        data.update(request.data)
+    elif hasattr(request.data, 'dict'):
+        data.update(request.data.dict())
+
+    if hasattr(request, 'POST') and request.POST:
+        data.update(request.POST.dict())
+
+    if not data and request.body:
+        try:
+            data = json.loads(request.body.decode('utf-8'))
+        except Exception:
+            data = {}
+
+    first_n = data.get('First Name') or data.get('first_name') or ''
+    last_n = data.get('Last Name') or data.get('last_name') or ''
+    combined_n = f"{first_n} {last_n}".strip()
+
+    name = str(data.get('name') or data.get('full_name') or combined_n or '').strip() or 'Website Lead'
+    email = str(data.get('email') or data.get('Email') or '').strip()
+    phone = str(data.get('phone') or data.get('mobile') or data.get('Mobile') or data.get('Phone') or '').strip()
+    destination = str(data.get('destination') or data.get('city') or data.get('City') or '').strip()
+    purpose = str(data.get('purpose') or data.get('message') or data.get('Description') or '').strip()
+    enquiry_type = str(data.get('enquiry_type') or 'General').strip()
+
+    enquiry = None
+    try:
+        enquiry = Enquiry.objects.create(
+            name=name,
+            email=email or None,
+            phone=phone or "N/A",
+            destination=destination or "Website Form",
+            purpose=purpose,
+            enquiry_type=enquiry_type
+        )
+    except Exception as e:
+        logger.exception("Error saving Enquiry in lead submission webhook: %s", e)
+
+    from Holidays.utils import create_zoho_crm_lead
+    lead_data = {
+        'name': name,
+        'email': email,
+        'phone': phone,
+        'city': destination,
+        'description': purpose,
+        'lead_source': str(data.get('lead_source') or f"Website {enquiry_type} Webhook"),
+        'company': str(data.get('company') or 'Individual')
+    }
+    crm_result = create_zoho_crm_lead(lead_data)
+
+    return Response({
+        "status": "success",
+        "message": "Lead processed and converted into Zoho Lead successfully",
+        "enquiry_id": enquiry.id if enquiry else None,
+        "crm_result": crm_result
+    }, status=status.HTTP_201_CREATED)
+
 
 
 
